@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace ShoppingWeb.Models;
+
+public partial class Cart
+{
+    public int CartId { get; set; }
+
+    public int UserId { get; set; }
+
+    public DateTime? OrderDate { get; set; }
+
+    public decimal TotalAmount { get; set; }
+
+    public bool IsCart { get; set; }
+
+    public string ShippingAddress { get; set; } = null!;
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+
+    public virtual User User { get; set; } = null!;
+}
