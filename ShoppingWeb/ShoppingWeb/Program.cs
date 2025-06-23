@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using ShoppingWeb.Config;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services;
+using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
 using System.Text;
 
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<ShoppingWebContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddAuthentication(options =>
@@ -42,6 +44,7 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
         };
     });
+    builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

@@ -5,6 +5,7 @@ using ShoppingWeb.Config;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Models;
+using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,12 +19,15 @@ public class AuthService : IAuthService
     private readonly ShoppingWebContext _context;
     private readonly ILogger<AuthService> _logger;
     private JwtSettings _jwtSettings;
+    private IEmailService _emailService;
+    
 
-    public AuthService(ShoppingWebContext context, IOptions<JwtSettings> jwtSettings, ILogger<AuthService> logger)
+    public AuthService(ShoppingWebContext context, IOptions<JwtSettings> jwtSettings, ILogger<AuthService> logger,IEmailService emailService)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
     }
 
     public async Task<AuthResponseDTO> RegisterAsync(RegisterDTO registerRequest)
@@ -40,7 +44,7 @@ public class AuthService : IAuthService
                 throw new UserAlreadyExistException("Email already exist ");
             }
 
-            var passwordHash = HashPassword(registerRequest.PasswordHash);
+            var passwordHash = HashPassword(registerRequest.Password);
 
             var user = new User
             {
@@ -58,6 +62,7 @@ public class AuthService : IAuthService
 
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
+
             return new AuthResponseDTO()
             {
                 Token = token,
@@ -129,17 +134,28 @@ public class AuthService : IAuthService
                 var resetToken = GenerateRefreshToken();
                 var resetTokenExpiry = DateTime.UtcNow.AddHours(_jwtSettings.ExpiryMinutes);
 
-                user.PasswordHash = HashPassword(resetToken); // Store the reset token as a hashed password
+                var token = HashPassword(resetToken);
+                user.PasswordHash = token; // Store the reset token as a hashed password
                 user.UpdatedAt = DateTime.UtcNow;
+
+                 _context.Users.Update(user);
+                await _context.SaveChangesAsync();
 
                 // generate a reset password token and send it via email
                 // This is a placeholder for the actual implementation of sending an email.
-                return;
+                await _emailService.SendPasswordResetEmailAsync(email, token, null);
+                            }
+            else
+            {
+                _logger.LogWarning("Password reset requested for non-existent email: {Email}", email);
+
+                await Task.Delay(1000);
             }
+            
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e,e.Message);
             throw;
         }
     }
@@ -164,7 +180,7 @@ public class AuthService : IAuthService
         throw new NotImplementedException();
     }
 
-    private string GenerateJwtToken(User user)
+    private string  GenerateJwtToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
@@ -208,5 +224,13 @@ public class AuthService : IAuthService
     {
 
         return BCrypt.Net.BCrypt.Verify(password, hash);
+    }
+
+    public Task ResetPasswordAsync(string token)
+    {
+        throw new NotImplementedException();
+        // have token
+        // the token have hashed by hashpassword
+        // verify token and compare check. if it apply password and save to database.   
     }
 }

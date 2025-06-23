@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Response;
+using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
 using System.Net;
 
@@ -12,11 +13,13 @@ namespace ShoppingWeb.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger, IEmailService emailService)
         {
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(_emailService));
         }
 
         [HttpPost("register")]
@@ -33,7 +36,7 @@ namespace ShoppingWeb.Controllers
                         HttpStatusCode.BadRequest.ToString()));
                 }
                 var response = await _authService.RegisterAsync(registerDto);
-
+                await _emailService.SendWelcomeEmailAsync(response.User.Email, response.User.FullName,null);
                 return Ok(ApiResponse<AuthResponseDTO>.SuccessResponse(response, "Register successful"));
             }
             catch (ArgumentException ex)
@@ -76,6 +79,13 @@ namespace ShoppingWeb.Controllers
                 _logger.LogError(ex, "Error occurred during login");
                 return StatusCode(500, ApiResponse<object>.ErrorResponse("Internal server error", "500"));
             }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            await _authService.ForgotPasswordAsync(email);
+            return Ok();
         }
 
     }
