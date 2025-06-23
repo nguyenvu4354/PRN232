@@ -88,5 +88,23 @@ namespace ShoppingWeb.Controllers
             return Ok();
         }
 
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(string tokenResetPassword, string newPassword)
+        {
+            try
+            {
+               var stateResetPassword = await _authService.ResetPasswordAsync(tokenResetPassword, newPassword);
+                if (!stateResetPassword)
+                {
+                    return BadRequest("Password reset faild");
+                }
+            }catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                throw;
+            }
+            return Ok("Password successfully reset");
+        }
+
     }
 }

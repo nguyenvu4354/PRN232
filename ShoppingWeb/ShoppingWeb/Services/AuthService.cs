@@ -57,12 +57,23 @@ public class AuthService : IAuthService
                 CreatedAt = DateTime.UtcNow,
             };
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            
 
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
 
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                AccessToken = token,
+                RefreshToken = refreshToken,
+                CreatedAt = DateTime.Now,
+                IssuedAt = DateTime.Now,
+                ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.ExpiryMinutes)
+            };
+            await _context.Users.AddAsync(user);
+            await _context.UserTokens.AddAsync(userToken);
+            await _context.SaveChangesAsync();
             return new AuthResponseDTO()
             {
                 Token = token,
@@ -98,7 +109,19 @@ public class AuthService : IAuthService
 
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
+            
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                AccessToken = token,
+                RefreshToken = refreshToken,
+                CreatedAt = DateTime.Now,
+                IssuedAt = DateTime.Now,
+                ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.ExpiryMinutes)
+            };
 
+             _context.UserTokens.Update(userToken);
+            await _context.SaveChangesAsync();
             return new AuthResponseDTO()
             {
                 Token = token,
@@ -132,18 +155,20 @@ public class AuthService : IAuthService
             if (user != null)
             {
                 var resetToken = GenerateRefreshToken();
-                var resetTokenExpiry = DateTime.UtcNow.AddHours(_jwtSettings.ExpiryMinutes);
+                var resetTokenExpiry = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes);
 
-                var token = HashPassword(resetToken);
-                user.PasswordHash = token; // Store the reset token as a hashed password
-                user.UpdatedAt = DateTime.UtcNow;
-
-                 _context.Users.Update(user);
+                var passwordResetTokens = new PasswordResetToken
+                {
+                    UserId = user.UserId,
+                    Token = resetToken,
+                    ExpiresAt = resetTokenExpiry
+                };
+                await _context.PasswordResetTokens.AddAsync(passwordResetTokens);
                 await _context.SaveChangesAsync();
 
                 // generate a reset password token and send it via email
                 // This is a placeholder for the actual implementation of sending an email.
-                await _emailService.SendPasswordResetEmailAsync(email, token, null);
+                await _emailService.SendPasswordResetEmailAsync(email, resetToken, null);
                             }
             else
             {
@@ -160,9 +185,32 @@ public class AuthService : IAuthService
         }
     }
 
-    public Task<AuthResponseDTO> RefreshTokenAsync(string token, string refreshToken)
+    public async Task<AuthResponseDTO> RefreshTokenAsync(string refreshToken)
     {
-        throw new NotImplementedException();
+        var tokenInDb = await _context.UserTokens.FirstOrDefaultAsync(t => t.RefreshToken == refreshToken && !t.IsRevoked && t.ExpiresAt > DateTime.Now);
+
+        if (tokenInDb != null)
+        {
+            throw new UnauthorizedAccessException("");
+        }
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == tokenInDb.UserId);
+        var newAcessToken = GenerateJwtToken(user);
+         return new AuthResponseDTO()
+        {
+            Token = newAcessToken,
+            RefreshToken = refreshToken,
+            Expires = DateTime.Now.AddHours(_jwtSettings.ExpiryMinutes),
+            User = new UserInfoDTO
+            {
+                UserID = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                FullName = user.FullName,
+                Phone = user.Phone,
+                RoleID = user.RoleId
+            }
+        };
+
     }
 
     public Task LogoutAsync(string token)
@@ -226,11 +274,17 @@ public class AuthService : IAuthService
         return BCrypt.Net.BCrypt.Verify(password, hash);
     }
 
-    public Task ResetPasswordAsync(string token)
+    public async Task<bool> ResetPasswordAsync(string tokenResetPassword, string newPassword)
     {
-        throw new NotImplementedException();
-        // have token
-        // the token have hashed by hashpassword
-        // verify token and compare check. if it apply password and save to database.   
+         var tokenResetPasswordInDb = await _context.PasswordResetTokens.FirstOrDefaultAsync(t => t.Token == tokenResetPassword && t.ExpiresAt > DateTime.Now && t.Used == false);
+        if (tokenResetPasswordInDb == null) return false;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == tokenResetPasswordInDb.UserId);
+        if (user == null) return false;
+        user.PasswordHash = HashPassword(newPassword);
+        tokenResetPasswordInDb.Used = true;
+        _context.Users.Update(user);
+        _context.PasswordResetTokens.Update(tokenResetPasswordInDb);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

@@ -76,5 +76,10 @@ namespace ShoppingWeb.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task SendEmailWhenUserChangePasswordAsync(string toEmail, string token, string username)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
