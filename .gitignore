@@ -6,3 +6,9 @@ obj/
 .env
 appsettings.Development.json
 .vs/
+# Ignore migration files
+**/Migrations/*
+!**/Migrations/.gitkeep   # Nếu bạn muốn giữ thư mục migrations trống
+
+# Ignore csproj
+**/*.csproj
