@@ -4,7 +4,7 @@ namespace ShoppingWeb.DTOs.Auth;
 
 public class LoginDTO
 {
-    [Required, EmailAddress]
+    [Required(ErrorMessage = "Please enter your email!"), EmailAddress]
     public string Email { get; set; }
 
     [Required]

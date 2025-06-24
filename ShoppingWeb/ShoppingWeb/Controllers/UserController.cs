@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs.User;
-using ShoppingWeb.Enum;
+using ShoppingWeb.Exceptions;
+using ShoppingWeb.Response;
 using ShoppingWeb.Services.Interface;
+using System.Security.Claims;
 
 namespace ShoppingWeb.Controllers
 {
@@ -19,66 +18,114 @@ namespace ShoppingWeb.Controllers
 
         public UserController(IUserService userService, ILogger<UserController> logger, IHttpContextAccessor httpContextAccessor)
         {
-            _logger = logger;
-            _userService = userService;
-            _httpContextAccessor = httpContextAccessor;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
+
+        protected int GetUserIdOrThrow()
+        {
+            var userIdStr = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                throw new UnauthorizedAccessException("User ID not found in claims.");
+            }
+            return userId;
+        }
+
         [HttpGet]
         [Authorize(Roles = "ADMIN")]
-        public string TestData()
+        [Obsolete("This is a test endpoint and should not be used in production.")]
+        public IActionResult TestData()
         {
-            return "Hello world";
+            _logger.LogInformation("TestData endpoint accessed by admin.");
+            return Ok("Hello world");
         }
 
         [HttpPost("change-password")]
         [Authorize(Roles = "CUSTOMER")]
-        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequestDTO requestDTO)
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequestDTO requestDTO)
         {
+            if (requestDTO == null)
+            {
+                _logger.LogWarning("Change password request DTO is null.");
+                return BadRequest(ApiResponse<string>.ErrorResponse("Request cannot be null", StatusCodes.Status400BadRequest.ToString()));
+            }
 
-            var userIdStr = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdStr, out var userId))
-                return BadRequest("Invalid user ID");
 
+            var userId = GetUserIdOrThrow();
+            try
+            {
+                await _userService.ChangePasswordAsync(userId, requestDTO);
+                _logger.LogInformation("Password changed successfully for user ID {UserId}.", userId);
+                return Ok(ApiResponse<string>.SuccessResponse("Password changed successfully"));
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogWarning("User not found for ID {UserId}: {Message}", userId, ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found", StatusCodes.Status404NotFound.ToString()));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing password for user ID {UserId}.", userId);
+                return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
 
-            var result = await _userService.ChangePassowrdAsync(userId, requestDTO);
-
-            if (!result)
-                return BadRequest(result); // Hoặc return StatusCode(403), tùy tình huống
-
-            return Ok("Password changed successfully.");
         }
 
         [HttpGet("profile")]
         [Authorize(Roles = "CUSTOMER")]
         public async Task<IActionResult> ViewProfile()
         {
+
+            var userId = GetUserIdOrThrow();
             try
             {
-                var userIdStr = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!int.TryParse(userIdStr, out var userId))
-                    return BadRequest("Invalid user ID");
-
                 var data = await _userService.ViewProfileAsync(userId);
-
-                return data == null ? BadRequest("ko cos data") : Ok(data);
+                _logger.LogInformation("Profile retrieved successfully for user ID {UserId}.", userId);
+                return Ok(ApiResponse<UserProfileResponseDTO>.SuccessResponse(data));
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogWarning("User not found for ID {UserId}: {Message}", userId, ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found", StatusCodes.Status404NotFound.ToString()));
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                _logger.LogError(ex, "Error retrieving profile for user ID {UserId}.", userId);
+                return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }
-        
+
+
         }
 
         [HttpPost("update-profile")]
         [Authorize(Roles = "CUSTOMER")]
-        public async Task<IActionResult> UpdateProfile(UpdateUserProfileRequestDTO requestDTO)
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequestDTO requestDTO)
         {
-            var userIdStr = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdStr, out var userId))
-                return BadRequest("Invalid user ID");
-            var data = await _userService.UpdateProfileAsync(userId,requestDTO);
+            if (requestDTO == null)
+            {
+                _logger.LogWarning("Update profile request DTO is null.");
+                return BadRequest(ApiResponse<string>.ErrorResponse("Request cannot be null", StatusCodes.Status400BadRequest.ToString()));
+            }
 
-            return data == null ? BadRequest("ko cos data") : Ok(data);
+            var userId = GetUserIdOrThrow();
+            try
+            {
+                var data = await _userService.UpdateProfileAsync(userId, requestDTO);
+                _logger.LogInformation("Profile updated successfully for user ID {UserId}.", userId);
+                return Ok(ApiResponse<UserProfileResponseDTO>.SuccessResponse(data));
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogWarning("User not found for ID {UserId}: {Message}", userId, ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found", StatusCodes.Status404NotFound.ToString()));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user ID {UserId}.", userId);
+                return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
         }
     }
 }
