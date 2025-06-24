@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShoppingWeb.DTOs;
+using ShoppingWeb.DTOs.Auth;
 using ShoppingWeb.Response;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;

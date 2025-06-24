@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ShoppingWeb.DTOs;
+namespace ShoppingWeb.DTOs.Auth;
 
 public class RegisterDTO
 {

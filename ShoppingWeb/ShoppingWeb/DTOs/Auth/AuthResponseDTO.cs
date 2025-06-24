@@ -1,4 +1,4 @@
-﻿namespace ShoppingWeb.DTOs;
+﻿namespace ShoppingWeb.DTOs.Auth;
 
 public class AuthResponseDTO
 {

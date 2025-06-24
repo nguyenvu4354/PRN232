@@ -1,4 +1,4 @@
-﻿using ShoppingWeb.DTOs;
+﻿using ShoppingWeb.DTOs.Auth;
 
 namespace ShoppingWeb.Services.IServices;
 
