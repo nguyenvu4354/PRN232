@@ -62,21 +62,21 @@ public class AuthService : IAuthService
 
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
-            var userToken = new UserToken
-            {
-                UserId = user.UserId,
-                AccessToken = token,
-                RefreshToken = refreshToken,
-                CreatedAt = DateTime.UtcNow,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes)
-            };
+            // var userToken = new UserToken
+            // {
+            //     UserId = user.UserId,
+            //     AccessToken = token,
+            //     RefreshToken = refreshToken,
+            //     CreatedAt = DateTime.UtcNow,
+            //     IssuedAt = DateTime.UtcNow,
+            //     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes)
+            // };
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 await _context.Users.AddAsync(user);
-                await _context.UserTokens.AddAsync(userToken);
+                // await _context.UserTokens.AddAsync(userToken);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -299,7 +299,7 @@ public class AuthService : IAuthService
         }
         catch (Exception e)
         {
-            _logger.LogError(ex, "Error during logout.");
+            _logger.LogError(e, "Error during logout.");
             throw;
         }
     }
