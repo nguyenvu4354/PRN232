@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ShoppingWeb.Models;
+﻿namespace ShoppingWeb.Models;
 
 public partial class User
 {
@@ -31,9 +28,13 @@ public partial class User
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
+    public virtual ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
+
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 
     public virtual Role Role { get; set; } = null!;
+
+    public virtual ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
 
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

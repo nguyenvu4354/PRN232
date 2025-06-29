@@ -27,6 +27,8 @@ public partial class ShoppingWebContext : DbContext
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductReview> ProductReviews { get; set; }
@@ -34,6 +36,8 @@ public partial class ShoppingWebContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserToken> UserTokens { get; set; }
 
     public virtual DbSet<Wishlist> Wishlists { get; set; }
 
@@ -181,6 +185,21 @@ public partial class ShoppingWebContext : DbContext
                 .HasConstraintName("FK_OrderDetails_Products");
         });
 
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC072484F0A5");
+
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.Token).HasMaxLength(200);
+            entity.Property(e => e.Used).HasDefaultValue(false);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PasswordResetTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PasswordR__UserI__0A9D95DB");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6EDBFF35294");
@@ -265,6 +284,34 @@ public partial class ShoppingWebContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Users_Roles");
+        });
+
+        modelBuilder.Entity<UserToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserToke__3214EC0721C62926");
+
+            entity.Property(e => e.AccessToken).HasColumnType("text");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.IpAddress).HasColumnType("text");
+            entity.Property(e => e.IssuedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.RefreshToken).HasColumnType("text");
+            entity.Property(e => e.ReplacedByToken).HasColumnType("text");
+            entity.Property(e => e.RevokedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UserAgent).HasColumnType("text");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UserToken__UserI__06CD04F7");
         });
 
         modelBuilder.Entity<Wishlist>(entity =>
