@@ -1,4 +1,6 @@
-﻿using ShoppingWeb.DTOs.User;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.DTOs.User;
+using ShoppingWeb.Enum;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Helpers;
 using ShoppingWeb.Mapping;
@@ -11,11 +13,32 @@ namespace ShoppingWeb.Services
     {
         private ShoppingWebContext _context;
         private ILogger<UserService> _logger;
-
+        
         public UserService(ShoppingWebContext context, ILogger<UserService> logger)
         {
             _context = context ?? throw new ArgumentException(nameof(context));
             _logger = logger ?? throw new ArgumentException(nameof(logger));
+        }
+        public async Task<IEnumerable<UserListItemResponseDTO>> GetAllUsersAsync()
+        {
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId != (int)UserRole.ADMIN)
+                .ToListAsync();
+
+            var result = users.Select(u => new UserListItemResponseDTO
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                FullName = u.FullName,
+                Phone = u.Phone,
+                Address = u.Address,
+                RoleName = u.Role.RoleName
+            });
+
+            _logger.LogInformation("Fetched {Count} non-admin users.", result.Count());
+            return result;
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDTO passwordRequestDTO)

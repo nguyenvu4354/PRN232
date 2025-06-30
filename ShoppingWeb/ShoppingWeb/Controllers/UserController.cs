@@ -32,6 +32,23 @@ namespace ShoppingWeb.Controllers
             }
             return userId;
         }
+        [HttpGet("list")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var data = await _userService.GetAllUsersAsync();
+                _logger.LogInformation("Admin fetched all users.");
+                return Ok(ApiResponse<IEnumerable<UserListItemResponseDTO>>.SuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching user list.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
+        }
 
         [HttpGet]
         [Authorize(Roles = "ADMIN")]
