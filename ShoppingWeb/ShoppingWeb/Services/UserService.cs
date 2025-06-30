@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.User;
 using ShoppingWeb.Enum;
 using ShoppingWeb.Exceptions;
@@ -101,5 +102,62 @@ namespace ShoppingWeb.Services
 
             return UserMapper.toResponseProfileDto(user);
         }
+        public async Task<PagedResultDTO<UserListItemResponseDTO>> GetUsersPagedAsync(int page, int pageSize)
+        {
+            var query = _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId != (int)UserRole.ADMIN); // Loại ADMIN
+
+            var totalItems = await query.CountAsync();
+
+            var users = await query
+                .OrderBy(u => u.UserId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = users.Select(u => new UserListItemResponseDTO
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                FullName = u.FullName,
+                Phone = u.Phone,
+                Address = u.Address,
+                RoleName = u.Role.RoleName
+            });
+
+            return new PagedResultDTO<UserListItemResponseDTO>
+            {
+                Items = result,
+                TotalItems = totalItems,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<UserListItemResponseDTO> GetUserDetailByIdAsync(int userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.RoleId != (int)UserRole.ADMIN);
+
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                throw new UserNotFoundException("User not found.");
+            }
+
+            return new UserListItemResponseDTO
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                FullName = user.FullName,
+                Phone = user.Phone,
+                Address = user.Address,
+                RoleName = user.Role.RoleName
+            };
+        }   
     }
 }

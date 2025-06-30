@@ -18,6 +18,8 @@ public partial class User
 
     public int RoleId { get; set; }
 
+    public bool IsActive { get; set; } = true;
+
     public bool IsDeleted { get; set; } = false;
 
     public DateTime? CreatedAt { get; set; }
