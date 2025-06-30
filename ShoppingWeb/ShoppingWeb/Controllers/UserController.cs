@@ -145,7 +145,6 @@ namespace ShoppingWeb.Controllers
             }
         }
         [HttpGet("paged")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetPagedUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var data = await _userService.GetUsersPagedAsync(page, pageSize);
