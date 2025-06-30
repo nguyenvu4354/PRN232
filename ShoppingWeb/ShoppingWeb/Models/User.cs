@@ -15,6 +15,9 @@ public partial class User
     public string? Phone { get; set; }
 
     public string? Address { get; set; }
+    public int? ProvinceId { get; set; }
+    public int? DistrictId { get; set; }
+    public int? WardId { get; set; }
 
     public int RoleId { get; set; }
 
@@ -41,4 +44,7 @@ public partial class User
     public virtual ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
 
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
+    public virtual Province? Province { get; set; } = null!;
+    public virtual District? District { get; set; } = null!;
+    public virtual Ward? Ward { get; set; } = null!;
 }
