@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.User;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Response;
@@ -33,7 +34,6 @@ namespace ShoppingWeb.Controllers
             return userId;
         }
         [HttpGet("list")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -144,5 +144,35 @@ namespace ShoppingWeb.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }
         }
+        [HttpGet("paged")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetPagedUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var data = await _userService.GetUsersPagedAsync(page, pageSize);
+            return Ok(ApiResponse<PagedResultDTO<UserListItemResponseDTO>>.SuccessResponse(data));
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetUserDetail(int id)
+        {
+            try
+            {
+                var user = await _userService.GetUserDetailByIdAsync(id);
+                return Ok(ApiResponse<UserListItemResponseDTO>.SuccessResponse(user));
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogWarning("User with ID {UserId} not found: {Message}", id, ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found", StatusCodes.Status404NotFound.ToString()));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching user detail.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
+        }
+
     }
 }
