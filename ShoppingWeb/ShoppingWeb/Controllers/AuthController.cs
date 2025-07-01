@@ -85,7 +85,7 @@ namespace ShoppingWeb.Controllers
         public async Task<IActionResult> ForgotPassword(string email)
         {
             await _authService.ForgotPasswordAsync(email);
-            return Ok();
+            return Ok(ApiResponse<string>.SuccessResponse(null,"The request reset password have been sending to your email. Please check!"));
         }
 
         [HttpPost("reset-password")]
@@ -96,14 +96,27 @@ namespace ShoppingWeb.Controllers
                var stateResetPassword = await _authService.ResetPasswordAsync(tokenResetPassword, newPassword);
                 if (!stateResetPassword)
                 {
-                    return BadRequest("Password reset faild");
+                    return BadRequest(ApiResponse<string>.ErrorResponse("Password reset faild",HttpStatusCode.BadRequest.ToString()));
                 }
             }catch (Exception e)
             {
                 _logger.LogError($"{e.Message}");
                 throw;
             }
-            return Ok("Password successfully reset");
+            return Ok(ApiResponse<string>.SuccessResponse(null,"Password reset successfully"));
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            string token = HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Logout request without token.");
+                return BadRequest(ApiResponse<string>.ErrorResponse(null, HttpStatusCode.BadRequest.ToString()));
+            }
+            await _authService.LogoutAsync(token);
+            return NoContent();
         }
 
     }

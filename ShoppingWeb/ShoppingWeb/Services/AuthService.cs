@@ -182,7 +182,7 @@ public class AuthService : IAuthService
     //         throw;
     //     }
     // }
-
+        
     public async Task<bool> ForgotPasswordAsync(string email)
     {
         // if (string.IsNullOrWhiteSpace(email))
@@ -287,7 +287,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            var userToken = await _context.UserTokens.FirstOrDefaultAsync(t => t.AccessToken == token);
+            var userToken = await _context.UserTokens.FirstOrDefaultAsync(t => EF.Functions.Like(t.AccessToken,token));
             if (userToken != null)
             {
                 userToken.IsRevoked = true; // Mark token as revoked
@@ -306,8 +306,6 @@ public class AuthService : IAuthService
 
     public async Task<bool> RevokeTokenAsync(string refreshToken)
     {
-
-
         try
         {
             var userToken = await _context.UserTokens.FirstOrDefaultAsync(t => t.RefreshToken == refreshToken && !t.IsRevoked);
