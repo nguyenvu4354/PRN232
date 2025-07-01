@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ShoppingWeb.DTOs.Cart;
+using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 

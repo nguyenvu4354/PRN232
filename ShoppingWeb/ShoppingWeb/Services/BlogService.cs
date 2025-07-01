@@ -1,4 +1,5 @@
-﻿using ShoppingWeb.Models;
+﻿using ShoppingWeb.DTOs;
+using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
@@ -10,9 +11,19 @@ namespace ShoppingWeb.Services
         {
             _context = context;
         }
-        public Task<Blog> CreateBlogAsync(Blog blog)
+        public Task<Blog> CreateBlogAsync(CreateBlogDTO blog)
         {
-            throw new NotImplementedException();
+           var newBlog = new Blog
+           {
+               Title = blog.Title,
+               Content = blog.Content,
+               AuthorId = blog.AuthorId,
+               CreatedAt = DateTime.UtcNow,
+               UpdatedAt = DateTime.UtcNow
+           };
+            _context.Blogs.Add(newBlog);
+            _context.SaveChanges();
+            return Task.FromResult(newBlog);
         }
 
         public Task<bool> DeleteBlogAsync(int id)
@@ -35,12 +46,12 @@ namespace ShoppingWeb.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Blog>> GetBlogsByAuthorAsync(string author)
+        public Task<IEnumerable<Blog>> GetBlogsByAuthorAsync(int authorId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Blog> UpdateBlogAsync(Blog blog)
+        public Task<Blog> UpdateBlogAsync(UpdateBlogDTO blog)
         {
             throw new NotImplementedException();
         }

@@ -20,12 +20,6 @@ public partial class Cart
     public int? DistrictId { get; set; } = null!;
     public int? WardId { get; set; } = null!;
 
-    public int? ProvinceId { get; set; }
-
-    public int? DistrictId { get; set; }
-
-    public int? WardId { get; set; }
-
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

@@ -1,4 +1,4 @@
-﻿using ShoppingWeb.DTOs.Cart;
+﻿using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 
 namespace ShoppingWeb.Services.Interface

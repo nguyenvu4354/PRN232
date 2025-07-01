@@ -1,4 +1,5 @@
-﻿using ShoppingWeb.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
@@ -20,9 +21,42 @@ namespace ShoppingWeb.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Product>> GetProductAdvancedAsync(string? search, string? brand, string? category, string? sortBy, int pageIndex, int pageSize)
+        public async Task<IEnumerable<Product>> GetProductAdvancedAsync(string? search, string? brand, string? category, string? sortBy, int pageIndex, int pageSize)
         {
-            throw new NotImplementedException();
+            var query = _context.Products.AsQueryable();
+
+            // Filter by search term  
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.ProductName.Contains(search) || (p.Description != null && p.Description.Contains(search)));
+            }
+
+            // Filter by brand  
+            if (!string.IsNullOrEmpty(brand))
+            {
+                query = query.Where(p => p.BrandId.HasValue && _context.Brands.Any(b => b.BrandId == p.BrandId && b.Description == brand));
+            }
+
+            // Filter by category  
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(p => p.CategoryId.HasValue && _context.Categories.Any(c => c.CategoryId == p.CategoryId && c.Description == category));
+            }
+
+            // Sorting  
+            query = sortBy?.ToLower() switch
+            {
+                "name" => query.OrderBy(p => p.ProductName),
+                "price" => query.OrderBy(p => p.StockQuantity), // Assuming StockQuantity is used as a proxy for price  
+                "name_desc" => query.OrderByDescending(p => p.ProductName),
+                "price_desc" => query.OrderByDescending(p => p.StockQuantity),
+                _ => query
+            };
+
+            // Pagination  
+            query = query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+
+            return await query.ToListAsync();
         }
 
         public Task<Product> GetProductByIdAsync(int id)
@@ -30,24 +64,43 @@ namespace ShoppingWeb.Services
             throw new NotImplementedException();
         }
 
-        public Task<int> GetProductCountAsync(string? search, string? category)
+        public async Task<int> GetProductCountAsync(string? search, string? category, string? brand)
         {
-            throw new NotImplementedException();
+            var query = _context.Products.AsQueryable();
+
+            // Filter by search term  
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.ProductName.Contains(search) || (p.Description != null && p.Description.Contains(search)));
+            }
+
+            if (!string.IsNullOrEmpty(brand))
+            {
+                query = query.Where(p => p.BrandId.HasValue && _context.Brands.Any(b => b.BrandId == p.BrandId && b.Description == brand));
+            }
+
+            // Filter by category  
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(p => p.CategoryId.HasValue && _context.Categories.Any(c => c.CategoryId == p.CategoryId && c.Description == category));
+            }
+
+            return await query.CountAsync();
         }
 
-        public Task<IEnumerable<Product>> GetProductsAsync()
+        public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Products.ToListAsync();
         }
 
-        public Task<IEnumerable<Product>> GetProductsByBrandAsync(int brandId)
+        public async Task<IEnumerable<Product>> GetProductsByBrandAsync(int brandId)
         {
-            throw new NotImplementedException();
+            return await _context.Products.Where(p => p.BrandId == brandId).ToListAsync();
         }
 
-        public Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
         {
-            throw new NotImplementedException();
+            return await _context.Products.Where(p => p.CategoryId == categoryId).ToListAsync();
         }
 
         public Task<Product> UpdateProductAsync(Product product)
