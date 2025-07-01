@@ -16,6 +16,9 @@ public partial class Cart
     public bool IsCart { get; set; }
 
     public string ShippingAddress { get; set; } = null!;
+    public int? ProvinceId { get; set; }
+    public int? DistrictId { get; set; }
+    public int? WardId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -24,4 +27,7 @@ public partial class Cart
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual User User { get; set; } = null!;
+    public virtual Province? Province { get; set; } = null!;
+    public virtual District? District { get; set; } = null!;
+    public virtual Ward? Ward { get; set; } = null!;
 }
