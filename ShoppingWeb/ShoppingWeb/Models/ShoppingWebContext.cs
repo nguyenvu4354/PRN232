@@ -53,16 +53,21 @@ public partial class ShoppingWebContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            var ConnectionString = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetConnectionString("DefaultConnection");
-            optionsBuilder.UseSqlServer(ConnectionString);
-        }
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
 
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseSqlServer(connectionString);
+        }
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Banner>(entity =>
         {
-            entity.HasKey(e => e.BannerId).HasName("PK__Banners__32E86A31D7E6A34C");
+            entity.HasKey(e => e.BannerId).HasName("PK__Banners__32E86A31BADB00BE");
 
             entity.Property(e => e.BannerId).HasColumnName("BannerID");
             entity.Property(e => e.CreatedAt)
@@ -80,7 +85,7 @@ public partial class ShoppingWebContext : DbContext
 
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E508546D45E");
+            entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E50CB63D405");
 
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
             entity.Property(e => e.AuthorId).HasColumnName("AuthorID");
@@ -93,12 +98,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
                 .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blogs__AuthorID__7C4F7684");
+                .HasConstraintName("FK_Blogs_Users");
         });
 
         modelBuilder.Entity<Brand>(entity =>
         {
-            entity.HasKey(e => e.BrandId).HasName("PK__Brands__DAD4F3BEC0B74D10");
+            entity.HasKey(e => e.BrandId).HasName("PK__Brands__DAD4F3BE961F7F04");
 
             entity.Property(e => e.BrandId).HasColumnName("BrandID");
             entity.Property(e => e.BrandName).HasMaxLength(50);
@@ -111,7 +116,7 @@ public partial class ShoppingWebContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7970592A818");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD79733016548");
 
             entity.ToTable("Cart");
 
@@ -119,39 +124,24 @@ public partial class ShoppingWebContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.DistrictId).HasColumnName("District_id");
             entity.Property(e => e.IsCart).HasDefaultValue(true);
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.ProvinceId).HasColumnName("Province_id");
             entity.Property(e => e.ShippingAddress).HasMaxLength(255);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.WardId).HasColumnName("Ward_id");
-
-            entity.HasOne(d => d.District).WithMany(p => p.Carts)
-                .HasForeignKey(d => d.DistrictId)
-                .HasConstraintName("FK__Cart__District_i__66603565");
-
-            entity.HasOne(d => d.Province).WithMany(p => p.Carts)
-                .HasForeignKey(d => d.ProvinceId)
-                .HasConstraintName("FK__Cart__Province_i__656C112C");
 
             entity.HasOne(d => d.User).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__UserID__628FA481");
-
-            entity.HasOne(d => d.Ward).WithMany(p => p.Carts)
-                .HasForeignKey(d => d.WardId)
-                .HasConstraintName("FK__Cart__Ward_id__6754599E");
+                .HasConstraintName("FK_Cart_Users");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B9C8BAAFC");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2BD793371A");
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName).HasMaxLength(50);
@@ -164,7 +154,7 @@ public partial class ShoppingWebContext : DbContext
 
         modelBuilder.Entity<District>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__District__3213E83F95D9092F");
+            entity.HasKey(e => e.Id).HasName("PK__District__3213E83F786E6A58");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -177,12 +167,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.Province).WithMany(p => p.Districts)
                 .HasForeignKey(d => d.ProvinceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Districts__provi__3D5E1FD2");
+                .HasConstraintName("FK__Districts__provi__2B0A656D");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDF633F34739");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__6A4BEDF6A0A8CED2");
 
             entity.ToTable("Feedback");
 
@@ -197,12 +187,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__UserID__02FC7413");
+                .HasConstraintName("FK_Feedback_Users");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => e.OrderDetailId).HasName("PK__OrderDet__D3B9D30C09887B7D");
+            entity.HasKey(e => e.OrderDetailId).HasName("PK__OrderDet__D3B9D30C8C3D0787");
 
             entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
             entity.Property(e => e.CartId).HasColumnName("CartID");
@@ -218,17 +208,17 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.Cart).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.CartId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__CartI__6B24EA82");
+                .HasConstraintName("FK_OrderDetails_Cart");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderDeta__Produ__6C190EBB");
+                .HasConstraintName("FK_OrderDetails_Products");
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07519AA012");
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07F2EA5D40");
 
             entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
             entity.Property(e => e.Token).HasMaxLength(200);
@@ -238,12 +228,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.PasswordResetTokens)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PasswordR__UserI__5441852A");
+                .HasConstraintName("FK__PasswordRe__Used__17036CC0");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED6D1DD4DC");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED03783223");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.BrandId).HasColumnName("BrandID");
@@ -260,16 +250,16 @@ public partial class ShoppingWebContext : DbContext
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products)
                 .HasForeignKey(d => d.BrandId)
-                .HasConstraintName("FK__Products__BrandI__5DCAEF64");
+                .HasConstraintName("FK_Products_Brands");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK__Products__Catego__5EBF139D");
+                .HasConstraintName("FK_Products_Categories");
         });
 
         modelBuilder.Entity<ProductReview>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__ProductR__74BC79AE774AD4BB");
+            entity.HasKey(e => e.ReviewId).HasName("PK__ProductR__74BC79AEACA94607");
 
             entity.Property(e => e.ReviewId).HasColumnName("ReviewID");
             entity.Property(e => e.CreatedAt)
@@ -282,17 +272,17 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.ProductReviews)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductRe__Produ__76969D2E");
+                .HasConstraintName("FK_ProductReviews_Products");
 
             entity.HasOne(d => d.User).WithMany(p => p.ProductReviews)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductRe__UserI__778AC167");
+                .HasConstraintName("FK_ProductReviews_Users");
         });
 
         modelBuilder.Entity<Province>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Province__3213E83F0C6063FB");
+            entity.HasKey(e => e.Id).HasName("PK__Province__3213E83F1E067B1D");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -304,9 +294,9 @@ public partial class ShoppingWebContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3ABB25BAA9");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A38EBCFDD");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B61609B31D985").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160052A3D6D").IsUnique();
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.RoleName).HasMaxLength(20);
@@ -314,52 +304,35 @@ public partial class ShoppingWebContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC36E57AE5");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACA01EDE1E");
 
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E46711E567").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__536C85E45E504589").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534DCAC17F1").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053430CF60E0").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.DistrictId).HasColumnName("District_id");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.ProvinceId).HasColumnName("Province_id");
+            entity.Property(e => e.RefreshToken).HasMaxLength(255);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Active");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(50);
-            entity.Property(e => e.WardId).HasColumnName("Ward_id");
-
-            entity.HasOne(d => d.District).WithMany(p => p.Users)
-                .HasForeignKey(d => d.DistrictId)
-                .HasConstraintName("FK__Users__District___45F365D3");
-
-            entity.HasOne(d => d.Province).WithMany(p => p.Users)
-                .HasForeignKey(d => d.ProvinceId)
-                .HasConstraintName("FK__Users__Province___44FF419A");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__RoleID__47DBAE45");
-
-            entity.HasOne(d => d.Ward).WithMany(p => p.Users)
-                .HasForeignKey(d => d.WardId)
-                .HasConstraintName("FK__Users__Ward_id__46E78A0C");
+                .HasConstraintName("FK_Users_Roles");
         });
 
         modelBuilder.Entity<UserToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserToke__3214EC077B76EEC2");
+            entity.HasKey(e => e.Id).HasName("PK__UserToke__3214EC07C2FBE33D");
 
             entity.Property(e => e.AccessToken).HasColumnType("text");
             entity.Property(e => e.CreatedAt)
@@ -382,12 +355,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.UserTokens)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserToken__UserI__4D94879B");
+                .HasConstraintName("FK__UserToken__UserI__0C85DE4D");
         });
 
         modelBuilder.Entity<Ward>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Wards__3213E83F9ED00782");
+            entity.HasKey(e => e.Id).HasName("PK__Wards__3213E83F8817A568");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -400,12 +373,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.District).WithMany(p => p.Wards)
                 .HasForeignKey(d => d.DistrictId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Wards__district___403A8C7D");
+                .HasConstraintName("FK__Wards__district___2DE6D218");
         });
 
         modelBuilder.Entity<Wishlist>(entity =>
         {
-            entity.HasKey(e => e.WishlistId).HasName("PK__Wishlist__233189CB12D97E7E");
+            entity.HasKey(e => e.WishlistId).HasName("PK__Wishlist__233189CBDB0D57D2");
 
             entity.ToTable("Wishlist");
 
@@ -419,12 +392,12 @@ public partial class ShoppingWebContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.Wishlists)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Wishlist__Produc__72C60C4A");
+                .HasConstraintName("FK_Wishlist_Products");
 
             entity.HasOne(d => d.User).WithMany(p => p.Wishlists)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Wishlist__UserID__71D1E811");
+                .HasConstraintName("FK_Wishlist_Users");
         });
 
         OnModelCreatingPartial(modelBuilder);

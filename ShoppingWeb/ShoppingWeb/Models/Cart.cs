@@ -24,13 +24,10 @@ public partial class Cart
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual District? District { get; set; }
-
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
-    public virtual Province? Province { get; set; }
-
     public virtual User User { get; set; } = null!;
-
-    public virtual Ward? Ward { get; set; }
+    public virtual Province? Province { get; set; } = null!;
+    public virtual District? District { get; set; } = null!;
+    public virtual Ward? Ward { get; set; } = null!;
 }

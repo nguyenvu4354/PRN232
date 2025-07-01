@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace ShoppingWeb.Models;
-    
+
 public partial class Feedback
 {
     public int FeedbackId { get; set; }
