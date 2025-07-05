@@ -319,7 +319,6 @@ public partial class ShoppingWebContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.RefreshToken).HasMaxLength(255);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(50);
