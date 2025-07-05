@@ -30,7 +30,7 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services.AddScoped<IGHN, GHN>();
-
+builder.Services.AddScoped<IPayOS, PayOS>();
 // builder.Services.CORS
 builder.Services.AddCors(options =>
 {

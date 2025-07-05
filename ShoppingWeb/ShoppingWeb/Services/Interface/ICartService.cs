@@ -1,5 +1,7 @@
-﻿using ShoppingWeb.DTOs;
+﻿using Net.payOS.Types;
+using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
+using ShoppingWeb.Services.ThirdParty;
 
 namespace ShoppingWeb.Services.Interface
 {
@@ -13,5 +15,10 @@ namespace ShoppingWeb.Services.Interface
         public Task<int> GetCartItemCountAsync(int serId);
         public Task<OrderDetail> UpdateCartItemAsync(int productId, int quantity, int userId);
         public Task ToOrderAsync(ToOrderDTO toOderDTO);
+        public Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest request);
+        public Task<PaymentLinkInformation> GetPaymentInfo(int cartId);
+        public Task<CreateOrderResponse> CreateOrder(int request);
+        public Task<OrderStatusResponse> GetOrderStatus(int cartid);
+        public Task<int> GetShippingFee(string wardCode, int districtId, int weight);
     }
 }

@@ -11,15 +11,6 @@ namespace ShoppingWeb.Services
         {
             _context = context;
         }
-        public Task<Product> CreateProductAsync(Product product)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteProductAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<IEnumerable<Product>> GetProductAdvancedAsync(string? search, string? brand, string? category, string? sortBy, int pageIndex, int pageSize)
         {
@@ -59,10 +50,6 @@ namespace ShoppingWeb.Services
             return await query.ToListAsync();
         }
 
-        public Task<Product> GetProductByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<int> GetProductCountAsync(string? search, string? category, string? brand)
         {
@@ -103,9 +90,5 @@ namespace ShoppingWeb.Services
             return await _context.Products.Where(p => p.CategoryId == categoryId).ToListAsync();
         }
 
-        public Task<Product> UpdateProductAsync(Product product)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
