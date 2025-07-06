@@ -27,8 +27,6 @@ public partial class User
 
     public DateTime? UpdatedAt { get; set; }
 
-    public string? RefreshToken { get; set; }
-
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
