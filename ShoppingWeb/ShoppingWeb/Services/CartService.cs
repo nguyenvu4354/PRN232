@@ -180,6 +180,16 @@ namespace ShoppingWeb.Services
             return await _context.OrderDetails.Where(od => od.CartId == cart.CartId).ToListAsync();
         }
 
+        public async Task<List<District>> GetDistricts(int provinceId)
+        {
+            var districts = await _ghn.GetDistricts(provinceId);
+            if (districts == null || !districts.Any())
+            {
+                throw new ArgumentException("No districts found for the given province.");
+            }
+            return districts;
+        }
+
         public async Task<OrderStatusResponse> GetOrderStatus(int cartId)
         {
             var cart = await _context.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && !c.IsCart);
@@ -206,6 +216,15 @@ namespace ShoppingWeb.Services
             return await _payOS.GetPayment(orderCodeLong);
         }
 
+        public async Task<List<Province>> GetProvinces()
+        {
+            var provinces = await _ghn.GetProvinces();
+            if (provinces == null || !provinces.Any())
+            {
+                throw new ArgumentException("No provinces found.");
+            }
+            return provinces;
+        }
 
         public async Task<int> GetShippingFee(string wardCode, int districtId, int weight)
         {
@@ -221,6 +240,16 @@ namespace ShoppingWeb.Services
             }
 
             return await _context.OrderDetails.Where(od => od.CartId == cart.CartId).SumAsync(od => od.Quantity * od.UnitPrice);
+        }
+
+        public async Task<List<Ward>> GetWards(int districtId)
+        {
+            var wards = await _ghn.GetWards(districtId);
+            if (wards == null || !wards.Any())
+            {
+                throw new ArgumentException("No wards found for the given district.");
+            }
+            return wards;
         }
 
         public async Task RemoveFromCartAsync(int productId, int userId)

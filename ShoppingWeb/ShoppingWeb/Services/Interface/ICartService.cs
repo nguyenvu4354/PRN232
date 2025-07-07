@@ -20,5 +20,8 @@ namespace ShoppingWeb.Services.Interface
         public Task<CreateOrderResponse> CreateOrder(int request);
         public Task<OrderStatusResponse> GetOrderStatus(int cartid);
         public Task<int> GetShippingFee(string wardCode, int districtId, int weight);
+        public Task<List<Province>> GetProvinces();
+        public Task<List<District>> GetDistricts(int provinceId);
+        public Task<List<Ward>> GetWards(int districtId);
     }
 }

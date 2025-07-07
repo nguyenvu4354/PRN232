@@ -171,8 +171,25 @@ namespace ShoppingWeb.Services.ThirdParty
             {
                 district_id = districtId,
             });
-            return JsonConvert.DeserializeObject<List<Ward>>(response.ToString()!)
-                ?? new List<Ward>();
+            var data = response.ToString();
+            var items = new List<Ward>();
+            foreach (var item in JArray.Parse(data))
+            {
+                try
+                {
+                    var ward = item.ToObject<Ward>();
+                    if (ward != null)
+                    {
+                        items.Add(ward);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine($"Error parsing ward: {ex.Message}");
+                    // Handle or log the error as needed
+                }
+            }
+            return items;
         }
 
         public async Task<int> GetServiceFee(string wardCode, int districtId, int weight)

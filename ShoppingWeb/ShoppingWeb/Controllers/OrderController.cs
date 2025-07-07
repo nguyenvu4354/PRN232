@@ -101,5 +101,53 @@ namespace ShoppingWeb.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("provinces")]
+        public async Task<IActionResult> GetProvinces()
+        {
+            try
+            {
+                var provinces = await _cartService.GetProvinces();
+                return Ok(provinces);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("districts/{provinceId}")]
+        public async Task<IActionResult> GetDistricts(int provinceId)
+        {
+            if (provinceId <= 0)
+            {
+                return BadRequest("Invalid province ID.");
+            }
+            try
+            {
+                var districts = await _cartService.GetDistricts(provinceId);
+                return Ok(districts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("wards/{districtId}")]
+        public async Task<IActionResult> GetWards(int districtId)
+        {
+            if (districtId <= 0)
+            {
+                return BadRequest("Invalid district ID.");
+            }
+            try
+            {
+                var wards = await _cartService.GetWards(districtId);
+                return Ok(wards);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
