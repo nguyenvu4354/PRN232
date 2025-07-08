@@ -135,6 +135,24 @@ namespace ShoppingWeb.Services
                 PageSize = pageSize
             };
         }
+        public async Task<bool> UpdateUserStatusAsync(int userId, bool isActive)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found when updating IsActive.", userId);
+                throw new UserNotFoundException("User not found.");
+            }
+
+            user.IsActive = isActive;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("User ID {UserId} status updated to {Status}.", userId, isActive);
+            return true;
+        }
 
         public async Task<UserListItemResponseDTO> GetUserDetailByIdAsync(int userId)
         {
