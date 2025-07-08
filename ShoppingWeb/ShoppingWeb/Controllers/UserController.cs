@@ -152,7 +152,6 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetUserDetail(int id)
         {
             try
@@ -168,6 +167,32 @@ namespace ShoppingWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching user detail.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
+        }
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UpdateUserStatusDTO statusDto)
+        {
+            if (statusDto == null)
+            {
+                _logger.LogWarning("UpdateUserStatus request body is null.");
+                return BadRequest(ApiResponse<string>.ErrorResponse("Request cannot be null", StatusCodes.Status400BadRequest.ToString()));
+            }
+
+            try
+            {
+                var result = await _userService.UpdateUserStatusAsync(id, statusDto.IsActive);
+                return Ok(ApiResponse<string>.SuccessResponse("User status updated successfully"));
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogWarning("User with ID {UserId} not found: {Message}", id, ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found", StatusCodes.Status404NotFound.ToString()));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user status for ID {UserId}.", id);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }

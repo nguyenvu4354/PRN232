@@ -22,6 +22,8 @@ public partial class User
     public int? DistrictId { get; set; }
     public int? WardId { get; set; }
     public int RoleId { get; set; }
+    public bool IsActive { get; set; } = true;
+
 
     public DateTime? CreatedAt { get; set; }
 

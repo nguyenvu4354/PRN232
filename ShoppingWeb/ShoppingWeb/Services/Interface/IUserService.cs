@@ -13,5 +13,7 @@ namespace ShoppingWeb.Services.Interface
         Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDTO passwordRequestDTO);
         Task<UserProfileResponseDTO> ViewProfileAsync(int userId);
         Task<UserProfileResponseDTO> UpdateProfileAsync(int userId, UpdateUserProfileRequestDTO profileRequestDTO);
+        Task<bool> UpdateUserStatusAsync(int userId, bool isActive);
+
     }
 }
