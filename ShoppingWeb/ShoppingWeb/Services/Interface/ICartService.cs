@@ -13,7 +13,7 @@ namespace ShoppingWeb.Services.Interface
         public Task<IEnumerable<OrderDetail>> GetCartItemsAsync(int userId);
         public Task<decimal> GetTotalPriceAsync(int userId);
         public Task<int> GetCartItemCountAsync(int serId);
-        public Task<OrderDetail> UpdateCartItemAsync(int productId, int quantity, int userId);
+        public Task UpdateCartItemAsync(int productId, int quantity, int userId);
         public Task ToOrderAsync(ToOrderDTO toOderDTO);
         public Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest request);
         public Task<PaymentLinkInformation> GetPaymentInfo(int cartId);

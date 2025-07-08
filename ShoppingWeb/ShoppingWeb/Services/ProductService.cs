@@ -50,6 +50,24 @@ namespace ShoppingWeb.Services
             return await query.ToListAsync();
         }
 
+        public async Task<Product> GetProductByIdAsync(int id)
+        {
+            if (id <= 0)
+            {
+                throw new ArgumentException("invalid id");
+            }
+            var product = await _context.Products.Include(product => product.Brand)
+                                           .Include(product => product.Category)
+                                           .Include(product => product.ProductReviews)
+                                           .Include(product => product.Wishlists)
+                                           .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+            if (product == null)
+            {
+                throw new KeyNotFoundException($"Product with ID {id} not found.");
+            }
+            return product;
+        }
 
         public async Task<int> GetProductCountAsync(string? search, string? category, string? brand)
         {

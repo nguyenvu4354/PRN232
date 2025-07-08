@@ -9,10 +9,12 @@ namespace ShoppingWeb.Controllers
     public class CartController : Controller
     {
         private readonly ICartService cartService;
+        private readonly IProductService productService;
 
-        public CartController(ICartService cartService)
+        public CartController(ICartService cartService, IProductService productService)
         {
             this.cartService = cartService;
+            this.productService = productService;
         }
 
         [HttpPost("add")]
@@ -117,11 +119,19 @@ namespace ShoppingWeb.Controllers
             {
                 return BadRequest("Quantity must be greater than zero.");
             }
-
+            var product = await productService.GetProductByIdAsync(request.ProductId);
+            if(product == null)
+            {
+                return NotFound("Product not found.");
+            }
+            if(product.StockQuantity < request.Quantity)
+            {
+                return BadRequest("Insufficient stock for the requested quantity.");
+            }
             try
             {
-                var updatedItem = await cartService.UpdateCartItemAsync(request.ProductId, request.Quantity, request.UserId);
-                return Ok(updatedItem);
+                await cartService.UpdateCartItemAsync(request.ProductId, request.Quantity, request.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
