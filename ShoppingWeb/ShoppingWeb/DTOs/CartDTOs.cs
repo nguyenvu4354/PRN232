@@ -1,4 +1,4 @@
-﻿namespace ShoppingWeb.DTOs.Cart
+﻿namespace ShoppingWeb.DTOs
 {
     public class ToOrderDTO
     {

@@ -6,6 +6,7 @@ using ShoppingWeb.Models;
 using ShoppingWeb.Services;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
+using ShoppingWeb.Services.ThirdParty;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ShoppingWeb.Services.Interface.IBrandService, ShoppingWeb.Services.BrandService>();
 builder.Services.AddScoped<ShoppingWeb.Services.Interface.ICategoryService, ShoppingWeb.Services.CategoryService>();
 builder.Services.AddScoped<ShoppingWeb.Services.Interface.IProductManagementService, ShoppingWeb.Services.ProductManagementService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IBlogService, BlogService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
+builder.Services.AddScoped<IGHN, GHN>();
+builder.Services.AddScoped<IPayOS, PayOS>();
+
+//builder.Services.AddHostedService<AddressService>();
 // builder.Services.CORS
 builder.Services.AddCors(options =>
 {
