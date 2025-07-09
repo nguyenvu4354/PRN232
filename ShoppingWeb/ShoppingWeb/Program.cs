@@ -20,9 +20,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ShoppingWebContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-builder.Services.AddHttpContextAccessor(); // N?u ch?a c� d�ng n�y
+builder.Services.AddHttpContextAccessor(); 
 
-
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -37,8 +37,6 @@ builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services.AddScoped<IGHN, GHN>();
 builder.Services.AddScoped<IPayOS, PayOS>();
 
-//builder.Services.AddHostedService<AddressService>();
-// builder.Services.CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -46,7 +44,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // n?u frontend g?i cookie
+            .AllowCredentials(); 
     });
 });
 
