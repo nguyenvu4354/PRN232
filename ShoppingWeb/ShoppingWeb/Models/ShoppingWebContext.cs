@@ -48,6 +48,8 @@ public partial class ShoppingWebContext : DbContext
     public virtual DbSet<Ward> Wards { get; set; }
 
     public virtual DbSet<Wishlist> Wishlists { get; set; }
+    public virtual DbSet<Promotion> Promotions { get; set; }
+    public virtual DbSet<ProductPromotion> ProductPromotions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -405,6 +407,41 @@ public partial class ShoppingWebContext : DbContext
                 .HasConstraintName("FK_Wishlist_Users");
         });
 
+        modelBuilder.Entity<Promotion>(entity =>
+        {
+            entity.HasKey(e => e.PromotionId);
+            entity.Property(e => e.PromotionId).HasColumnName("PromotionID");
+            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<ProductPromotion>(entity =>
+        {
+            entity.HasKey(e => e.ProductPromotionId);
+            entity.Property(e => e.ProductPromotionId).HasColumnName("ProductPromotionID");
+            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.PromotionId).HasColumnName("PromotionID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(e => e.Product)
+                  .WithMany(p => p.ProductPromotions)
+                  .HasForeignKey(e => e.ProductId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_ProductPromotions_Products");
+
+            entity.HasOne(e => e.Promotion)
+                  .WithMany(p => p.ProductPromotions)
+                  .HasForeignKey(e => e.PromotionId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_ProductPromotions_Promotions");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 
