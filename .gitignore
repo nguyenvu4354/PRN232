@@ -10,5 +10,3 @@ appsettings.Development.json
 **/Migrations/*
 !**/Migrations/.gitkeep   # Nếu bạn muốn giữ thư mục migrations trống
 
-# Ignore csproj
-**/*.csproj
