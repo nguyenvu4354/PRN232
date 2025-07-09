@@ -1,0 +1,42 @@
+﻿@model ShoppingWeb.MvcClient.DTOs.Common.PagedResultDTO<ShoppingWeb.MvcClient.DTOs.User.UserListItemResponseDTO>
+
+@{
+    ViewData["Title"] = "User List";
+}
+
+<h2>User List</h2>
+
+@if (Model.Items.Count == 0)
+{
+    <p>No users found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Role</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Items)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.FullName</td>
+                    <td>@user.Phone</td>
+                    <td>@user.Address</td>
+                    <td>@user.RoleName</td>
+                    <td>@(user.IsActive ? "Active" : "Inactive")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
