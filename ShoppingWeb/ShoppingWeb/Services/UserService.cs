@@ -106,7 +106,7 @@ namespace ShoppingWeb.Services
         {
             var query = _context.Users
                 .Include(u => u.Role)
-                .Where(u => u.RoleId != (int)UserRole.ADMIN); // Loại ADMIN
+                .Where(u => u.RoleId != (int)UserRole.ADMIN); 
 
             var totalItems = await query.CountAsync();
 
