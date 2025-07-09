@@ -1,117 +1,69 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ShoppingWeb.Models;
 using ShoppingWeb.DTOs;
+using ShoppingWeb.Services.Interface;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-[Route("api/[controller]")]
-[ApiController]
-public class CategoriesManagementController : ControllerBase
+namespace ShoppingWeb.Controllers
 {
-    private readonly ShoppingWebContext _context;
-
-    public CategoriesManagementController(ShoppingWebContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CategoriesManagementController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ICategoryService _categoryService;
 
-    // GET: api/categories
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
-    {
-        var categories = await _context.Categories
-            .Select(c => new CategoryDto
+        public CategoriesManagementController(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
+        {
+            var categories = await _categoryService.GetCategoriesAsync();
+            var result = new List<CategoryDto>();
+            foreach (var c in categories)
             {
-                Id = c.CategoryId,
-                Name = c.CategoryName,
-                Description = c.Description
-            })
-            .ToListAsync();
-
-        return categories;
-    }
-
-    // GET: api/categories/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CategoryDto>> GetCategory(int id)
-    {
-        var category = await _context.Categories
-            .Where(c => c.CategoryId == id)
-            .Select(c => new CategoryDto
-            {
-                Id = c.CategoryId,
-                Name = c.CategoryName,
-                Description = c.Description
-            })
-            .FirstOrDefaultAsync();
-
-        if (category == null)
-        {
-            return NotFound();
-        }
-        return category;
-    }
-
-    // POST: api/categories
-    [HttpPost]
-    public async Task<ActionResult<CategoryDto>> CreateCategory(CategoryDto categoryDto)
-    {
-        if (string.IsNullOrEmpty(categoryDto.Name))
-        {
-            return BadRequest("CategoryName is required.");
+                result.Add(new CategoryDto { Id = c.CategoryId, Name = c.CategoryName, Description = c.Description });
+            }
+            return result;
         }
 
-        var category = new Category
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CategoryDto>> GetCategory(int id)
         {
-            CategoryName = categoryDto.Name,
-            Description = categoryDto.Description,
-            CreatedAt = DateTime.Now
-        };
-
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        categoryDto.Id = category.CategoryId;
-        return CreatedAtAction(nameof(GetCategory), new { id = categoryDto.Id }, categoryDto);
-    }
-
-    // PUT: api/categories/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory(int id, CategoryDto categoryDto)
-    {
-        if (id != categoryDto.Id)
-        {
-            return BadRequest();
+            var category = await _categoryService.GetCategoryByIdAsync(id);
+            if (category == null) return NotFound();
+            return new CategoryDto { Id = category.CategoryId, Name = category.CategoryName, Description = category.Description };
         }
 
-        var category = await _context.Categories.FindAsync(id);
-        if (category == null)
+        [HttpPost]
+        public async Task<ActionResult<CategoryDto>> CreateCategory(CategoryDto categoryDto)
         {
-            return NotFound();
+            if (string.IsNullOrEmpty(categoryDto.Name)) return BadRequest("CategoryName is required.");
+            var category = new Category { CategoryName = categoryDto.Name, Description = categoryDto.Description };
+            var created = await _categoryService.CreateCategoryAsync(category);
+            categoryDto.Id = created.CategoryId;
+            return CreatedAtAction(nameof(GetCategory), new { id = categoryDto.Id }, categoryDto);
         }
 
-        category.CategoryName = categoryDto.Name;
-        category.Description = categoryDto.Description;
-        category.UpdatedAt = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    // DELETE: api/categories/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCategory(int id)
-    {
-        var category = await _context.Categories.FindAsync(id);
-        if (category == null)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, CategoryDto categoryDto)
         {
-            return NotFound();
+            if (id != categoryDto.Id) return BadRequest();
+            var category = new Category { CategoryId = categoryDto.Id, CategoryName = categoryDto.Name, Description = categoryDto.Description };
+            var updated = await _categoryService.UpdateCategoryAsync(category);
+            if (updated == null) return NotFound();
+            return NoContent();
         }
 
-        _context.Categories.Remove(category);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var deleted = await _categoryService.DeleteCategoryAsync(id);
+            if (!deleted) return NotFound();
+            return NoContent();
+        }
     }
 }
