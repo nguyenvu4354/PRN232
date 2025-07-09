@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.Models;
 using ShoppingWeb.DTOs;
+using ShoppingWeb.Services.Interface;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System;
 
 namespace ShoppingWeb.Controllers
 {
@@ -11,65 +15,39 @@ namespace ShoppingWeb.Controllers
     [ApiController]
     public class ProductsManagementController : ControllerBase
     {
-        private readonly ShoppingWebContext _context;
+        private readonly IProductManagementService _productService;
         private readonly IWebHostEnvironment _environment;
 
-        public ProductsManagementController(ShoppingWebContext context, IWebHostEnvironment environment)
+        public ProductsManagementController(IProductManagementService productService, IWebHostEnvironment environment)
         {
-            _context = context;
+            _productService = productService;
             _environment = environment;
         }
 
-        // GET: api/products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
-            var products = await _context.Products
-                .Select(p => new ProductDto
-                {
-                    Id = p.ProductId,
-                    Name = p.ProductName,
-                    Description = p.Description,
-                    Price = p.Price,
-                    StockQuantity = p.StockQuantity
-                })
-                .ToListAsync();
-
-            return products;
+            var products = await _productService.GetProductsAsync();
+            var result = new List<ProductDto>();
+            foreach (var p in products)
+            {
+                result.Add(new ProductDto { Id = p.ProductId, Name = p.ProductName, Description = p.Description, Price = p.Price, StockQuantity = p.StockQuantity });
+            }
+            return result;
         }
 
-        // GET: api/products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProduct(int id)
         {
-            var product = await _context.Products
-                .Where(p => p.ProductId == id)
-                .Select(p => new ProductDto
-                {
-                    Id = p.ProductId,
-                    Name = p.ProductName,
-                    Description = p.Description,
-                    Price = p.Price,
-                    StockQuantity = p.StockQuantity
-                })
-                .FirstOrDefaultAsync();
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return product;
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null) return NotFound();
+            return new ProductDto { Id = product.ProductId, Name = product.ProductName, Description = product.Description, Price = product.Price, StockQuantity = product.StockQuantity };
         }
 
-        // POST: api/products
         [HttpPost]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] ProductRequest request)
         {
-            if (string.IsNullOrEmpty(request.Product.ProductName))
-            {
-                return BadRequest("ProductName is required.");
-            }
-
+            if (string.IsNullOrEmpty(request.Product.ProductName)) return BadRequest("ProductName is required.");
             var product = new Product
             {
                 ProductName = request.Product.ProductName,
@@ -80,7 +58,7 @@ namespace ShoppingWeb.Controllers
                 CategoryId = request.Product.CategoryId,
                 CreatedAt = DateTime.Now
             };
-
+            // Xử lý ảnh nếu có
             if (request.Product.ImageFile != null)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(request.Product.ImageFile.FileName);
@@ -90,45 +68,25 @@ namespace ShoppingWeb.Controllers
                 {
                     await request.Product.ImageFile.CopyToAsync(stream);
                 }
-                product.ImageUrl = $"/uploads/{fileName}"; // Sử dụng ImageURL thay vì ImageUrl
+                product.ImageUrl = $"/uploads/{fileName}";
             }
-
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            var createdProduct = await _context.Products
-                .Where(p => p.ProductId == product.ProductId)
-                .Select(p => new ProductDto
-                {
-                    Id = p.ProductId,
-                    Name = p.ProductName,
-                    Description = p.Description,
-                    Price = p.Price,
-                    StockQuantity = p.StockQuantity
-                })
-                .FirstOrDefaultAsync();
-
-            return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id }, createdProduct);
+            var created = await _productService.CreateProductAsync(product);
+            var createdDto = new ProductDto { Id = created.ProductId, Name = created.ProductName, Description = created.Description, Price = created.Price, StockQuantity = created.StockQuantity };
+            return CreatedAtAction(nameof(GetProduct), new { id = createdDto.Id }, createdDto);
         }
 
-        // PUT: api/products/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductRequest request)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null) return NotFound();
             product.ProductName = request.Product.ProductName;
             product.Description = request.Product.Description;
             product.Price = request.Product.Price;
             product.StockQuantity = request.Product.StockQuantity;
             product.BrandId = request.Product.BrandId;
             product.CategoryId = request.Product.CategoryId;
-
-            if (request.Product.ImageFile != null) // Sửa lại từ ImageUrl thành ImageFile
+            if (request.Product.ImageFile != null)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(request.Product.ImageFile.FileName);
                 var filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
@@ -137,32 +95,20 @@ namespace ShoppingWeb.Controllers
                 {
                     await request.Product.ImageFile.CopyToAsync(stream);
                 }
-                product.ImageUrl = $"/uploads/{fileName}"; // Sử dụng ImageURL
+                product.ImageUrl = $"/uploads/{fileName}";
             }
-
-            product.UpdatedAt = DateTime.Now;
-            await _context.SaveChangesAsync();
-
+            await _productService.UpdateProductAsync(product);
             return NoContent();
         }
 
-        // DELETE: api/products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
+            var deleted = await _productService.DeleteProductAsync(id);
+            if (!deleted) return NotFound();
             return NoContent();
         }
 
-        // Model cho request (hỗ trợ upload file)
         public class ProductRequest
         {
             public CreateProductDto Product { get; set; }
