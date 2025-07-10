@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "ShoppingWeb\\ShoppingWeb.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "ShoppingWeb.MvcClient\\ShoppingWeb.MvcClient.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      }
+    ]
+  }
+]

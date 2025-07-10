@@ -33,23 +33,7 @@ namespace ShoppingWeb.Controllers
             }
             return userId;
         }
-        [HttpGet("list")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            try
-            {
-                var data = await _userService.GetAllUsersAsync();
-                _logger.LogInformation("Admin fetched all users.");
-                return Ok(ApiResponse<IEnumerable<UserListItemResponseDTO>>.SuccessResponse(data));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching user list.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
-            }
-        }
-
+        
         [HttpGet]
         [Authorize(Roles = "ADMIN")]
         [Obsolete("This is a test endpoint and should not be used in production.")]
@@ -171,6 +155,27 @@ namespace ShoppingWeb.Controllers
                     ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsersByUsername([FromQuery] string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("Username cannot be empty", StatusCodes.Status400BadRequest.ToString()));
+            }
+
+            try
+            {
+                var users = await _userService.SearchUsersByUsernameAsync(username);
+                return Ok(ApiResponse<IEnumerable<UserListItemResponseDTO>>.SuccessResponse(users));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching users by username.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
+        }
+
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UpdateUserStatusDTO statusDto)
         {
