@@ -22,21 +22,11 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var data = await _promotionService.GetPagedAsync(page, pageSize);
-                return Ok(ApiResponse<PagedResultDTO<PromotionResponseDTO>>.SuccessResponse(data));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching paged promotions.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
-            }
+            var data = await _promotionService.GetAllAsync();
+            return Ok(ApiResponse<IEnumerable<PromotionResponseDTO>>.SuccessResponse(data));
         }
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -89,47 +79,5 @@ namespace ShoppingWeb.Controllers
                 return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
-
-        [HttpGet("{id}/products")]
-        public async Task<IActionResult> GetProductsInPromotion(int id)
-        {
-            try
-            {
-                var products = await _promotionService.GetProductsByPromotionIdAsync(id);
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting products in promotion");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpPost("{id}/add-products")]
-        public async Task<IActionResult> AddProductsToPromotion(int id, [FromBody] ProductPromotionRequestDTO dto)
-        {
-            if (dto == null || dto.ProductIds == null || !dto.ProductIds.Any())
-                return BadRequest(ApiResponse<string>.ErrorResponse("No products provided"));
-
-            dto.PromotionId = id;
-
-            try
-            {
-                await _promotionService.AddProductsToPromotionAsync(dto);
-                return Ok(ApiResponse<string>.SuccessResponse("Products added to promotion successfully"));
-            }
-            catch (NotFoundException ex)
-            {
-                _logger.LogWarning(ex.Message);
-                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding products to promotion");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred"));
-            }
-        }
-
     }
 }
