@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.DTOs.Common;
+using ShoppingWeb.DTOs.Product;
 using ShoppingWeb.DTOs.Promotion;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Models;
@@ -17,19 +19,36 @@ namespace ShoppingWeb.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<PromotionResponseDTO>> GetAllAsync()
+        public async Task<PagedResultDTO<PromotionResponseDTO>> GetPagedAsync(int page, int pageSize)
         {
-            return await _context.Promotions.Select(p => new PromotionResponseDTO
+            var query = _context.Promotions
+                .OrderByDescending(p => p.StartDate);
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PromotionResponseDTO
+                {
+                    PromotionId = p.PromotionId,
+                    Title = p.Title,
+                    Description = p.Description,
+                    DiscountPercentage = p.DiscountPercentage,
+                    DiscountAmount = p.DiscountAmount,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    IsActive = DateTime.UtcNow >= p.StartDate && DateTime.UtcNow <= p.EndDate
+                })
+                .ToListAsync();
+
+            return new PagedResultDTO<PromotionResponseDTO>
             {
-                PromotionId = p.PromotionId,
-                Title = p.Title,
-                Description = p.Description,
-                DiscountPercentage = p.DiscountPercentage,
-                DiscountAmount = p.DiscountAmount,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                IsActive = p.IsActive
-            }).ToListAsync();
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
         }
 
         public async Task<PromotionResponseDTO> GetByIdAsync(int id)
@@ -94,5 +113,52 @@ namespace ShoppingWeb.Services
             _context.Promotions.Remove(promotion);
             await _context.SaveChangesAsync();
         }
+        public async Task AddProductsToPromotionAsync(ProductPromotionRequestDTO request)
+        {
+            var promotion = await _context.Promotions
+                .Include(p => p.ProductPromotions)
+                .FirstOrDefaultAsync(p => p.PromotionId == request.PromotionId);
+
+            if (promotion == null)
+                throw new NotFoundException("Promotion not found");
+
+            foreach (var productId in request.ProductIds)
+            {
+                if (!promotion.ProductPromotions.Any(pp => pp.ProductId == productId))
+                {
+                    var product = await _context.Products.FindAsync(productId);
+                    if (product != null)
+                    {
+                        var pp = new ProductPromotion
+                        {
+                            ProductId = productId,
+                            PromotionId = request.PromotionId,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        _context.ProductPromotions.Add(pp);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<List<ProductResponseDTO>> GetProductsByPromotionIdAsync(int promotionId)
+        {
+            var products = await _context.ProductPromotions
+                .Where(pp => pp.PromotionId == promotionId)
+                .Select(pp => pp.Product)
+                .ToListAsync();
+
+            return products.Select(p => new ProductResponseDTO
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                Description = p.Description,
+                Price = p.Price,
+                ImageUrl = p.ImageUrl
+            }).ToList();
+        }
+
+
     }
 }

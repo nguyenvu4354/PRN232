@@ -1,0 +1,100 @@
+﻿@using System.Text.Json
+@model dynamic
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var summary = ViewBag.Summary as ShoppingWeb.MvcClient.DTOs.Statistics.StatisticsResponseDTO;
+    var weeklySales = ViewBag.WeeklySales as List<ShoppingWeb.MvcClient.DTOs.Statistics.WeeklyProductSalesDTO>;
+}
+
+<h2>📊 Admin Dashboard</h2>
+
+@if (summary != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">🛒 Total Orders</h5>
+                    <p class="card-text fs-4">@summary.TotalOrders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Total Revenue</h5>
+                    <p class="card-text fs-4">@summary.TotalRevenue.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📦 Products Sold</h5>
+                    <p class="card-text fs-4">@summary.TotalProductsSold</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">👤 Total Users</h5>
+                    <p class="card-text fs-4">@summary.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-light border-start border-4 border-primary">
+        <strong>🔥 Best-Selling Product:</strong> <span class="fw-bold">@summary.BestSellingProduct</span>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">Failed to load statistics summary.</div>
+}
+
+@if (weeklySales != null && weeklySales.Any())
+{
+    <h4 class="mt-5">📈 Weekly Product Sales</h4>
+    <canvas id="weeklySalesChart" width="800" height="400"></canvas>
+}
+else
+{
+    <div class="alert alert-warning mt-3">No weekly sales data available.</div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const weeklyLabels = @Html.Raw(JsonSerializer.Serialize(weeklySales.Select(x => x.Week)));
+        const weeklyData = @Html.Raw(JsonSerializer.Serialize(weeklySales.Select(x => x.TotalProductsSold)));
+
+        const ctx = document.getElementById('weeklySalesChart').getContext('2d');
+        const weeklyChart = new Chart(ctx, {
+            type: 'bar', // Change to 'line' if you prefer
+            data: {
+                labels: weeklyLabels,
+                datasets: [{
+                    label: 'Total Products Sold',
+                    data: weeklyData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
