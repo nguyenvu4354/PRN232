@@ -22,6 +22,7 @@ builder.Services.AddDbContext<ShoppingWebContext>(options =>
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
