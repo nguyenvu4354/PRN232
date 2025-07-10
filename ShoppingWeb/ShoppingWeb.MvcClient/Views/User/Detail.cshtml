@@ -1,0 +1,38 @@
+﻿@model ShoppingWeb.MvcClient.DTOs.User.UserListItemResponseDTO
+
+@{
+    ViewData["Title"] = "User Detail";
+}
+
+<h2>User Detail</h2>
+
+@if (Model == null)
+{
+    <p>User not found.</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-2">Username</dt>
+        <dd class="col-sm-10">@Model.Username</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Full Name</dt>
+        <dd class="col-sm-10">@Model.FullName</dd>
+
+        <dt class="col-sm-2">Phone</dt>
+        <dd class="col-sm-10">@Model.Phone</dd>
+
+        <dt class="col-sm-2">Address</dt>
+        <dd class="col-sm-10">@Model.Address</dd>
+
+        <dt class="col-sm-2">Role</dt>
+        <dd class="col-sm-10">@Model.RoleName</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@(Model.IsActive ? "Active" : "Inactive")</dd>
+    </dl>
+    <a href="@Url.Action("Index", "User")" class="btn btn-secondary">Back to List</a>
+}

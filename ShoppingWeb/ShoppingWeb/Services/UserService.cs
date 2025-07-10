@@ -124,7 +124,8 @@ namespace ShoppingWeb.Services
                 FullName = u.FullName,
                 Phone = u.Phone,
                 Address = u.Address,
-                RoleName = u.Role.RoleName
+                RoleName = u.Role.RoleName,
+                IsActive = u.IsActive
             });
 
             return new PagedResultDTO<UserListItemResponseDTO>
@@ -152,6 +153,25 @@ namespace ShoppingWeb.Services
 
             _logger.LogInformation("User ID {UserId} status updated to {Status}.", userId, isActive);
             return true;
+        }
+        public async Task<IEnumerable<UserListItemResponseDTO>> SearchUsersByUsernameAsync(string username)
+        {
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Username.Contains(username))
+                .ToListAsync();
+
+            return users.Select(u => new UserListItemResponseDTO
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                FullName = u.FullName,
+                Phone = u.Phone,
+                Address = u.Address,
+                RoleName = u.Role.RoleName,
+                IsActive = u.IsActive
+            });
         }
 
         public async Task<UserListItemResponseDTO> GetUserDetailByIdAsync(int userId)

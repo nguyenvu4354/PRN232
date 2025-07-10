@@ -32,5 +32,97 @@ namespace ShoppingWeb.MvcClient.Controllers
 
             return View(result?.Data);
         }
+        public async Task<IActionResult> Detail(int id)
+        {
+            var response = await _httpClient.GetAsync($"user/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.Error = "API Error: " + response.StatusCode;
+                return View(); 
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ApiResponseDTO<UserListItemResponseDTO>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return View(result?.Data);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id)
+        {
+            var getUserResponse = await _httpClient.GetAsync($"user/{id}");
+
+            if (!getUserResponse.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to retrieve user.";
+                return RedirectToAction("Index");
+            }
+
+            var json = await getUserResponse.Content.ReadAsStringAsync();
+            var userResult = JsonSerializer.Deserialize<ApiResponseDTO<UserListItemResponseDTO>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            var currentStatus = userResult?.Data?.IsActive ?? true;
+
+            var updatePayload = new
+            {
+                IsActive = !currentStatus
+            };
+
+            var patchContent = new StringContent(JsonSerializer.Serialize(updatePayload), System.Text.Encoding.UTF8, "application/json");
+
+            var patchResponse = await _httpClient.PatchAsync($"user/{id}/status", patchContent);
+
+            if (patchResponse.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "User status updated.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update user status.";
+            }
+
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Search(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                TempData["Error"] = "Username cannot be empty.";
+                return RedirectToAction("Index");
+            }
+
+            var response = await _httpClient.GetAsync($"user/search?username={Uri.EscapeDataString(username)}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to search users.";
+                return RedirectToAction("Index");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ApiResponseDTO<IEnumerable<UserListItemResponseDTO>>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            var searchResult = new PagedResultDTO<UserListItemResponseDTO>
+            {
+                Items = result?.Data?.ToList() ?? new List<UserListItemResponseDTO>(),
+                Page = 1,
+                PageSize = result?.Data?.Count() ?? 10,
+                TotalItems = result?.Data?.Count() ?? 0
+            };
+
+            return View("Index", searchResult);
+        }
+
+
     }
 }

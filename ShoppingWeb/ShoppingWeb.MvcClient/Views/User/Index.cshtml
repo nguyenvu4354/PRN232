@@ -2,17 +2,40 @@
 
 @{
     ViewData["Title"] = "User List";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentSearch = Context.Request.Query["username"].ToString();
+    var currentPage = Model.Page;
+    var pageSize = Model.PageSize;
 }
 
 <h2>User List</h2>
 
+<!-- Search Form -->
+<form asp-action="Search" asp-controller="User" method="get" class="mb-3 d-flex">
+    <input type="text" name="username" class="form-control me-2" placeholder="Search by username..."
+           value="@currentSearch" />
+    <button type="submit" class="btn btn-primary me-2">Search</button>
+    <a href="@Url.Action("Index", "User")" class="btn btn-secondary">Clear</a>
+</form>
+
+<!-- Alert Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- User Table -->
 @if (Model.Items.Count == 0)
 {
     <p>No users found.</p>
 }
 else
 {
-    <table class="table">
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Username</th>
@@ -22,6 +45,7 @@ else
                 <th>Address</th>
                 <th>Role</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -35,8 +59,34 @@ else
                     <td>@user.Address</td>
                     <td>@user.RoleName</td>
                     <td>@(user.IsActive ? "Active" : "Inactive")</td>
+                    <td>
+                        <a class="btn btn-sm btn-info" href="@Url.Action("Detail", "User", new { id = user.UserId })">View</a>
+
+                        <form method="post"
+                              asp-action="UpdateStatus"
+                              asp-controller="User"
+                              asp-route-id="@user.UserId"
+                              style="display:inline;"
+                              onsubmit="return confirm('Are you sure you want to change status?');">
+                            <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-warning" : "btn-success")">
+                                @(user.IsActive ? "Deactivate" : "Activate")
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, pageSize = pageSize, username = currentSearch })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 }
