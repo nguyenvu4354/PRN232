@@ -4,12 +4,12 @@
     "Projects": [
       {
         "Path": "ShoppingWeb\\ShoppingWeb.csproj",
-        "Action": "StartWithoutDebugging",
+        "Action": "Start",
         "DebugTarget": "https"
       },
       {
         "Path": "ShoppingWeb.MvcClient\\ShoppingWeb.MvcClient.csproj",
-        "Action": "StartWithoutDebugging",
+        "Action": "Start",
         "DebugTarget": "https"
       }
     ]

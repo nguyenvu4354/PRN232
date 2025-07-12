@@ -1,15 +1,6 @@
-﻿namespace ShoppingWeb.DTOs
+﻿namespace ShoppingWeb.MvcClient.DTOs.Product
 {
-    public class ProductDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
-    }
-
-    public class ProductListItemResponseDto
+    public class ProductListItemResponseDTO
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -31,5 +22,15 @@
         public string Brand { get; set; } = string.Empty;
         public int? CategoryId { get; set; }
         public string Category { get; set; } = string.Empty;
+    }
+    public class BrandDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+    public class CategoryDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

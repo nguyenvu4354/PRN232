@@ -3,6 +3,8 @@ using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -86,5 +88,22 @@ namespace ShoppingWeb.Controllers
             }
         }
 
+        [HttpGet("products/{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {id} not found.");
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

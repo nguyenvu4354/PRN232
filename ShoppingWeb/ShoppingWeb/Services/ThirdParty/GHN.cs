@@ -185,8 +185,7 @@ namespace ShoppingWeb.Services.ThirdParty
                 }
                 catch (Exception ex)
                 {
-                    //Console.WriteLine($"Error parsing ward: {ex.Message}");
-                    // Handle or log the error as needed
+                    Console.WriteLine($"Error parsing ward: {ex.Message}");
                 }
             }
             return items;
