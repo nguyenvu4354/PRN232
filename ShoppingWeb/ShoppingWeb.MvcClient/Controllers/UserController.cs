@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.MvcClient.DTOs.Common;
 using ShoppingWeb.MvcClient.DTOs.User;
+using ShoppingWeb.MvcClient.Response;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace ShoppingWeb.MvcClient.Controllers
@@ -39,7 +41,7 @@ namespace ShoppingWeb.MvcClient.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 ViewBag.Error = "API Error: " + response.StatusCode;
-                return View(); 
+                return View();
             }
 
             var json = await response.Content.ReadAsStringAsync();
@@ -122,6 +124,42 @@ namespace ShoppingWeb.MvcClient.Controllers
 
             return View("Index", searchResult);
         }
+
+        // [HttpGet("Profile")]
+        public async Task<IActionResult> Profile()
+        {
+            var accessToken = Request.Cookies["AccessToken"];
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                TempData["Error"] = "Please login first!";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync("User/profile");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Session expired. Please login again.";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var wrapper = JsonSerializer.Deserialize<ApiResponse<UserProfileResponseDTO>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (wrapper?.Data == null)
+            {
+                TempData["Error"] = "Cannot load profile.";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            return View(wrapper.Data);
+        }
+
 
 
     }

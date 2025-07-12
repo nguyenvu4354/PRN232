@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.Models;
-using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.ThirdParty;
 
 namespace ShoppingWeb.Services

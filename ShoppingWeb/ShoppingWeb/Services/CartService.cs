@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Net.payOS.Types;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
@@ -228,7 +229,7 @@ namespace ShoppingWeb.Services
                 throw new ArgumentException("Order not found.");
             }
             var orderCode = cart.ShippingAddress.Split('#').FirstOrDefault();
-            if(long.TryParse(orderCode, out long orderCodeLong) == false)
+            if (long.TryParse(orderCode, out long orderCodeLong) == false)
             {
                 throw new ArgumentException("Invalid order code or no code.");
             }
@@ -242,12 +243,12 @@ namespace ShoppingWeb.Services
             {
                 throw new ArgumentException("No provinces found.");
             }
-            return provinces;   
+            return provinces;
         }
 
         public async Task<int> GetShippingFee(string wardCode, int districtId, int weight)
         {
-           return await _ghn.GetServiceFee(wardCode, districtId, weight);
+            return await _ghn.GetServiceFee(wardCode, districtId, weight);
         }
 
         public async Task<decimal> GetTotalPriceAsync(int userId)

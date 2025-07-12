@@ -1,9 +1,8 @@
-﻿using MailKit;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.Order;
 using ShoppingWeb.Exceptions;
-using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
@@ -24,7 +23,7 @@ namespace ShoppingWeb.Services
             var query = _context.Carts
                 .Include(c => c.OrderDetails)
                 .Include(c => c.User)
-                .Where(c => c.IsCart == false); 
+                .Where(c => c.IsCart == false);
 
             var totalItems = await query.CountAsync();
             var orders = await query

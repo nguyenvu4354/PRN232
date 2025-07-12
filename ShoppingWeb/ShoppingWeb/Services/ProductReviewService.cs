@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;

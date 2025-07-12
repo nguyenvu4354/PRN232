@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
@@ -14,14 +15,14 @@ namespace ShoppingWeb.Services
         }
         public Task<Blog> CreateBlogAsync(CreateBlogDTO blog)
         {
-           var newBlog = new Blog
-           {
-               Title = blog.Title,
-               Content = blog.Content,
-               AuthorId = blog.AuthorId,
-               CreatedAt = DateTime.UtcNow,
-               UpdatedAt = DateTime.UtcNow
-           };
+            var newBlog = new Blog
+            {
+                Title = blog.Title,
+                Content = blog.Content,
+                AuthorId = blog.AuthorId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
             _context.Blogs.Add(newBlog);
             _context.SaveChanges();
             return Task.FromResult(newBlog);

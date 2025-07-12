@@ -1,8 +1,9 @@
-﻿using ShoppingWeb.DTOs.Feedback;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
+using ShoppingWeb.DTOs.Feedback;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
-using Microsoft.EntityFrameworkCore;
 
 namespace ShoppingWeb.Services
 {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.User;
 using ShoppingWeb.Enum;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Helpers;
 using ShoppingWeb.Mapping;
-using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
@@ -14,7 +14,7 @@ namespace ShoppingWeb.Services
     {
         private ShoppingWebContext _context;
         private ILogger<UserService> _logger;
-        
+
         public UserService(ShoppingWebContext context, ILogger<UserService> logger)
         {
             _context = context ?? throw new ArgumentException(nameof(context));
@@ -106,7 +106,7 @@ namespace ShoppingWeb.Services
         {
             var query = _context.Users
                 .Include(u => u.Role)
-                .Where(u => u.RoleId != (int)UserRole.ADMIN); 
+                .Where(u => u.RoleId != (int)UserRole.ADMIN);
 
             var totalItems = await query.CountAsync();
 
@@ -196,6 +196,6 @@ namespace ShoppingWeb.Services
                 Address = user.Address,
                 RoleName = user.Role.RoleName
             };
-        }   
+        }
     }
 }

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Models;
 
-namespace ShoppingWeb.Models;
+namespace ShoppingWeb.Data;
 
 public partial class ShoppingWebContext : DbContext
 {

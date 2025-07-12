@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ShoppingWeb.Config;
-using ShoppingWeb.Models;
+using ShoppingWeb.Data;
 using ShoppingWeb.Services;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
@@ -12,6 +12,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// builder.Services.AddTransient<DbSeeder>();
+builder.Services.AddScoped<DbSeeder>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -39,6 +41,7 @@ builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services.AddScoped<IGHN, GHN>();
 builder.Services.AddScoped<IPayOS, PayOS>();
 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -46,7 +49,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); 
+            .AllowCredentials();
     });
 });
 
@@ -87,6 +90,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await dbSeeder.SeedAsync();
+}
+
+Console.WriteLine("🏁 Starting web application...");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -94,6 +104,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
+
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthentication();

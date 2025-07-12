@@ -1,10 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
 
 namespace ShoppingWeb.Services
 {
@@ -54,4 +51,4 @@ namespace ShoppingWeb.Services
             return existing;
         }
     }
-} 
+}

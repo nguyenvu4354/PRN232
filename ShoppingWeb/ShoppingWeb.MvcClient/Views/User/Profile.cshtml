@@ -1,0 +1,14 @@
+﻿@model ShoppingWeb.MvcClient.DTOs.User.UserProfileResponseDTO
+@{
+	ViewData["Title"] = "My Profile";
+}
+
+<h2>Welcome, @Model.Username!</h2>
+
+<table class="table">
+	<tr><th>Email:</th><td>@Model.Email</td></tr>
+	<tr><th>Full Name:</th><td>@Model.FullName</td></tr>
+	<tr><th>Phone:</th><td>@Model.Phone</td></tr>
+	<tr><th>Address:</th><td>@Model.Address</td></tr>
+	<tr><th>Joined At:</th><td>@Model.CreatedAt?.ToString("yyyy-MM-dd")</td></tr>
+</table>

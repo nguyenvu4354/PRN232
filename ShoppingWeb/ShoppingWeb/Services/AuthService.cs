@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ShoppingWeb.Config;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Auth;
 using ShoppingWeb.Enum;
 using ShoppingWeb.Exceptions;
@@ -182,7 +183,7 @@ public class AuthService : IAuthService
     //         throw;
     //     }
     // }
-        
+
     public async Task<bool> ForgotPasswordAsync(string email)
     {
         // if (string.IsNullOrWhiteSpace(email))
@@ -287,7 +288,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            var userToken = await _context.UserTokens.FirstOrDefaultAsync(t => EF.Functions.Like(t.AccessToken,token));
+            var userToken = await _context.UserTokens.FirstOrDefaultAsync(t => EF.Functions.Like(t.AccessToken, token));
             if (userToken != null)
             {
                 userToken.IsRevoked = true; // Mark token as revoked

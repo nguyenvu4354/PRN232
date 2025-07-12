@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.Product;
 using ShoppingWeb.DTOs.Promotion;

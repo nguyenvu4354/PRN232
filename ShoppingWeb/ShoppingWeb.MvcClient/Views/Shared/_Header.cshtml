@@ -1,4 +1,6 @@
-﻿<header class="main_menu home_menu">
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<header class="main_menu home_menu">
     <div class="container">
         <div class="row align-items-center justify-content-center">
             <div class="col-lg-12">
@@ -54,15 +56,35 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+	                            <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>1
                             </li>
+                            @{
+	                            var accessToken = HttpContextAccessor.HttpContext?.Request.Cookies["AccessToken"];
+                            }
+
+                            @if (!string.IsNullOrEmpty(accessToken))
+                            {
+	                            <li class="nav-item">
+                                    <a class="nav-link" asp-controller="User" asp-action="Profile">Profile</a>
+	                            </li>
+	                            <li class="nav-item">
+		                            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a>
+	                            </li>
+                            }
+                            else
+                            {
+	                            <li class="nav-item">
+		                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+	                            </li>
+                            }
+                            
                         </ul>
                     </div>
                     <div class="hearer_icon d-flex align-items-center">
                         <a id="search_1" href="javascript:void(0)"><i class="ti-search"></i></a>
                         <a asp-controller="Cart" asp-action="Index">
                             <i class="flaticon-shopping-cart-black-shape"></i>
-                        </a>
+                        </a>    
                     </div>
                 </nav>
             </div>

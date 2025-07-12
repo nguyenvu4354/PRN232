@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Statistics;
-using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 using System.Globalization;
 

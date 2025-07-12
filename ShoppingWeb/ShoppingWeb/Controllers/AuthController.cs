@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs.Auth;
+using ShoppingWeb.Exceptions;
 using ShoppingWeb.Response;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
@@ -35,9 +37,15 @@ namespace ShoppingWeb.Controllers
                     return BadRequest(ApiResponse<object>.ErrorResponse("Invalid model state",
                         HttpStatusCode.BadRequest.ToString()));
                 }
+
                 var response = await _authService.RegisterAsync(registerDto);
-                await _emailService.SendWelcomeEmailAsync(response.User.Email, response.User.FullName,null);
+                await _emailService.SendWelcomeEmailAsync(response.User.Email, response.User.FullName, null);
                 return Ok(ApiResponse<AuthResponseDTO>.SuccessResponse(response, "Register successful"));
+            }
+            catch (UserAlreadyExistException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message,
+                    HttpStatusCode.Conflict.ToString()));
             }
             catch (ArgumentException ex)
             {
@@ -81,31 +89,35 @@ namespace ShoppingWeb.Controllers
             }
         }
 
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
             await _authService.ForgotPasswordAsync(email);
-            return Ok(ApiResponse<string>.SuccessResponse(null,"The request reset password have been sending to your email. Please check!"));
+            return Ok(ApiResponse<string>.SuccessResponse(null, "The request reset password have been sending to your email. Please check!"));
         }
 
+        [Authorize]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(string tokenResetPassword, string newPassword)
         {
             try
             {
-               var stateResetPassword = await _authService.ResetPasswordAsync(tokenResetPassword, newPassword);
+                var stateResetPassword = await _authService.ResetPasswordAsync(tokenResetPassword, newPassword);
                 if (!stateResetPassword)
                 {
-                    return BadRequest(ApiResponse<string>.ErrorResponse("Password reset faild",HttpStatusCode.BadRequest.ToString()));
+                    return BadRequest(ApiResponse<string>.ErrorResponse("Password reset faild", HttpStatusCode.BadRequest.ToString()));
                 }
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 _logger.LogError($"{e.Message}");
                 throw;
             }
-            return Ok(ApiResponse<string>.SuccessResponse(null,"Password reset successfully"));
+            return Ok(ApiResponse<string>.SuccessResponse(null, "Password reset successfully"));
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

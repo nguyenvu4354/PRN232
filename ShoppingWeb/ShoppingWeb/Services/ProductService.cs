@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingWeb.Data;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
@@ -58,7 +59,7 @@ namespace ShoppingWeb.Services
                 ImageUrl = p.ImageUrl,
                 Brand = p.Brand != null ? p.Brand.Description : null,
                 Category = p.Category != null ? p.Category.Description : null
-            }) .ToListAsync();
+            }).ToListAsync();
         }
 
         public async Task<ProductDetailItemDto> GetProductByIdAsync(int id)
