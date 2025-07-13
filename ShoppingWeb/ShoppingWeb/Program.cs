@@ -7,6 +7,7 @@ using ShoppingWeb.Services;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.IServices;
 using ShoppingWeb.Services.ThirdParty;
+using ShoppingWeb.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,12 +38,13 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services.AddScoped<IGHN, GHN>();
 builder.Services.AddScoped<IPayOS, PayOS>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000")
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000" , "https://localhost:7026")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); 
@@ -99,5 +101,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Seed data khi ứng dụng khởi động
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ShoppingWebContext>();
+    DbInitializer.SeedData(context);
+}
 
 app.Run();
