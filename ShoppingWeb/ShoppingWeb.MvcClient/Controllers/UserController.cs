@@ -160,7 +160,77 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View(wrapper.Data);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfile(UserProfileResponseDTO model)
+        {
+            var accessToken = Request.Cookies["AccessToken"];
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                TempData["Error"] = "Please login!";
+                return RedirectToAction("Login", "Auth");
+            }
 
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            // Map sang DTO gửi API
+            var updateDto = new UserProfileUpdateDTO
+            {
+                FullName = model.FullName,
+                Phone = model.Phone,
+                Address = model.Address,
+                Email = model.Email,
+                Username = model.Username
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("User/update-profile", updateDto);
+            Console.WriteLine($"Update Profile Response: {response.StatusCode}");
+            Console.WriteLine($"Update Profile Response: {response}");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Update failed.";
+                return RedirectToAction("Profile", model);
+            }
+
+            TempData["Success"] = "Profile updated!";
+            return RedirectToAction("Profile");
+        }
+
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequestDTO requestDto)
+        {
+            if (requestDto.NewPassword != requestDto.ConfirmPassword)
+            {
+                ModelState.AddModelError("", "Passwords do not match.");
+                return View(requestDto); // hoặc View mới
+            }
+
+            var accessToken = Request.Cookies["AccessToken"];
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                TempData["Error"] = "Please login first!";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PostAsJsonAsync("User/change-password", requestDto); // Gọi API đổi pass
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Change password failed.";
+                return View(requestDto);
+            }
+
+            TempData["Success"] = "Password changed successfully.";
+            return RedirectToAction("ChangePassword"); // hoặc Profile
+        }
 
     }
 }

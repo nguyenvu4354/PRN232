@@ -35,6 +35,7 @@ namespace ShoppingWeb.Mapping
 
         public static void toEntity(UpdateUserProfileRequestDTO userRequestDTO, User user)
         {
+            user.Username = userRequestDTO.Username;
             user.Address = userRequestDTO.Address;
             user.Email = userRequestDTO.Email;
             user.FullName = userRequestDTO.FullName;
