@@ -1,0 +1,43 @@
+﻿@model ShoppingWeb.MvcClient.DTOs.Order.OrderResponseDTO
+
+@{
+    ViewBag.Title = "Order Detail";
+}
+
+<h2>Order Detail</h2>
+
+<table class="table table-striped">
+    <tr><th>Order ID</th><td>@Model.OrderId</td></tr>
+    <tr><th>User Name</th><td>@Model.UserName</td></tr>
+    <tr><th>Total Amount</th><td>@Model.TotalAmount.ToString("C")</td></tr>
+    <tr><th>Status</th><td>@Model.Status</td></tr>
+    <tr><th>Order Date</th><td>@Model.OrderDate?.ToString("yyyy-MM-dd")</td></tr>
+    <tr><th>Shipping Address</th><td>@Model.ShippingAddress</td></tr>
+</table>
+
+@if (Model.Details != null && Model.Details.Count > 0)
+{
+    <h4>Order Items</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Details)
+            {
+                <tr>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.UnitPrice * item.Quantity).ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a class="btn btn-secondary" href="@Url.Action("Index")">Back to List</a>
