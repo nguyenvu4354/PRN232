@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Order;
+using ShoppingWeb.DTOs.Orders;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Response;
 using ShoppingWeb.Services.Interface;

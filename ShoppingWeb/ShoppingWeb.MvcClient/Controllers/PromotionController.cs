@@ -134,7 +134,6 @@ namespace ShoppingWeb.MvcClient.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Gọi API lấy danh sách sản phẩm (không bọc ApiResponse)
             var productResponse = await _httpClient.GetAsync($"promotion/{id}/products");
 
             if (!productResponse.IsSuccessStatusCode)
@@ -148,7 +147,6 @@ namespace ShoppingWeb.MvcClient.Controllers
             var products = JsonSerializer.Deserialize<List<ProductResponseDTO>>(productJson,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // ✅ Đảm bảo không null
             var viewModel = new PromotionDetailViewModel
             {
                 Promotion = promotionResult.Data,

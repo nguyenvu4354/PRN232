@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Order;
+using ShoppingWeb.DTOs.Orders;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Services.Interface;
 

@@ -1,5 +1,5 @@
 ﻿using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Order;
+using ShoppingWeb.DTOs.Orders;
 
 namespace ShoppingWeb.Services.Interface
 {
