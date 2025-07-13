@@ -40,6 +40,8 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services.AddScoped<IGHN, GHN>();
 builder.Services.AddScoped<IPayOS, PayOS>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
 
 
 builder.Services.AddCors(options =>
@@ -113,5 +115,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// Seed data khi ứng dụng khởi động
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ShoppingWebContext>();
+    DbInitializer.SeedData(context);
+}
 
 app.Run();
