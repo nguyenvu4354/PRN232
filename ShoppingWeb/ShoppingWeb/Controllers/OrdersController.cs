@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Orders;
+using ShoppingWeb.DTOs.Order;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Response;
 using ShoppingWeb.Services.Interface;
@@ -71,31 +71,5 @@ namespace ShoppingWeb.Controllers
                     ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }
         }
-        [HttpPut("OrderDetail{id}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDTO dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.Status))
-            {
-                return BadRequest(ApiResponse<string>.ErrorResponse("Status is required", StatusCodes.Status400BadRequest.ToString()));
-            }
-
-            try
-            {
-                await _orderService.UpdateOrderStatusAsync(id, dto.Status);
-                return Ok(ApiResponse<string>.SuccessResponse("Order status updated successfully"));
-            }
-            catch (OrderNotFoundException ex)
-            {
-                _logger.LogWarning("Order not found when updating status: {Message}", ex.Message);
-                return NotFound(ApiResponse<string>.ErrorResponse("Order not found", StatusCodes.Status404NotFound.ToString()));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating order status.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
-            }
-        }
-
     }
 }

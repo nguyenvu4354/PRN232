@@ -1,5 +1,5 @@
 ﻿using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Orders;
+using ShoppingWeb.DTOs.Order;
 
 namespace ShoppingWeb.Services.Interface
 {
@@ -7,7 +7,5 @@ namespace ShoppingWeb.Services.Interface
     {
         Task<PagedResultDTO<OrderResponseDTO>> GetOrdersPagedAsync(int page, int pageSize);
         Task<OrderResponseDTO> GetOrderByIdAsync(int orderId);
-        Task UpdateOrderStatusAsync(int orderId, string status);
-
     }
 }

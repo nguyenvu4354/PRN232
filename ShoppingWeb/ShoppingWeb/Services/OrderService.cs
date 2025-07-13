@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShoppingWeb.Data;
 using ShoppingWeb.DTOs.Common;
-using ShoppingWeb.DTOs.Orders;
+using ShoppingWeb.DTOs.Order;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Services.Interface;
 
@@ -90,26 +90,5 @@ namespace ShoppingWeb.Services
                 }).ToList()
             };
         }
-        public async Task UpdateOrderStatusAsync(int orderId, string status)
-        {
-            var orderDetails = await _context.OrderDetails
-                .Where(od => od.CartId == orderId)
-                .ToListAsync();
-
-            if (!orderDetails.Any())
-            {
-                _logger.LogWarning("No order details found for order ID {OrderId}", orderId);
-                throw new OrderNotFoundException($"Order with ID {orderId} not found.");
-            }
-
-            foreach (var detail in orderDetails)
-            {
-                detail.Status = status;
-            }
-
-            _context.OrderDetails.UpdateRange(orderDetails);
-            await _context.SaveChangesAsync();
-        }
-
     }
 }
