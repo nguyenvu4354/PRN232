@@ -20,6 +20,8 @@ public partial class Cart
     public int? DistrictId { get; set; } = null!;
     public int? WardId { get; set; } = null!;
 
+    public string? PaymentCode { get; set; } = null!;
+    public string? OrderCode { get; set; } = null!;
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

@@ -94,6 +94,7 @@ public partial class ShoppingWebContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.Thumbnail).HasColumnName("Thumbnail");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
@@ -133,6 +134,8 @@ public partial class ShoppingWebContext : DbContext
             entity.Property(e => e.ProvinceId).HasColumnName("Province_id");
             entity.Property(e => e.DistrictId).HasColumnName("District_id");
             entity.Property(e => e.WardId).HasColumnName("Ward_id");
+            entity.Property(e => e.PaymentCode).HasColumnName("PaymentCode");
+            entity.Property(e => e.OrderCode).HasColumnName("OrderCode");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserId).HasColumnName("UserID");

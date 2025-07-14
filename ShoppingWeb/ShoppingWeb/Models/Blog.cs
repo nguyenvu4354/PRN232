@@ -8,6 +8,7 @@ public partial class Blog
     public int BlogId { get; set; }
 
     public string Title { get; set; } = null!;
+    public string Thumbnail {  get; set; } = null!;
 
     public string Content { get; set; } = null!;
 

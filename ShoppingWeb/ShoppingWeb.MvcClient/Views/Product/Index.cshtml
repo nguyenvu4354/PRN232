@@ -6,7 +6,6 @@
 @model ShoppingWeb.MvcClient.Controllers.ProductListViewModel
 
 
-<body>
     <!-- breadcrumb part start-->
     <section class="breadcrumb_part">
         <div class="container">
@@ -26,40 +25,50 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="product_sidebar">
+
+                    <form method="get" action="Product/Index">
                         <div class="single_sedebar">
-                            <form action="#" onsubmit="return false;">
+                            @* <form action="#" onsubmit="return false;"> *@
                                 <input type="text"
-                                       name="product_search_sidebar"
+                                       name="search"
                                        id="sidebar_search"
                                        placeholder="Search keyword"
                                        onchange="filterProducts()"
                                        onkeyup="filterProducts()"
                                        autocomplete="off">
                                 <i class="ti-search"></i>
-                            </form>
+                            @* </form> *@
                         </div>
                         <div class="single_sedebar">
-                            <div class="select_option">
-                                <div class="select_option_list">Category <i class="right fas fa-caret-down"></i> </div>
-                                <div class="select_option_dropdown">
-                                    <p><a href="#">Category 1</a></p>
-                                    <p><a href="#">Category 2</a></p>
-                                    <p><a href="#">Category 3</a></p>
-                                    <p><a href="#">Category 4</a></p>
+                            <div class="single-element-widget mt-30">
+                                <h3 class="mb-30">Category</h3>
+                                <div class="default-select" id="default-select_2">
+                                    <select name="category">
+                                        <option value="">Select category</option>
+                                        @foreach (var category in Model.Categories)
+                                        {
+										    <option value="@category.Id">@category.Name</option>
+                                        }
+                                    </select>
                                 </div>
                             </div>
                         </div>
                         <div class="single_sedebar">
-                            <div class="select_option">
-                                <div class="select_option_list">Type <i class="right fas fa-caret-down"></i> </div>
-                                <div class="select_option_dropdown">
-                                    <p><a href="#">Type 1</a></p>
-                                    <p><a href="#">Type 2</a></p>
-                                    <p><a href="#">Type 3</a></p>
-                                    <p><a href="#">Type 4</a></p>
+                            <div class="single-element-widget mt-30">
+                                <h3 class="mb-30">Brand</h3>
+                                <div class="default-select" id="default-select_2">
+                                    <select name="brand">
+                                        <option value="">Select brand</option>
+                                        @foreach (var brand in Model.Brands)
+                                        {
+                                            <option value="@brand.Name">@brand.Name</option>
+                                        }
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                            <button type="submit" class="genric-btn primary radius">Search</button>
+                    </form>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -86,66 +95,35 @@
 										</a>
 									</h3>
 									<p>$@item.Price</p>
-								</div>
-							}
+                                </div>
+                                }
                         </div>
+                        <!-- Pagination Start -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageIndex - 1, search = Model.Search, category = Model.SelectedCategory, brand = Model.SelectedBrand })" tabindex="-1">Previous</a>
+                                    </li>
+                                    @for (int pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+                                    {
+                                            <li class="page-item @(Model.PageIndex == pageNumber ? "active" : "")">
+                                                <a class="page-link" href="@Url.Action("Index", new { page = pageNumber, search = Model.Search, category = Model.SelectedCategory, brand = Model.SelectedBrand })">@pageNumber </a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", new { page = Model.PageIndex + 1, search = Model.Search, category = Model.SelectedCategory, brand = Model.SelectedBrand })">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                        <!-- Pagination End -->
                     </div>
                 </div>
             </div>
+            
         </div>
     </section>
     <!-- product list part end-->
-    <!-- footer part start-->
-    <!-- footer part end-->
-    <!-- jquery plugins here-->
-    <script src="js/jquery-1.12.1.min.js"></script>
-    <!-- popper js -->
-    <script src="js/popper.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- easing js -->
-    <script src="js/jquery.magnific-popup.js"></script>
-    <!-- swiper js -->
-    <script src="js/swiper.min.js"></script>
-    <!-- swiper js -->
-    <script src="js/masonry.pkgd.js"></script>
-    <!-- particles js -->
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.nice-select.min.js"></script>
-    <!-- slick js -->
-    <script src="js/slick.min.js"></script>
-    <script src="js/jquery.counterup.min.js"></script>
-    <script src="js/waypoints.min.js"></script>
-    <!-- custom js -->
-    <script src="js/custom.js"></script>
 
-    <script>
-        // Search toggle
-        document.getElementById('search_1').addEventListener('click', () => {
-            document.getElementById('search_input_box').style.display = 'block';
-            document.getElementById('search_input').focus();
-        });
-
-        function closeSearch() {
-            document.getElementById('search_input_box').style.display = 'none';
-            document.getElementById('search_input').value = '';
-            filterProducts();
-        }
-
-        // Filter function for demo: filters product items by matching title text with input value
-        function filterProducts() {
-            const searchTerm = (document.getElementById('search_input').value || document.getElementById('sidebar_search').value).toLowerCase();
-            const products = document.querySelectorAll('.single_product_item');
-            products.forEach(prod => {
-                const title = prod.getAttribute('data-title').toLowerCase();
-                if (title.includes(searchTerm)) {
-                    prod.style.display = '';
-                } else {
-                    prod.style.display = 'none';
-                }
-            });
-        }
-    </script>
-</body>
-
-</html>

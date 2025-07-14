@@ -15,22 +15,23 @@ namespace ShoppingWeb.MvcClient.Controllers
             string? brand = null,
             string? category = null,
             string? sortBy = null,
-            int pageIndex = 1,
-            int pageSize = 10)
+            int pageIndex = 1)
         {
             var viewModel = new ProductListViewModel
             {
                 Search = search,
                 SortBy = sortBy,
                 PageIndex = pageIndex,
-                PageSize = pageSize,
+                PageSize = 10,
+                SelectedBrand = brand,
+                SelectedCategory = category
             };
 
             var url = $"Product/products/advanced?search={Uri.EscapeDataString(search ?? string.Empty)}" +
                       $"&brand={Uri.EscapeDataString(brand ?? string.Empty)}" +
                       $"&category={Uri.EscapeDataString(category ?? string.Empty)}" +
                       $"&sortBy={Uri.EscapeDataString(sortBy ?? string.Empty)}" +
-                      $"&pageIndex={pageIndex}&pageSize={pageSize}";
+                      $"&pageIndex={pageIndex}&pageSize={10}";
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
@@ -40,17 +41,48 @@ namespace ShoppingWeb.MvcClient.Controllers
                 viewModel.ErrorCode = response.StatusCode.ToString();
                 return View(viewModel);
             }
-            else
-            {
-                viewModel.Success = true;
-                viewModel.Message = "Fetched successfully";
-            }
+            viewModel.Success = true;
+            viewModel.Message = "Fetched successfully";
             var json = response.Content.ReadAsStringAsync().Result;
             var result = System.Text.Json.JsonSerializer.Deserialize<List<ProductListItemResponseDTO>>(
                 json,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
             viewModel.Products = result;
+            viewModel.TotalPages = (int)Math.Ceiling((double)result.Count / viewModel.PageSize);
+
+            // Fetch brands
+            var brandResponse = await _httpClient.GetAsync("BrandManagement");
+            if(!brandResponse.IsSuccessStatusCode)
+            {
+                viewModel.Success = false;
+                var brandErrorContent = await brandResponse.Content.ReadAsStringAsync();
+                viewModel.Message = $"Error fetching brands API {brandErrorContent}";
+                viewModel.ErrorCode = brandResponse.StatusCode.ToString();
+                return View(viewModel);
+            }
+            var brandJson = await brandResponse.Content.ReadAsStringAsync();
+            var brands = System.Text.Json.JsonSerializer.Deserialize<List<BrandDTO>>(
+                brandJson,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+            viewModel.Brands = brands ?? new List<BrandDTO>();
+            // Fetch categories
+            var categoryResponse = await _httpClient.GetAsync("CategoriesManagement");
+            if (!categoryResponse.IsSuccessStatusCode)
+            {
+                viewModel.Success = false;
+                var categoryErrorContent = await categoryResponse.Content.ReadAsStringAsync();
+                viewModel.Message = $"Error fetching categories API {categoryErrorContent}";
+                viewModel.ErrorCode = categoryResponse.StatusCode.ToString();
+                return View(viewModel);
+            }
+            var categoryJson = await categoryResponse.Content.ReadAsStringAsync();
+            var categories = System.Text.Json.JsonSerializer.Deserialize<List<CategoryDTO>>(
+                categoryJson,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+            viewModel.Categories = categories ?? new List<CategoryDTO>();
 
             return View(viewModel);
         }
@@ -90,9 +122,12 @@ namespace ShoppingWeb.MvcClient.Controllers
         public string? SortBy { get; set; }
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public int TotalPages { get; set; } = 1;
         public string? Message { get; set; } = string.Empty;
         public string? ErrorCode { get; set; } = string.Empty;
         public bool Success { get; set; } = true;
+        public string? SelectedBrand { get; set; } = string.Empty;
+        public string? SelectedCategory { get; set; } = string.Empty;
         public List<ProductListItemResponseDTO> Products { get; set; } = new List<ProductListItemResponseDTO>();
     }
 
