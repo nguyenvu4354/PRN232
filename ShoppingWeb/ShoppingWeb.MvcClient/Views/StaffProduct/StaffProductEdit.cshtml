@@ -1,0 +1,127 @@
+@{
+    ViewData["Title"] = "Sửa sản phẩm (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var productId = ViewBag.ProductId;
+}
+<h2>Sửa sản phẩm</h2>
+<form id="editForm" enctype="multipart/form-data">
+    <input type="hidden" name="productId" id="productId" value="@productId" />
+    <div class="mb-3">
+        <label>Tên sản phẩm</label>
+        <input type="text" class="form-control" name="productName" id="productName" required />
+    </div>
+    <div class="mb-3">
+        <label>Giá</label>
+        <input type="number" class="form-control" name="price" id="price" required />
+    </div>
+    <div class="mb-3">
+        <label>Brand</label>
+        <select class="form-control" name="brandId" id="brandSelect" required></select>
+    </div>
+    <div class="mb-3">
+        <label>Category</label>
+        <select class="form-control" name="categoryId" id="categorySelect" required></select>
+    </div>
+    <div class="mb-3">
+        <label>Ảnh sản phẩm</label>
+        <input type="file" class="form-control" name="imageFile" accept="image/*" />
+        <img id="previewImg" src="#" style="max-width:120px; margin-top:10px; display:none;" />
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a href="@Url.Action("StaffProductList", "StaffProduct")" class="btn btn-secondary">Quay lại</a>
+</form>
+@section Scripts {
+    <script>
+        const productId = '@productId';
+
+        // Hàm load dropdown Brand
+        function loadBrands(selectedId) {
+            return fetch('http://localhost:5028/api/BrandManagement')
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<option value="">Chọn Brand</option>'; // Option mặc định
+                    data.forEach(b => {
+                        html += `<option value='${b.id}'>${b.name}</option>`;
+                    });
+                    document.getElementById('brandSelect').innerHTML = html;
+                    // Gán giá trị selectedId sau khi dropdown được nạp
+                    if (selectedId) {
+                        const select = document.getElementById('brandSelect');
+                        select.value = selectedId;
+                    }
+                    return Promise.resolve();
+                })
+                .catch(error => console.error('Error loading brands:', error));
+        }
+
+        // Hàm load dropdown Category
+        function loadCategories(selectedId) {
+            return fetch('http://localhost:5028/api/CategoriesManagement')
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<option value="">Chọn Category</option>'; // Option mặc định
+                    data.forEach(c => {
+                        html += `<option value='${c.id}'>${c.name}</option>`;
+                    });
+                    document.getElementById('categorySelect').innerHTML = html;
+                    // Gán giá trị selectedId sau khi dropdown được nạp
+                    if (selectedId) {
+                        const select = document.getElementById('categorySelect');
+                        select.value = selectedId;
+                    }
+                    return Promise.resolve();
+                })
+                .catch(error => console.error('Error loading categories:', error));
+        }
+
+        // Load product info và đồng bộ set value cho select
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('http://localhost:5028/api/ProductsManagement/' + productId)
+                .then(r => r.json())
+                .then(prod => {
+                    document.getElementById('productName').value = prod.name || '';
+                    document.getElementById('price').value = prod.price || '';
+                    // Lấy brandId/categoryId đúng nhất
+                    let brandId = prod.brandId;
+                    let categoryId = prod.categoryId;
+                    // Nếu không có, thử lấy từ prod.brand?.id hoặc prod.brand hoặc prod.brandID
+                    if (!brandId && prod.brand) brandId = prod.brand.id || prod.brand.brandId || prod.brandID;
+                    if (!categoryId && prod.category) categoryId = prod.category.id || prod.category.categoryId || prod.categoryID;
+                    // Nếu vẫn không có, thử lấy từ prod.brandID/prod.categoryID
+                    if (!brandId && prod.brandID) brandId = prod.brandID;
+                    if (!categoryId && prod.categoryID) categoryId = prod.categoryID;
+                    // Chờ dropdowns được tải xong rồi gán giá trị
+                    Promise.all([
+                        loadBrands(brandId),
+                        loadCategories(categoryId)
+                    ]).then(() => {
+                        const brandSelect = document.getElementById('brandSelect');
+                        const categorySelect = document.getElementById('categorySelect');
+                        brandSelect.value = brandId || '';
+                        categorySelect.value = categoryId || '';
+                    });
+
+                    if (prod.imageUrl) {
+                        document.getElementById('previewImg').src = prod.imageUrl;
+                        document.getElementById('previewImg').style.display = 'block';
+                    }
+                })
+                .catch(error => console.error('Error fetching product:', error));
+        });
+
+        // Submit form
+        document.getElementById('editForm').onsubmit = function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            fetch('http://localhost:5028/api/ProductsManagement/' + productId, {
+                method: 'PUT',
+                body: formData
+            })
+            .then(res => {
+                if(res.ok) window.location.href = '/StaffProduct/StaffProductList';
+                else alert('Cập nhật sản phẩm thất bại!');
+            })
+            .catch(error => console.error('Error updating product:', error));
+        }
+    </script>
+}

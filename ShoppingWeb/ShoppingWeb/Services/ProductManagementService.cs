@@ -33,7 +33,10 @@ namespace ShoppingWeb.Services
         }
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .ToListAsync();
         }
         public async Task<Product> UpdateProductAsync(Product product)
         {

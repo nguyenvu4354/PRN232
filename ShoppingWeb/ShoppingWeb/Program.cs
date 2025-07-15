@@ -12,7 +12,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// builder.Services.AddTransient<DbSeeder>();
+builder.Services.AddTransient<DbSeeder>();
 builder.Services.AddScoped<DbSeeder>();
 
 builder.Services.AddControllers();
@@ -31,9 +31,9 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ShoppingWeb.Services.Interface.IBrandService, ShoppingWeb.Services.BrandService>();
-builder.Services.AddScoped<ShoppingWeb.Services.Interface.ICategoryService, ShoppingWeb.Services.CategoryService>();
-builder.Services.AddScoped<ShoppingWeb.Services.Interface.IProductManagementService, ShoppingWeb.Services.ProductManagementService>();
+builder.Services.AddScoped<IBrandService, BrandService>();
+builder.Services.AddScoped<ICategoryService,CategoryService>();
+builder.Services.AddScoped<IProductManagementService,ProductManagementService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ICartService, CartService>();

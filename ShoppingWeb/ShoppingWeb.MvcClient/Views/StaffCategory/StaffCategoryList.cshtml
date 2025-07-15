@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "Quản lý danh mục (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+<h2>Quản lý danh mục</h2>
+<div class="mb-3">
+    <a class="btn btn-success" href="@Url.Action("StaffCategoryCreate", "StaffCategory")">+ Thêm danh mục</a>
+</div>
+<table class="table table-bordered" id="categoryTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên danh mục</th>
+            <th>Mô tả</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Danh mục sẽ được render bằng JS -->
+    </tbody>
+</table>
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('http://localhost:5028/api/CategoriesManagement')
+            .then(res => res.json())
+            .then(data => renderCategories(data));
+    });
+    function renderCategories(categories) {
+        let html = '';
+        categories.forEach(category => {
+            html += `<tr>
+                <td>${category.id}</td>
+                <td>${category.name}</td>
+                <td>${category.description || ''}</td>
+                <td>
+                    <a class='btn btn-primary btn-sm' href='/StaffCategory/StaffCategoryEdit/${category.id}'>Sửa</a>
+                    <a class='btn btn-danger btn-sm' href='/StaffCategory/StaffCategoryDelete/${category.id}'>Xóa</a>
+                </td>
+            </tr>`;
+        });
+        document.querySelector('#categoryTable tbody').innerHTML = html;
+    }
+</script>
+} 

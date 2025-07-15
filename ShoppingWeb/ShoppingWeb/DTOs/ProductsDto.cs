@@ -8,6 +8,11 @@
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public string? ImageUrl { get; set; }
+        public string? BrandName { get; set; } // Thêm trường BrandName
+        public string? CategoryName { get; set; } // Thêm trường CategoryName
+
+        public int? BrandId { get; set; } // Thêm trường BrandId
+        public int? CategoryId { get; set; } // Thêm trường CategoryId
     }
 
     public class ProductListItemResponseDto

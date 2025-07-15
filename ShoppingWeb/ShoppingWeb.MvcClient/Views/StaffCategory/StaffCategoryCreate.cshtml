@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Thêm danh mục (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+<h2>Thêm danh mục</h2>
+<form id="createCategoryForm">
+    <div class="mb-3">
+        <label>Tên danh mục</label>
+        <input type="text" class="form-control" name="name" required />
+    </div>
+    <div class="mb-3">
+        <label>Mô tả</label>
+        <textarea class="form-control" name="description"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a href="@Url.Action("StaffCategoryList", "StaffCategory")" class="btn btn-secondary">Quay lại</a>
+</form>
+@section Scripts {
+<script>
+    document.getElementById('createCategoryForm').onsubmit = function(e) {
+        e.preventDefault();
+        const data = {
+            name: this.name.value,
+            description: this.description.value
+        };
+        fetch('http://localhost:5028/api/CategoriesManagement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';
+            else alert('Thêm danh mục thất bại!');
+        });
+    }
+</script>
+} 

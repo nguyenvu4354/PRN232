@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Xóa thương hiệu (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var brandId = ViewBag.BrandId;
+}
+<h2>Xác nhận xóa thương hiệu</h2>
+<p>Bạn có chắc chắn muốn xóa thương hiệu này không?</p>
+<form id="deleteBrandForm">
+    <input type="hidden" name="id" value="@brandId" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="@Url.Action("StaffBrandList", "StaffBrand")" class="btn btn-secondary">Hủy</a>
+</form>
+@section Scripts {
+<script>
+    const brandId = '@brandId';
+    document.getElementById('deleteBrandForm').onsubmit = function(e) {
+        e.preventDefault();
+        fetch('http://localhost:5028/api/BrandManagement/' + brandId, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffBrand/StaffBrandList';
+            else alert('Xóa thương hiệu thất bại!');
+        });
+    }
+</script>
+} 
