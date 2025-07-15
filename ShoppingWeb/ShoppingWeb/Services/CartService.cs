@@ -127,7 +127,7 @@ namespace ShoppingWeb.Services
             cart.OrderDate = DateTime.UtcNow;
             cart.IsCart = false;
             cart.UpdatedAt = DateTime.UtcNow;
-            cart.ShippingAddress += $"#{response.OrderCode}";
+            cart.OrderCode = response.OrderCode;
             await _context.SaveChangesAsync();
             return response;
         }
@@ -156,7 +156,7 @@ namespace ShoppingWeb.Services
             CreatePaymentResponse response = await _payOS.CreatePayment(request);
             cart.IsCart = false;
             cart.UpdatedAt = DateTime.UtcNow;
-            cart.ShippingAddress = $"{response.OrderCode}#{cart.ShippingAddress}";
+            cart.PaymentCode = response.OrderCode.ToString();
             await _context.SaveChangesAsync();
             return response;
         }
@@ -228,8 +228,8 @@ namespace ShoppingWeb.Services
             {
                 throw new ArgumentException("Order not found.");
             }
-            var orderCode = cart.ShippingAddress.Split('#').FirstOrDefault();
-            if (long.TryParse(orderCode, out long orderCodeLong) == false)
+            var PaymentCode = cart.PaymentCode;
+            if (long.TryParse(PaymentCode, out long orderCodeLong) == false)
             {
                 throw new ArgumentException("Invalid order code or no code.");
             }
