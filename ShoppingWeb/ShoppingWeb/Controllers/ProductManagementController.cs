@@ -32,7 +32,19 @@ namespace ShoppingWeb.Controllers
             var result = new List<ProductDto>();
             foreach (var p in products)
             {
-                result.Add(new ProductDto { Id = p.ProductId, Name = p.ProductName, Description = p.Description, Price = p.Price, StockQuantity = p.StockQuantity, ImageUrl = p.ImageUrl });
+                result.Add(new ProductDto
+                {
+                    Id = p.ProductId,
+                    Name = p.ProductName,
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    BrandName = p.Brand?.BrandName, // Lấy tên Brand từ quan hệ
+                    CategoryName = p.Category?.CategoryName, // Lấy tên Category từ quan hệ
+                    BrandId = p.BrandId, // Thêm BrandId
+                    CategoryId = p.CategoryId // Thêm CategoryId
+                });
             }
             return result;
         }
@@ -42,7 +54,18 @@ namespace ShoppingWeb.Controllers
         {
             var product = await _productService.GetProductByIdAsync(id);
             if (product == null) return NotFound();
-            return new ProductDto { Id = product.ProductId, Name = product.ProductName, Description = product.Description, Price = product.Price, StockQuantity = product.StockQuantity, ImageUrl = product.ImageUrl };
+            return new ProductDto {
+                Id = product.ProductId,
+                Name = product.ProductName,
+                Description = product.Description,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                ImageUrl = product.ImageUrl,
+                BrandName = product.Brand?.BrandName,
+                CategoryName = product.Category?.CategoryName,
+                BrandId = product.BrandId, // Thêm BrandId
+                CategoryId = product.CategoryId // Thêm CategoryId
+            };
         }
 
         [HttpPost]

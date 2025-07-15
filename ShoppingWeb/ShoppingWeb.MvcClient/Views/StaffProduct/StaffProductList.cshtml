@@ -1,0 +1,59 @@
+@{
+    ViewData["Title"] = "Quản lý sản phẩm (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+<h2>Quản lý sản phẩm</h2>
+<div class="mb-3">
+    <a class="btn btn-success" href="@Url.Action("StaffProductCreate", "StaffProduct")">+ Thêm sản phẩm</a>
+</div>
+<table class="table table-bordered" id="productTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Ảnh</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Sản phẩm sẽ được render bằng JS -->
+    </tbody>
+</table>
+
+@section Scripts {
+<script>
+    let brands = [];
+    let categories = [];
+            document.addEventListener('DOMContentLoaded', function () {
+            fetch('http://localhost:5028/api/ProductsManagement')
+                .then(r => r.json())
+                .then(productData => {
+                    renderProducts(productData);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+
+        function renderProducts(products) {
+            let html = '';
+            products.forEach(prod => {
+                html += `<tr>
+                    <td>${prod.id}</td>
+                    <td>${prod.name}</td>
+                    <td>${prod.price}</td>
+                    <td>${prod.brandName || 'Unknown Brand'}</td> <!-- Sử dụng brandName trực tiếp -->
+                    <td>${prod.categoryName || 'Unknown Category'}</td> <!-- Sử dụng categoryName trực tiếp -->
+                    <td><img src="${prod.imageUrl || '/img/product/default.png'}" width="60"/></td>
+                    <td>
+                        <a class='btn btn-primary btn-sm' href='/StaffProduct/StaffProductEdit/${prod.id}'>Sửa</a>
+                        <a class='btn btn-danger btn-sm' href='/StaffProduct/StaffProductDelete/${prod.id}'>Xóa</a>
+                        </td>
+                    </tr>`;
+            });
+            document.querySelector('#productTable tbody').innerHTML = html;
+        }
+</script>
+} 

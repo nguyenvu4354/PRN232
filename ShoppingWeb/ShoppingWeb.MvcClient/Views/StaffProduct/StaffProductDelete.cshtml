@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Xóa sản phẩm (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var productId = ViewBag.ProductId;
+}
+<h2>Xác nhận xóa sản phẩm</h2>
+<p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+<form id="deleteForm">
+    <input type="hidden" name="productId" value="@productId" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="@Url.Action("StaffProductList", "StaffProduct")" class="btn btn-secondary">Hủy</a>
+</form>
+@section Scripts {
+<script>
+    document.getElementById('deleteForm').onsubmit = function(e) {
+        e.preventDefault();
+        fetch('http://localhost:5028/api/ProductsManagement/' + '@productId', {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffProduct/StaffProductList';
+            else alert('Xóa sản phẩm thất bại!');
+        });
+    }
+</script>
+} 

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Xóa danh mục (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var categoryId = ViewBag.CategoryId;
+}
+<h2>Xác nhận xóa danh mục</h2>
+<p>Bạn có chắc chắn muốn xóa danh mục này không?</p>
+<form id="deleteCategoryForm">
+    <input type="hidden" name="id" value="@categoryId" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="@Url.Action("StaffCategoryList", "StaffCategory")" class="btn btn-secondary">Hủy</a>
+</form>
+@section Scripts {
+<script>
+    const categoryId = '@categoryId';
+    document.getElementById('deleteCategoryForm').onsubmit = function(e) {
+        e.preventDefault();
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';
+            else alert('Xóa danh mục thất bại!');
+        });
+    }
+</script>
+} 

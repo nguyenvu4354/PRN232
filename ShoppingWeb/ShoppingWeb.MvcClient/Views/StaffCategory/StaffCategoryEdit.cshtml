@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Sửa danh mục (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var categoryId = ViewBag.CategoryId;
+}
+<h2>Sửa danh mục</h2>
+<form id="editCategoryForm">
+    <input type="hidden" name="id" id="categoryId" value="@categoryId" />
+    <div class="mb-3">
+        <label>Tên danh mục</label>
+        <input type="text" class="form-control" name="name" id="categoryName" required />
+    </div>
+    <div class="mb-3">
+        <label>Mô tả</label>
+        <textarea class="form-control" name="description" id="categoryDescription"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a href="@Url.Action("StaffCategoryList", "StaffCategory")" class="btn btn-secondary">Quay lại</a>
+</form>
+@section Scripts {
+<script>
+    const categoryId = '@categoryId';
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId)
+            .then(r => r.json())
+            .then(category => {
+                document.getElementById('categoryName').value = category.name || '';
+                document.getElementById('categoryDescription').value = category.description || '';
+            });
+    });
+    document.getElementById('editCategoryForm').onsubmit = function(e) {
+        e.preventDefault();
+        const data = {
+            id: categoryId,
+            name: this.name.value,
+            description: this.description.value
+        };
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';
+            else alert('Cập nhật danh mục thất bại!');
+        });
+    }
+</script>
+} 

@@ -1,0 +1,50 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <style>
+        body { min-height: 100vh; }
+        .sidebar {
+            min-width: 220px;
+            min-height: 100vh;
+            background: #343a40;
+            color: #fff;
+        }
+        .sidebar .nav-link {
+            color: #fff;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #495057;
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <nav class="sidebar p-3">
+            <h4 class="mb-4">Staff Menu</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="@Url.Action("StaffProductList", "StaffProduct")">Quản lý sản phẩm</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="@Url.Action("StaffBrandList", "StaffBrand")">Quản lý thương hiệu</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="@Url.Action("StaffCategoryList", "StaffCategory")">Quản lý danh mục</a>
+                </li>
+            </ul>
+        </nav>
+        <main class="flex-fill p-4">
+            @RenderBody()
+        </main>
+    </div>
+    @RenderSection("Scripts", required: false)
+</body>
+</html> 

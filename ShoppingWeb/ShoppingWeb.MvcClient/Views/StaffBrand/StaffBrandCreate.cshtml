@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Thêm thương hiệu (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+<h2>Thêm thương hiệu</h2>
+<form id="createBrandForm">
+    <div class="mb-3">
+        <label>Tên thương hiệu</label>
+        <input type="text" class="form-control" name="name" required />
+    </div>
+    <div class="mb-3">
+        <label>Mô tả</label>
+        <textarea class="form-control" name="description"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a href="@Url.Action("StaffBrandList", "StaffBrand")" class="btn btn-secondary">Quay lại</a>
+</form>
+@section Scripts {
+<script>
+    document.getElementById('createBrandForm').onsubmit = function(e) {
+        e.preventDefault();
+        const data = {
+            name: this.name.value,
+            description: this.description.value
+        };
+        fetch('http://localhost:5028/api/BrandManagement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffBrand/StaffBrandList';
+            else alert('Thêm thương hiệu thất bại!');
+        });
+    }
+</script>
+} 

@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "Quản lý thương hiệu (Staff)";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+<h2>Quản lý thương hiệu</h2>
+<div class="mb-3">
+    <a class="btn btn-success" href="@Url.Action("StaffBrandCreate", "StaffBrand")">+ Thêm thương hiệu</a>
+</div>
+<table class="table table-bordered" id="brandTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên thương hiệu</th>
+            <th>Mô tả</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Thương hiệu sẽ được render bằng JS -->
+    </tbody>
+</table>
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('http://localhost:5028/api/BrandManagement')
+            .then(res => res.json())
+            .then(data => renderBrands(data));
+    });
+    function renderBrands(brands) {
+        let html = '';
+        brands.forEach(brand => {
+            html += `<tr>
+                <td>${brand.id}</td>
+                <td>${brand.name}</td>
+                <td>${brand.description || ''}</td>
+                <td>
+                    <a class='btn btn-primary btn-sm' href='/StaffBrand/StaffBrandEdit/${brand.id}'>Sửa</a>
+                    <a class='btn btn-danger btn-sm' href='/StaffBrand/StaffBrandDelete/${brand.id}'>Xóa</a>
+                </td>
+            </tr>`;
+        });
+        document.querySelector('#brandTable tbody').innerHTML = html;
+    }
+</script>
+} 
