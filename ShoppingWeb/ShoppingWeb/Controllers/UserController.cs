@@ -33,15 +33,7 @@ namespace ShoppingWeb.Controllers
             }
             return userId;
         }
-        //
-        // [HttpGet]
-        // [Authorize(Roles = "ADMIN")]
-        // [Obsolete("This is a test endpoint and should not be used in production.")]
-        // public IActionResult TestData()
-        // {
-        //     _logger.LogInformation("TestData endpoint accessed by admin.");
-        //     return Ok("Hello world");
-        // }
+        
 
         [HttpPost("change-password")]
         [Authorize(Roles = "CUSTOMER")]
@@ -176,7 +168,7 @@ namespace ShoppingWeb.Controllers
             }
         }
 
-        [HttpPatch("{id}/status")]
+        [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UpdateUserStatusDTO statusDto)
         {
             if (statusDto == null)

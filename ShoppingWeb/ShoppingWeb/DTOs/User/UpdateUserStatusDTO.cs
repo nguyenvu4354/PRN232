@@ -1,4 +1,4 @@
-﻿namespace ShoppingWeb.DTOs.User
+﻿    namespace ShoppingWeb.DTOs.User
 {
     public class UpdateUserStatusDTO
     {

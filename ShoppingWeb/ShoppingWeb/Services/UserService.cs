@@ -6,6 +6,7 @@ using ShoppingWeb.Enum;
 using ShoppingWeb.Exceptions;
 using ShoppingWeb.Helpers;
 using ShoppingWeb.Mapping;
+using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
@@ -194,7 +195,8 @@ namespace ShoppingWeb.Services
                 FullName = user.FullName,
                 Phone = user.Phone,
                 Address = user.Address,
-                RoleName = user.Role.RoleName
+                RoleName = user.Role.RoleName,
+                IsActive = user.IsActive
             };
         }
     }

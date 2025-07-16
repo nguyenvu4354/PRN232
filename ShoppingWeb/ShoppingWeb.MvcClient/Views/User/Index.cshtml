@@ -68,10 +68,15 @@ else
                               asp-route-id="@user.UserId"
                               style="display:inline;"
                               onsubmit="return confirm('Are you sure you want to change status?');">
+
+                            <!-- Truyền trạng thái mới -->
+                            <input type="hidden" name="newStatus" value="@(user.IsActive ? "false" : "true")" />
+
                             <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-warning" : "btn-success")">
-                                @(user.IsActive ? "Deactivate" : "Activate")
+                                @(user.IsActive ? "Inactive" : "Activate")
                             </button>
                         </form>
+
                     </td>
                 </tr>
             }
