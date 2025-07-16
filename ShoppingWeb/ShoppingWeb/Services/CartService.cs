@@ -172,29 +172,22 @@ namespace ShoppingWeb.Services
             return cart.OrderDetails.Count;
         }
 
-        public async Task<IEnumerable<OrderDetail>> GetCartItemsAsync(int userId)
+        public async Task<IEnumerable<CartItemDTO>> GetCartItemsAsync(int userId)
         {
             var cart = await _context.Carts.Include(c => c.OrderDetails).ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsCart);
             if (cart == null)
             {
-                return Enumerable.Empty<OrderDetail>();
+                return Enumerable.Empty<CartItemDTO>();
             }
 
-            return cart.OrderDetails.Select(od => new OrderDetail
+            return cart.OrderDetails.Select(od => new CartItemDTO
             {
-                CartId = od.CartId,
                 ProductId = od.ProductId,
-                Quantity = od.Quantity,
-                UnitPrice = od.UnitPrice,
-                CreatedAt = od.CreatedAt,
-                Product = new Product
-                {
-                    ProductId = od.Product.ProductId,
-                    ProductName = od.Product.ProductName,
-                    Price = od.Product.Price,
-                    ImageUrl = od.Product.ImageUrl
-                }
+                ProductName = od.Product.ProductName,
+                ProductImage = od.Product.ImageUrl,
+                Price = od.UnitPrice,
+                Quantity = od.Quantity
             }).ToList();
         }
 
@@ -323,12 +316,19 @@ namespace ShoppingWeb.Services
                 throw new ArgumentException("Cart not found.");
             }
 
-            var orderDetail = await _context.OrderDetails.FirstOrDefaultAsync(od => od.CartId == cart.CartId && od.ProductId == productId);
+            var orderDetail = await _context.OrderDetails.Include(od => od.Product).FirstOrDefaultAsync(od => od.CartId == cart.CartId && od.ProductId == productId);
             if (orderDetail == null)
             {
                 throw new ArgumentException("Product not found in cart.");
             }
-
+            if(quantity <= 0)
+            {
+                throw new ArgumentException("Quantity must be greater than zero.");
+            }
+            if(orderDetail.Product.StockQuantity < quantity)
+            {
+                throw new ArgumentException("Insufficient stock for the requested quantity.");
+            }
             orderDetail.Quantity = quantity;
 
             _context.OrderDetails.Update(orderDetail);

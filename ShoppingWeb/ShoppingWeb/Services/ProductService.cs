@@ -14,7 +14,7 @@ namespace ShoppingWeb.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<ProductListItemResponseDto>> GetProductAdvancedAsync(string? search, string? brand, string? category, string? sortBy, int pageIndex, int pageSize)
+        public async Task<IEnumerable<ProductListItemResponseDto>> GetProductAdvancedAsync(string? search, int? brand, int? category, string? sortBy, int pageIndex, int pageSize)
         {
             var query = _context.Products.Include(p => p.Brand).Include(p => p.Category)
                                         .AsQueryable();
@@ -26,15 +26,15 @@ namespace ShoppingWeb.Services
             }
 
             // Filter by brand  
-            if (!string.IsNullOrEmpty(brand))
+            if(brand != null || brand >= 1)
             {
-                query = query.Where(p => p.BrandId.HasValue && _context.Brands.Any(b => b.BrandId == p.BrandId && b.Description == brand));
+                query = query.Where(p => p.BrandId == brand);
             }
 
             // Filter by category  
-            if (!string.IsNullOrEmpty(category))
+            if(category != null || category >= 1)
             {
-                query = query.Where(p => p.CategoryId.HasValue && _context.Categories.Any(c => c.CategoryId == p.CategoryId && c.Description == category));
+                query = query.Where(p => p.CategoryId == category);
             }
 
             // Sorting  

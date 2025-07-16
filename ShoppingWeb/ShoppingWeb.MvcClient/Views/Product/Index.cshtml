@@ -26,15 +26,14 @@
                 <div class="col-md-4">
                     <div class="product_sidebar">
 
-                    <form method="get" action="Product/Index">
+                    <form method="get" asp-controller="Product" asp-action="Index">
                         <div class="single_sedebar">
                             @* <form action="#" onsubmit="return false;"> *@
                                 <input type="text"
                                        name="search"
                                        id="sidebar_search"
                                        placeholder="Search keyword"
-                                       onchange="filterProducts()"
-                                       onkeyup="filterProducts()"
+                                       value="@Model.Search"
                                        autocomplete="off">
                                 <i class="ti-search"></i>
                             @* </form> *@
@@ -47,7 +46,7 @@
                                         <option value="">Select category</option>
                                         @foreach (var category in Model.Categories)
                                         {
-										    <option value="@category.Id">@category.Name</option>
+										    <option value="@category.Id" selected="@(Model.SelectedCategory == category.Id ? true : false)">@category.Name</option>
                                         }
                                     </select>
                                 </div>
@@ -61,7 +60,7 @@
                                         <option value="">Select brand</option>
                                         @foreach (var brand in Model.Brands)
                                         {
-                                            <option value="@brand.Name">@brand.Name</option>
+                                            <option value="@brand.Id" selected="@(Model.SelectedBrand == brand.Id ? true : false)">@brand.Name</option>
                                         }
                                     </select>
                                 </div>

@@ -3,32 +3,27 @@
 *@  
 @{  
 }  
-@model ShoppingWeb.MvcClient.Controllers.ProductDetailViewModel  
-<body>  
-   <!-- breadcrumb part start-->  
-   <section class="breadcrumb_part single_product_breadcrumb">  
-       <div class="container">  
-           <div class="row">  
-               <div class="col-lg-12">  
-                   <div class="breadcrumb_iner">  
-                   </div>  
-               </div>  
-           </div>  
-       </div>  
-   </section>  
-   <!-- breadcrumb part end-->  
+@model ShoppingWeb.MvcClient.Controllers.ProductDetailViewModel
+<section class="breadcrumb_part single_product_breadcrumb">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb_iner">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
    <!--================Single Product Area =================-->  
    <div class="product_image_area">  
        <div class="container">  
-           <div class="row justify-content-center">  
-               <div class="col-lg-12">  
-                   <div class="product_img_slide owl-carousel">  
-                       <div class="single_product_img">  
-                           <img src="@Model.Product.ImageUrl" alt="#" class="img-fluid">  
-                       </div>  
-                   </div>  
-               </div>  
-               <div class="col-lg-8">  
+           <div class="col justify-content-center" style="display:flex; flex-direction:column">
+                <div style="align-self:center">
+                    <div class="single_product_img">
+                        <img src=@Model.Product.ImageUrl alt="#" class="img-fluid" style="border-radius:20px; max-width:500px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+                    </div>
+                </div>
+               <div>  
                    <div class="single_product_text text-center">  
                        <h3>  
                            @Model.Product.Name  
@@ -53,62 +48,97 @@
                                </div>  
                                <p>@Model.Product.Price đ</p>  
                            </div>  
-                           <div class="add_to_cart">  
-                               <a href="#" class="btn_3">add to cart</a>  
-                           </div>  
-                       </div>  
+                       </div>
+
+                    <div style="display:flex; gap: 10%; margin:5%; justify-content:center">
+                            <div class="add_to_cart">
+                                <a class="btn_3" id="addToCartBtn">add to cart</a>
+                            </div>
+                            @section Scripts {
+                                <script>
+                                    $(document).on('click', '#addToCartBtn', function () {
+                                        var productId = @Model.Product.Id;
+                                        var quantity = $('.input-number').val() || 1;
+
+                                        $.ajax({
+                                            url: '@Url.Action("AddToCart", "Cart")',
+                                            type: 'POST',
+                                            data: {
+                                                productId: productId,
+                                                quantity: quantity
+                                            },
+                                            success: function (response) {
+                                                if (response.redirect) {
+                                                    window.location.href = response.url;
+                                                }
+                                                else{
+												    showToast("Product added to cart successfully!");
+                                                }
+                                            },
+                                            error: function () {
+                                                alert("Error contacting server.");
+                                            }
+                                        });
+                                    });
+                                </script>
+                            }
+                            
+                            <div class="add_to_cart">
+                                <a href="#" class="btn_3">add to Wishlist</a>
+                            </div>
+                       </div>
                    </div>  
                </div>  
            </div>  
        </div>  
    </div>  
-   <!--================End Single Product Area =================-->  
-   <!-- subscribe part here -->  
-   <section class="subscribe_part section_padding">  
-       <div class="container">  
-           <div class="row justify-content-center">  
-               <div class="col-lg-8">  
-                   <div class="subscribe_part_content">  
-                       <h2>Get promotions & updates!</h2>  
-                       <p>Seamlessly empower fully researched growth strategies and interoperable internal or “organic” sources credibly innovate granular internal .</p>  
-                       <div class="subscribe_form">  
-                           <input type="email" placeholder="Enter your mail">  
-                           <a href="#" class="btn_1">Subscribe</a>  
-                       </div>  
-                   </div>  
-               </div>  
-           </div>  
-       </div>  
-   </section>  
-   <!-- subscribe part end -->  
-   <!--::footer_part start::-->  
-   <!--::footer_part end::-->  
-   <!-- jquery plugins here-->  
-   <script src="js/jquery-1.12.1.min.js"></script>  
-   <!-- popper js -->  
-   <script src="js/popper.min.js"></script>  
-   <!-- bootstrap js -->  
-   <script src="js/bootstrap.min.js"></script>  
-   <!-- easing js -->  
-   <script src="js/jquery.magnific-popup.js"></script>  
-   <!-- swiper js -->  
-   <script src="js/swiper.min.js"></script>  
-   <!-- swiper js -->  
-   <script src="js/mixitup.min.js"></script>  
-   <!-- particles js -->  
-   <script src="js/owl.carousel.min.js"></script>  
-   <script src="js/jquery.nice-select.min.js"></script>  
-   <!-- slick js -->  
-   <script src="js/slick.min.js"></script>  
-   <script src="js/jquery.counterup.min.js"></script>  
-   <script src="js/waypoints.min.js"></script>  
-   <script src="js/contact.js"></script>  
-   <script src="js/jquery.ajaxchimp.min.js"></script>  
-   <script src="js/jquery.form.js"></script>  
-   <script src="js/jquery.validate.min.js"></script>  
-   <script src="js/mail-script.js"></script>  
-   <!-- custom js -->  
-   <script src="js/custom.js"></script>  
-</body>  
+   <script>
+           function showToast(message, isSuccess = true) {
+        // Ensure the toast container exists
+        let container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            document.body.appendChild(container);
+        }
 
-</html>
+        // Style the container for proper positioning
+        Object.assign(container.style, {
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: "9999",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            pointerEvents: "none" // lets clicks pass through
+        });
+
+        // Create the toast element
+        const toast = document.createElement("div");
+        toast.textContent = message;
+        toast.className = "toast-message";
+        Object.assign(toast.style, {
+            backgroundColor: isSuccess ? "#28a745" : "#dc3545",
+            color: "#fff",
+            padding: "12px 20px",
+            borderRadius: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+            opacity: "1",
+            transition: "opacity 0.5s ease",
+            fontSize: "14px",
+            pointerEvents: "auto"
+        });
+
+        container.appendChild(toast);
+
+        // Fade out after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }, 3000);
+    }
+   </script>
+   <!--================End Single Product Area =================-->  
