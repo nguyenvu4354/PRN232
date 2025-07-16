@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.MvcClient.DTOs.Common;
 using ShoppingWeb.MvcClient.DTOs.User;
+using ShoppingWeb.MvcClient.Helper;
 using ShoppingWeb.MvcClient.Response;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -163,13 +164,20 @@ namespace ShoppingWeb.MvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(UserProfileResponseDTO model)
         {
-            var accessToken = Request.Cookies["AccessToken"];
-            if (string.IsNullOrEmpty(accessToken))
+            // var accessToken = Request.Cookies["AccessToken"];
+            // if (string.IsNullOrEmpty(accessToken))
+            // {
+            //     TempData["Error"] = "Please login!";
+            //     return RedirectToAction("Login", "Auth");
+            // }
+
+            if (!AuthHelper.IsAuthenticated(HttpContext))
             {
                 TempData["Error"] = "Please login!";
                 return RedirectToAction("Login", "Auth");
             }
 
+            var accessToken = AuthHelper.GetAccessToken(HttpContext);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // Map sang DTO gửi API
@@ -211,12 +219,19 @@ namespace ShoppingWeb.MvcClient.Controllers
                 return View(requestDto); // hoặc View mới
             }
 
-            var accessToken = Request.Cookies["AccessToken"];
-            if (string.IsNullOrEmpty(accessToken))
+            // var accessToken = AuthHe;
+            // if (string.IsNullOrEmpty(accessToken))
+            // {
+            //     TempData["Error"] = "Please login first!";
+            //     return RedirectToAction("Login", "Auth");
+            // }
+            if (!AuthHelper.IsAuthenticated(HttpContext))
             {
-                TempData["Error"] = "Please login first!";
+                TempData["Error"] = "Please login!";
                 return RedirectToAction("Login", "Auth");
             }
+
+            var accessToken = AuthHelper.GetAccessToken(HttpContext);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
