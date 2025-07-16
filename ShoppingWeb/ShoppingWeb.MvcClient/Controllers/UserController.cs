@@ -56,34 +56,19 @@ namespace ShoppingWeb.MvcClient.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id)
+        public async Task<IActionResult> UpdateStatus(int id, bool newStatus)
         {
-            var getUserResponse = await _httpClient.GetAsync($"user/{id}");
+            var updatePayload = new { IsActive = newStatus };
 
-            if (!getUserResponse.IsSuccessStatusCode)
-            {
-                TempData["Error"] = "Failed to retrieve user.";
-                return RedirectToAction("Index");
-            }
+            var putContent = new StringContent(
+                JsonSerializer.Serialize(updatePayload),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            );
 
-            var json = await getUserResponse.Content.ReadAsStringAsync();
-            var userResult = JsonSerializer.Deserialize<ApiResponseDTO<UserListItemResponseDTO>>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var response = await _httpClient.PutAsync($"user/{id}/status", putContent);
 
-            var currentStatus = userResult?.Data?.IsActive ?? true;
-
-            var updatePayload = new
-            {
-                IsActive = !currentStatus
-            };
-
-            var patchContent = new StringContent(JsonSerializer.Serialize(updatePayload), System.Text.Encoding.UTF8, "application/json");
-
-            var patchResponse = await _httpClient.PatchAsync($"user/{id}/status", patchContent);
-
-            if (patchResponse.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "User status updated.";
             }
@@ -94,6 +79,7 @@ namespace ShoppingWeb.MvcClient.Controllers
 
             return RedirectToAction("Index");
         }
+
         public async Task<IActionResult> Search(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
