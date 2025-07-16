@@ -44,7 +44,7 @@ namespace ShoppingWeb.Controllers
         // }
 
         [HttpPost("change-password")]
-        [Authorize(Roles = "CUSTOMER")]
+        [Authorize]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequestDTO requestDTO)
         {
             if (requestDTO == null)
@@ -75,7 +75,7 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize(Roles = "CUSTOMER")]
+        [Authorize]
         public async Task<IActionResult> ViewProfile()
         {
 
@@ -101,7 +101,7 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpPost("update-profile")]
-        [Authorize(Roles = "CUSTOMER")]
+        [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequestDTO requestDTO)
         {
             if (requestDTO == null)

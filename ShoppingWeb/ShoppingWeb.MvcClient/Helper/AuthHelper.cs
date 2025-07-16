@@ -1,16 +1,19 @@
-﻿namespace ShoppingWeb.MvcClient.Helper
+﻿
+
+namespace ShoppingWeb.MvcClient.Helper
 {
-    public static class AuthHelper
+    public class AuthHelper
     {
-        public static string GetAccessToken(HttpRequestBase request)
+        public static string? GetAccessToken(HttpContext httpContext)
         {
-            var token = request.Cookies["AccessToken"]?.Value;
-            return string.IsNullOrEmpty(token) ? null : token;
+            return httpContext.Request.Cookies["AccessToken"];
         }
 
-        public static bool IsAuthenticated(HttpRequestBase request)
+        public static bool IsAuthenticated(HttpContext httpContext)
         {
-            return !string.IsNullOrEmpty(GetAccessToken(request));
+            var token = GetAccessToken(httpContext);
+            return string.IsNullOrEmpty(token);
         }
+
     }
 }

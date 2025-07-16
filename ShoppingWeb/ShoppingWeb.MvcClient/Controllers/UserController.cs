@@ -6,6 +6,7 @@ using ShoppingWeb.MvcClient.Response;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+
 namespace ShoppingWeb.MvcClient.Controllers
 {
     public class UserController : Controller
@@ -126,17 +127,19 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View("Index", searchResult);
         }
 
-        // [HttpGet("Profile")]
+
+        [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var accessToken = Request.Cookies["AccessToken"];
-            if (string.IsNullOrEmpty(accessToken))
+            var accessToken = AuthHelper.GetAccessToken(HttpContext);
+            Console.WriteLine($"Access Token: {accessToken}");
+            if (AuthHelper.IsAuthenticated(HttpContext))
             {
                 TempData["Error"] = "Please login first!";
                 return RedirectToAction("Login", "Auth");
             }
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
 
             var response = await _httpClient.GetAsync("User/profile");
 
@@ -164,23 +167,17 @@ namespace ShoppingWeb.MvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(UserProfileResponseDTO model)
         {
-            // var accessToken = Request.Cookies["AccessToken"];
-            // if (string.IsNullOrEmpty(accessToken))
-            // {
-            //     TempData["Error"] = "Please login!";
-            //     return RedirectToAction("Login", "Auth");
-            // }
-
-            if (!AuthHelper.IsAuthenticated(HttpContext))
+            var accessToken = AuthHelper.GetAccessToken(HttpContext);
+            Console.WriteLine($"Access Token: {accessToken}");
+            if (AuthHelper.IsAuthenticated(HttpContext))
             {
-                TempData["Error"] = "Please login!";
+                TempData["Error"] = "Please login first!";
                 return RedirectToAction("Login", "Auth");
             }
 
-            var accessToken = AuthHelper.GetAccessToken(HttpContext);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
 
-            // Map sang DTO gửi API
             var updateDto = new UserProfileUpdateDTO
             {
                 FullName = model.FullName,
@@ -191,18 +188,15 @@ namespace ShoppingWeb.MvcClient.Controllers
             };
 
             var response = await _httpClient.PostAsJsonAsync("User/update-profile", updateDto);
-            Console.WriteLine($"Update Profile Response: {response.StatusCode}");
-            Console.WriteLine($"Update Profile Response: {response}");
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Update failed.";
-                return RedirectToAction("Profile", model);
+                return RedirectToAction("Profile");
             }
 
             TempData["Success"] = "Profile updated!";
             return RedirectToAction("Profile");
         }
-
 
         [HttpGet]
         public IActionResult ChangePassword()
@@ -216,26 +210,21 @@ namespace ShoppingWeb.MvcClient.Controllers
             if (requestDto.NewPassword != requestDto.ConfirmPassword)
             {
                 ModelState.AddModelError("", "Passwords do not match.");
-                return View(requestDto); // hoặc View mới
-            }
-
-            // var accessToken = AuthHe;
-            // if (string.IsNullOrEmpty(accessToken))
-            // {
-            //     TempData["Error"] = "Please login first!";
-            //     return RedirectToAction("Login", "Auth");
-            // }
-            if (!AuthHelper.IsAuthenticated(HttpContext))
-            {
-                TempData["Error"] = "Please login!";
-                return RedirectToAction("Login", "Auth");
+                return View(requestDto);
             }
 
             var accessToken = AuthHelper.GetAccessToken(HttpContext);
+            Console.WriteLine($"Access Token: {accessToken}");
+            if (AuthHelper.IsAuthenticated(HttpContext))
+            {
+                TempData["Error"] = "Please login first!";
+                return RedirectToAction("Login", "Auth");
+            }
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
 
-            var response = await _httpClient.PostAsJsonAsync("User/change-password", requestDto); // Gọi API đổi pass
+            var response = await _httpClient.PostAsJsonAsync("User/change-password", requestDto);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -244,8 +233,8 @@ namespace ShoppingWeb.MvcClient.Controllers
             }
 
             TempData["Success"] = "Password changed successfully.";
-            return RedirectToAction("ChangePassword"); // hoặc Profile
+            return RedirectToAction("ChangePassword");
         }
-
     }
+
 }
