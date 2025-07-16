@@ -130,6 +130,25 @@ namespace ShoppingWeb.Controllers
                     ApiResponse<string>.ErrorResponse("An error occurred"));
             }
         }
-
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromQuery] bool isActive)
+        {
+            try
+            {
+                var result = await _promotionService.UpdateStatusAsync(id, isActive);
+                return Ok(ApiResponse<PromotionStatusDTO>.SuccessResponse(result));
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating promotion status");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred"));
+            }
+        }
     }
 }
