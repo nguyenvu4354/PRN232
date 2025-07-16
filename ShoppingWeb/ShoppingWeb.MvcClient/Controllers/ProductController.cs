@@ -12,8 +12,8 @@ namespace ShoppingWeb.MvcClient.Controllers
             _httpClient = httpClientFactory.CreateClient("ShoppingApi");
         }
         public async Task<IActionResult> Index(string? search = null,
-            string? brand = null,
-            string? category = null,
+            int? brand = null,
+            int? category = null,
             string? sortBy = null,
             int pageIndex = 1)
         {
@@ -28,8 +28,8 @@ namespace ShoppingWeb.MvcClient.Controllers
             };
 
             var url = $"Product/products/advanced?search={Uri.EscapeDataString(search ?? string.Empty)}" +
-                      $"&brand={Uri.EscapeDataString(brand ?? string.Empty)}" +
-                      $"&category={Uri.EscapeDataString(category ?? string.Empty)}" +
+                      $"&brand={Uri.EscapeDataString(brand.ToString() ?? string.Empty)}" +
+                      $"&category={Uri.EscapeDataString(category.ToString()  ?? string.Empty)}" +
                       $"&sortBy={Uri.EscapeDataString(sortBy ?? string.Empty)}" +
                       $"&pageIndex={pageIndex}&pageSize={10}";
             var response = await _httpClient.GetAsync(url);
@@ -126,8 +126,8 @@ namespace ShoppingWeb.MvcClient.Controllers
         public string? Message { get; set; } = string.Empty;
         public string? ErrorCode { get; set; } = string.Empty;
         public bool Success { get; set; } = true;
-        public string? SelectedBrand { get; set; } = string.Empty;
-        public string? SelectedCategory { get; set; } = string.Empty;
+        public int? SelectedBrand { get; set; } = null;
+        public int? SelectedCategory { get; set; } = null;
         public List<ProductListItemResponseDTO> Products { get; set; } = new List<ProductListItemResponseDTO>();
     }
 

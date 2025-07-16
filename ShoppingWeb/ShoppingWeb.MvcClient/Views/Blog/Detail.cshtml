@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ShoppingWeb.MvcClient.Controllers.BlogDetailViewModel
+
+<div class="single-post">
+    @if (!Model.Success)
+    {
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                Error : @Model.Message code @Model.ErrorCode
+            </div>
+        </div>
+    }
+    <div class="feature-img">
+        <img class="img-fluid" src="@Model.BlogDetail.ImageUrl" alt="">
+    </div>
+    <div class="blog_details">
+        <h2>
+			@Model.BlogDetail.Title
+        </h2>
+        <ul class="blog-info-link mt-3 mb-4">
+            <li><i class="far fa-user"></i>@Model.BlogDetail.Author</li>
+        </ul>
+        
+        @foreach (var paragraph in Model.BlogDetail.Content.Split(
+            new[] { "\r\n", "\r", "\n" },
+            StringSplitOptions.RemoveEmptyEntries))
+        {
+            <p>@paragraph</p>
+		}
+    </div>
+</div>

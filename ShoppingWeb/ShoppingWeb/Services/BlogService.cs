@@ -38,12 +38,23 @@ namespace ShoppingWeb.Services
             return true;
         }
 
-        public async Task<Blog> GetBlogByIdAsync(int id)
+        public async Task<BlogDetailDTO> GetBlogByIdAsync(int id)
         {
-            return await _context.Blogs.FindAsync(id);
+            var blog = await _context.Blogs.Include(b => b.Author).FirstOrDefaultAsync(b => b.BlogId == id);
+            if (blog == null) return null;
+            return new BlogDetailDTO
+            {
+                Id = blog.BlogId,
+                Title = blog.Title,
+                Content = blog.Content,
+                Author = blog.Author.Username,
+                CreatedAt = blog.CreatedAt.Value,
+                UpdatedAt = blog.UpdatedAt.GetValueOrDefault(),
+                ImageUrl = blog.Thumbnail
+            };
         }
 
-        public async Task<IEnumerable<Blog>> GetBlogsAdvancedAsync(string? search, string? author, int pageIndex, int pageSize)
+        public async Task<IEnumerable<BlogPostDTO>> GetBlogsAdvancedAsync(string? search, string? author, int pageIndex, int pageSize)
         {
             var query = _context.Blogs.AsQueryable();
 
@@ -53,17 +64,41 @@ namespace ShoppingWeb.Services
             if (!string.IsNullOrEmpty(author))
                 query = query.Where(b => b.Author.Username.Contains(author));
 
-            return await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).Select(b => new BlogPostDTO
+            {
+                Id = b.BlogId,
+                Title = b.Title,
+                ContentSummary = b.Content.Length > 100 ? b.Content.Substring(0, 100) + "..." : b.Content,
+                Author = b.Author.Username,
+                CreatedAt = b.CreatedAt.Value,
+                ImageUrl = b.Thumbnail
+            }).ToListAsync();
         }
 
-        public async Task<IEnumerable<Blog>> GetBlogsAsync()
+        public async Task<IEnumerable<BlogPostDTO>> GetBlogsAsync()
         {
-            return await _context.Blogs.ToListAsync();
+            return await _context.Blogs.Select(b => new BlogPostDTO
+            {
+                Id = b.BlogId,
+                Title = b.Title,
+                ContentSummary = b.Content.Length > 100 ? b.Content.Substring(0, 100) + "..." : b.Content,
+                Author = b.Author.Username,
+                CreatedAt = b.CreatedAt.Value,
+                ImageUrl = b.Thumbnail
+            }).ToListAsync();
         }
 
-        public async Task<IEnumerable<Blog>> GetBlogsByAuthorAsync(int authorId)
+        public async Task<IEnumerable<BlogPostDTO>> GetBlogsByAuthorAsync(int authorId)
         {
-            return await _context.Blogs.Where(b => b.AuthorId == authorId).ToListAsync();
+            return await _context.Blogs.Where(b => b.AuthorId == authorId).Select(b => new BlogPostDTO
+            {
+                Id = b.BlogId,
+                Title = b.Title,
+                ContentSummary = b.Content.Length > 100 ? b.Content.Substring(0, 100) + "..." : b.Content,
+                Author = b.Author.Username,
+                CreatedAt = b.CreatedAt.Value,
+                ImageUrl = b.Thumbnail
+            }).ToListAsync();
         }
 
         public async Task<Blog> UpdateBlogAsync(UpdateBlogDTO blog)

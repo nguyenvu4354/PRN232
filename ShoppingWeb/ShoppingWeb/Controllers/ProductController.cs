@@ -29,8 +29,8 @@ namespace ShoppingWeb.Controllers
         [HttpGet("products/advanced")]
         public async Task<IActionResult> GetProductAdvanced(
             string? search = null,
-            string? brand = null,
-            string? category = null,
+            int? brand = null,
+            int? category = null,
             string? sortBy = null,
             int pageIndex = 1,
             int pageSize = 10)

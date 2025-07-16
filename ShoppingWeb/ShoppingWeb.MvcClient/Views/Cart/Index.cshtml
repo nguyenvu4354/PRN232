@@ -3,7 +3,7 @@
 *@
 @{
 }
-
+@model ShoppingWeb.MvcClient.Controllers.ViewCartModel
 
 <body>
     <!-- breadcrumb part start-->
@@ -24,6 +24,17 @@
         <div class="container">
             <div class="cart_inner">
                 <div class="table-responsive">
+                    @if(!Model.Success){
+                        <distributed-cache-alert class="alert alert-danger">
+							<strong>Error!</strong> @Model.ErrorMessage
+                            </distributed-cache-alert>
+                    } else if(Model.CartItems.Count == 0) {
+                        <div class="alert alert-info">
+                            <strong>Info!</strong> Your cart is empty.
+						</div>
+                    }
+                    else
+                    {
                     <table class="table">
                         <thead>
                             <tr>
@@ -34,169 +45,164 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <div class="media">
-                                        <div class="d-flex">
-                                            <img src="img/arrivel/arrivel_1.png" alt="" />
+                            @foreach(var item in Model.CartItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="media">
+                                            <div class="d-flex">
+                                                    <img src="@item.ProductImage" alt="" style="box-shadow: 0 4px 16px rgba(0,0,0,0.15);" />
+                                            </div>
+                                            <div class="media-body">
+                                                <p>@item.ProductName</p>
+                                            </div>
                                         </div>
-                                        <div class="media-body">
-                                            <p>Minimalistic shop for multipurpose use</p>
+                                    </td>
+                                    <td>
+                                        <h5>@item.Price đ</h5>
+                                    </td>
+                                    <td>
+                                        <div class="cart-item" data-product-id="@item.ProductId">
+                                            <div class="quantity-wrapper">
+                                                <button class="quantity-btn decrement">−</button>
+                                                <input type="text"
+                                                        class="quantity-input"
+                                                        value="@item.Quantity"
+                                                        min="1"
+                                                        max="99"
+                                                        data-product-id="@item.ProductId" />
+                                                <button class="quantity-btn increment">+</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$360.00</h5>
-                                </td>
-                                <td>
-                                    <div class="product_count">
-                                        <!-- <input type="text" value="1" min="0" max="10" title="Quantity:"
-                                          class="input-text qty input-number" />
-                                        <button
-                                          class="increase input-number-increment items-count" type="button">
-                                          <i class="ti-angle-up"></i>
-                                        </button>
-                                        <button
-                                          class="reduced input-number-decrement items-count" type="button">
-                                          <i class="ti-angle-down"></i>
-                                        </button> -->
-                                        <span class="input-number-decrement"> <i class="ti-minus"></i></span>
-                                        <input class="input-number" type="text" value="1" min="0" max="10">
-                                        <span class="input-number-increment"> <i class="ti-plus"></i></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$720.00</h5>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="media">
-                                        <div class="d-flex">
-                                            <img src="img/arrivel/arrivel_2.png" alt="" />
-                                        </div>
-                                        <div class="media-body">
-                                            <p>Minimalistic shop for multipurpose use</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$360.00</h5>
-                                </td>
-                                <td>
-                                    <div class="product_count">
-                                        <span class="input-number-decrement"> <i class="ti-minus"></i></span>
-                                        <input class="input-number" type="text" value="1" min="0" max="10">
-                                        <span class="input-number-increment"> <i class="ti-plus"></i></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <h5>$720.00</h5>
-                                </td>
-                            </tr>
-                            <tr class="bottom_button">
-                                <td>
-                                    <a class="btn_1" href="#">Update Cart</a>
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <div class="cupon_text float-right">
-                                        <a class="btn_1" href="#">Close Coupon</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <h5>Subtotal</h5>
-                                </td>
-                                <td>
-                                    <h5>$2160.00</h5>
-                                </td>
-                            </tr>
-                            <tr class="shipping_area">
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <h5>Shipping</h5>
-                                </td>
-                                <td>
-                                    <div class="shipping_box">
-                                        <ul class="list">
-                                            <li>
-                                                Flat Rate: $5.00
-                                                <input type="radio" aria-label="Radio button for following text input">
-                                            </li>
-                                            <li>
-                                                Free Shipping
-                                                <input type="radio" aria-label="Radio button for following text input">
-                                            </li>
-                                            <li>
-                                                Flat Rate: $10.00
-                                                <input type="radio" aria-label="Radio button for following text input">
-                                            </li>
-                                            <li class="active">
-                                                Local Delivery: $2.00
-                                                <input type="radio" aria-label="Radio button for following text input">
-                                            </li>
-                                        </ul>
-                                        <h6>
-                                            Calculate Shipping
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </h6>
-                                        <select class="shipping_select">
-                                            <option value="1">Bangladesh</option>
-                                            <option value="2">India</option>
-                                            <option value="4">Pakistan</option>
-                                        </select>
-                                        <select class="shipping_select section_bg">
-                                            <option value="1">Select a State</option>
-                                            <option value="2">Select a State</option>
-                                            <option value="4">Select a State</option>
-                                        </select>
-                                        <input class="post_code" type="text" placeholder="Postcode/Zipcode" />
-                                        <a class="btn_1" href="#">Update Details</a>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <h5>@(item.Quantity * item.Price) đ</h5>
+                                    </td>
+                                </tr>
+                            }
+							    <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <h5>Subtotal</h5>
+                                    </td>
+                                    <td>
+                                        <h5>@Model.TotalPrice đ</h5>
+                                    </td>
+                                </tr>
                         </tbody>
                     </table>
+                    }
                     <div class="checkout_btn_inner float-right">
-                        <a class="btn_1" href="#">Continue Shopping</a>
                         <a class="btn_1 checkout_btn_1" href="#">Proceed to checkout</a>
                     </div>
                 </div>
             </div>
     </section>
     <!--================End Cart Area =================-->
-    <!-- jquery plugins here-->
-    <script src="js/jquery-1.12.1.min.js"></script>
-    <!-- popper js -->
-    <script src="js/popper.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- easing js -->
-    <script src="js/jquery.magnific-popup.js"></script>
-    <!-- swiper js -->
-    <script src="js/swiper.min.js"></script>
-    <!-- swiper js -->
-    <script src="js/mixitup.min.js"></script>
-    <!-- particles js -->
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.nice-select.min.js"></script>
-    <!-- slick js -->
-    <script src="js/slick.min.js"></script>
-    <script src="js/jquery.counterup.min.js"></script>
-    <script src="js/waypoints.min.js"></script>
-    <script src="js/contact.js"></script>
-    <script src="js/jquery.ajaxchimp.min.js"></script>
-    <script src="js/jquery.form.js"></script>
-    <script src="js/jquery.validate.min.js"></script>
-    <script src="js/mail-script.js"></script>
-    <!-- custom js -->
-    <script src="js/custom.js"></script>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.quantity-btn').on('click', function () {
+            const $wrapper = $(this).closest('.quantity-wrapper');
+            const $input = $wrapper.find('.quantity-input');
+            let value = parseInt($input.val()) || 1;
+            const min = parseInt($input.attr('min')) || 1;
+            const max = parseInt($input.attr('max')) || 99;
+            const productId = $input.data('product-id');
 
-</html>
+            if ($(this).hasClass('increment') && value < max) {
+                value++;
+            } else if ($(this).hasClass('decrement') && value > min) {
+                value--;
+            }
+
+            $input.val(value);
+
+            $.ajax({
+                url: '/Cart/UpdateCart',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: value
+                },
+                success: function (response) {
+                    showToast('Quantity updated.', true);
+					location.reload(); // Reload the page to reflect changes
+                },
+                error: function () {
+                    showToast('Failed to update quantity.', false);
+                }
+            });
+        });
+    });
+</script>
+<script>
+           function showToast(message, isSuccess = true) {
+        // Ensure the toast container exists
+        let container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            document.body.appendChild(container);
+        }
+
+        // Style the container for proper positioning
+        Object.assign(container.style, {
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            zIndex: "9999",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            pointerEvents: "none" // lets clicks pass through
+        });
+
+        // Create the toast element
+        const toast = document.createElement("div");
+        toast.textContent = message;
+        toast.className = "toast-message";
+        Object.assign(toast.style, {
+            backgroundColor: isSuccess ? "#28a745" : "#dc3545",
+            color: "#fff",
+            padding: "12px 20px",
+            borderRadius: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+            opacity: "1",
+            transition: "opacity 0.5s ease",
+            fontSize: "14px",
+            pointerEvents: "auto"
+        });
+
+        container.appendChild(toast);
+
+        // Fade out after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }, 3000);
+    }
+</script>
+<style>
+    .quantity-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 140px;
+    }
+
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+    }
+
+    .quantity-btn {
+        padding: 5px 10px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
