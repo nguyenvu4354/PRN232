@@ -35,9 +35,6 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View(result?.Data);
         }
 
-
-
-
         public IActionResult Create()
         {
             return View();
@@ -116,7 +113,6 @@ namespace ShoppingWeb.MvcClient.Controllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            // Gọi API lấy promotion
             var promotionResponse = await _httpClient.GetAsync($"promotion/{id}");
             if (!promotionResponse.IsSuccessStatusCode)
             {
@@ -133,8 +129,6 @@ namespace ShoppingWeb.MvcClient.Controllers
                 TempData["Error"] = "Promotion not found.";
                 return RedirectToAction("Index");
             }
-
-            // Gọi API lấy danh sách sản phẩm (không bọc ApiResponse)
             var productResponse = await _httpClient.GetAsync($"promotion/{id}/products");
 
             if (!productResponse.IsSuccessStatusCode)
@@ -148,7 +142,6 @@ namespace ShoppingWeb.MvcClient.Controllers
             var products = JsonSerializer.Deserialize<List<ProductResponseDTO>>(productJson,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // ✅ Đảm bảo không null
             var viewModel = new PromotionDetailViewModel
             {
                 Promotion = promotionResult.Data,
@@ -157,6 +150,24 @@ namespace ShoppingWeb.MvcClient.Controllers
 
             return View(viewModel);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id, bool isActive)
+        {
+            var response = await _httpClient.PutAsync($"promotion/{id}/status?isActive={isActive}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = isActive ? "Promotion enabled." : "Promotion disabled.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update promotion status.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
     }
 }

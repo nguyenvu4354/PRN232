@@ -39,7 +39,7 @@ namespace ShoppingWeb.Services
                     DiscountAmount = p.DiscountAmount,
                     StartDate = p.StartDate,
                     EndDate = p.EndDate,
-                    IsActive = DateTime.UtcNow >= p.StartDate && DateTime.UtcNow <= p.EndDate
+                    IsActive = p.IsActive
                 })
                 .ToListAsync();
 
@@ -160,6 +160,22 @@ namespace ShoppingWeb.Services
             }).ToList();
         }
 
+        public async Task<PromotionStatusDTO> UpdateStatusAsync(int promotionId, bool isActive)
+        {
+            var promotion = await _context.Promotions.FindAsync(promotionId);
+            if (promotion == null)
+                throw new NotFoundException($"Promotion with ID {promotionId} not found.");
+
+            promotion.IsActive = isActive;
+            promotion.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new PromotionStatusDTO
+            {
+                IsActive = promotion.IsActive
+            };
+        }
 
     }
 }
