@@ -3,73 +3,62 @@
 *@
 @{
 }
-<div class="billing_details">
+
+@model ShoppingWeb.MvcClient.Controllers.CheckoutViewModel
+
+<div class="billing_details" style="margin:5%">
     <div class="row">
         <div class="col-lg-8">
             <h3>Billing Details</h3>
             <form class="row contact_form" action="#" method="post" novalidate="novalidate">
-                <div class="col-md-6 form-group p_star">
-                    <input type="text" class="form-control" id="first" name="name" />
-                    <span class="placeholder" data-placeholder="First name"></span>
-                </div>
-                <div class="col-md-6 form-group p_star">
-                    <input type="text" class="form-control" id="last" name="name" />
-                    <span class="placeholder" data-placeholder="Last name"></span>
-                </div>
-                <div class="col-md-12 form-group">
-                    <input type="text" class="form-control" id="company" name="company" placeholder="Company name" />
-                </div>
-                <div class="col-md-6 form-group p_star">
-                    <input type="text" class="form-control" id="number" name="number" />
-                    <span class="placeholder" data-placeholder="Phone number"></span>
-                </div>
-                <div class="col-md-6 form-group p_star">
-                    <input type="text" class="form-control" id="email" name="compemailany" />
-                    <span class="placeholder" data-placeholder="Email Address"></span>
-                </div>
                 <div class="col-md-12 form-group p_star">
-                    <select class="country_select">
-                        <option value="1">Country</option>
-                        <option value="2">Country</option>
-                        <option value="4">Country</option>
+					<label for="first">Full Name</label>
+                    <input type="text" class="form-control" id="first" name="name" value="@Model.UserProfile.FullName" />
+                </div>
+                <div class="col-md-6 form-group p_star">
+					<label for="last">Phone Number</label>
+                    <input type="text" class="form-control" id="number" name="number" value="@Model.UserProfile.Phone" />
+                </div>
+                <div class="col-md-6 form-group p_star">
+					<label for="company">Email</label>
+                    <input type="text" class="form-control" id="email" name="compemailany" value="@Model.UserProfile.Email"/>
+                </div>
+                <div style="display:flex;flex-direction:column" class="col-md-4 form-group p_star">
+					<label for="province">Province</label>
+                    <select id="province" class="default-select form-control">
+                        <option value="">Select Province</option>
+                        @foreach (var p in Model.AddressData.Provinces)
+                        {
+							var selected = Model.SelectedProvince == p.Id ? "selected" : "";
+                            <option value="@p.Id" selected>@p.Name</option>
+                        }
+                    </select>
+                </div>
+                <div style="display:flex;flex-direction:column" class="col-md-4 form-group p_star">
+					<label for="district">District</label>
+                    <select id="district" class="default-select form-control">
+                        <option value="">Select District</option>
+                        @foreach (var d in Model.AddressData.Districts.Where(d => d.ProvinceId == Model.SelectedProvince))
+                        {
+							var selected = Model.SelectedDistrict == d.Id ? "selected" : "";
+                            <option value="@d.Id" selected data-province="@d.ProvinceId">@d.Name</option>
+                        }
+                    </select>
+                </div>
+                <div style="display:flex;flex-direction:column" class="col-md-4 form-group p_star">
+					<label for="ward">Ward</label>
+                    <select id="ward" class="default-select form-control">
+                        <option value="">Select Ward</option>
+                        @foreach (var w in Model.AddressData.Wards.Where(w => w.DistrictId == Model.SelectedDistrict))
+                        {
+							var selected = Model.SelectedWard == w.Id ? "selected" : "";
+                            <option value="@w.Id" selected data-district="@w.DistrictId">@w.Name</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-12 form-group p_star">
+					<label for="add1">Detail Address</label>
                     <input type="text" class="form-control" id="add1" name="add1" />
-                    <span class="placeholder" data-placeholder="Address line 01"></span>
-                </div>
-                <div class="col-md-12 form-group p_star">
-                    <input type="text" class="form-control" id="add2" name="add2" />
-                    <span class="placeholder" data-placeholder="Address line 02"></span>
-                </div>
-                <div class="col-md-12 form-group p_star">
-                    <input type="text" class="form-control" id="city" name="city" />
-                    <span class="placeholder" data-placeholder="Town/City"></span>
-                </div>
-                <div class="col-md-12 form-group p_star">
-                    <select class="country_select">
-                        <option value="1">District</option>
-                        <option value="2">District</option>
-                        <option value="4">District</option>
-                    </select>
-                </div>
-                <div class="col-md-12 form-group">
-                    <input type="text" class="form-control" id="zip" name="zip" placeholder="Postcode/ZIP" />
-                </div>
-                <div class="col-md-12 form-group">
-                    <div class="creat_account">
-                        <input type="checkbox" id="f-option2" name="selector" />
-                        <label for="f-option2">Create an account?</label>
-                    </div>
-                </div>
-                <div class="col-md-12 form-group">
-                    <div class="creat_account">
-                        <h3>Shipping Details</h3>
-                        <input type="checkbox" id="f-option3" name="selector" />
-                        <label for="f-option3">Ship to a different address?</label>
-                    </div>
-                    <textarea class="form-control" name="message" id="message" rows="1"
-                              placeholder="Order Notes"></textarea>
                 </div>
             </form>
         </div>
@@ -83,78 +72,199 @@
                             <span>Total</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            Fresh Blackberry
-                            <span class="middle">x 02</span>
-                            <span class="last">$720.00</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            Fresh Tomatoes
-                            <span class="middle">x 02</span>
-                            <span class="last">$720.00</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            Fresh Brocoli
-                            <span class="middle">x 02</span>
-                            <span class="last">$720.00</span>
-                        </a>
-                    </li>
+                    @foreach(var item in Model.CartItems)
+                    {
+                        <li>
+                            <a href="#">
+                                @item.ProductName
+                                <span class="middle">x @item.Quantity</span>
+                                <span class="last">@(item.Price * item.Quantity) đ</span>
+                            </a>
+                        </li>
+					}
                 </ul>
                 <ul class="list list_2">
                     <li>
                         <a href="#">
                             Subtotal
-                            <span>$2160.00</span>
+                            <span>@Model.SubTotal đ</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
                             Shipping
-                            <span>Flat rate: $50.00</span>
+                            <span id="shipping-fee">@Model.ShippingFee đ</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
                             Total
-                            <span>$2210.00</span>
+                            <span id="total">@(Model.SubTotal + Model.ShippingFee) đ</span>
                         </a>
                     </li>
                 </ul>
-                <div class="payment_item">
-                    <div class="radion_btn">
-                        <input type="radio" id="f-option5" name="selector" />
-                        <label for="f-option5">Check payments</label>
-                        <div class="check"></div>
-                    </div>
-                    <p>
-                        Please send a check to Store Name, Store Street, Store Town,
-                        Store State / County, Store Postcode.
-                    </p>
-                </div>
-                <div class="payment_item active">
-                    <div class="radion_btn">
-                        <input type="radio" id="f-option6" name="selector" />
-                        <label for="f-option6">Paypal </label>
-                        <img src="img/product/single-product/card.jpg" alt="" />
-                        <div class="check"></div>
-                    </div>
-                    <p>
-                        Please send a check to Store Name, Store Street, Store Town,
-                        Store State / County, Store Postcode.
-                    </p>
-                </div>
-                <div class="creat_account">
-                    <input type="checkbox" id="f-option4" name="selector" />
-                    <label for="f-option4">I’ve read and accept the </label>
-                    <a href="#">terms & conditions*</a>
-                </div>
-                <a class="btn_3" href="#">Proceed to Paypal</a>
+                <a class="btn_3" asp-action="PayOrder" asp-controller="Order">Proceed to Payment</a>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2
+            $('#province, #district, #ward').select2();
+
+            // Store all districts and wards in JS for filtering
+            var allDistricts = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AddressData.Districts));
+            var allWards = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AddressData.Wards));
+
+            // Set default selected values
+            var selectedProvince = '@Model.SelectedProvince';
+            var selectedDistrict = '@Model.SelectedDistrict';
+            var selectedWard = '@Model.SelectedWard';
+
+            // When province changes, update districts
+            $('#province').on('change', function () {
+                var provinceId = $(this).val();
+                var filteredDistricts = allDistricts.filter(function (d) {
+                    return d.ProvinceId == provinceId;
+                });
+
+                $('#district').empty().append('<option value="">Select District</option>');
+                filteredDistricts.forEach(function (d) {
+                    $('#district').append('<option value="' + d.Id + '">' + d.Name + '</option>');
+                });
+                $('#district').val('').trigger('change');
+                $('#ward').empty().append('<option value="">Select Ward</option>');
+            });
+
+            // When district changes, update wards
+            $('#district').on('change', function () {
+                var districtId = $(this).val();
+                var filteredWards = allWards.filter(function (w) {
+                    return w.DistrictId == districtId;
+                });
+
+                $('#ward').empty().append('<option value="">Select Ward</option>');
+                filteredWards.forEach(function (w) {
+                    $('#ward').append('<option value="' + w.Id + '">' + w.Name + '</option>');
+                });
+                $('#ward').val('').trigger('change');
+            });
+
+            // When ward changes, calculate shipping fee
+            $('#ward').on('change', function () {
+                var wardId = $(this).val();
+                var districtId = $('#district').val();
+                if (!wardId || !districtId) {
+                    $('#shipping-fee').text('0 đ');
+                    $('#total').text('@(Model.SubTotal) đ');
+                    return;
+                }
+                // Calculate total quantity in cart
+                var weight = 11 * @Model.TotalQuantity;
+                $.ajax({
+                    url: 'https://localhost:7168/api/Order/shipping-fee',
+                    type: 'GET',
+                    data: {
+                        wardCode: wardId,
+                        districtId: districtId,
+                        weight: weight
+                    },
+                    success: function (data) {
+                        // Assume API returns just the fee as a number
+
+                        var fee = data;
+                        $('#shipping-fee').text(fee + ' đ');
+                        var subTotal = @(Model.SubTotal);
+                        var total = subTotal + fee;
+                        $('#total').text(total + ' đ');
+                    },
+                    error: function () {
+						showToast('Failed to calculate shipping fee.', false);
+                        $('#shipping-fee').text('0 đ');
+                        $('#total').text('@(Model.SubTotal) đ');
+                    }
+                });
+            });
+
+            // Set default selections on page load
+            if (selectedProvince) {
+                $('#province').val(selectedProvince).trigger('change');
+                var filteredDistricts = allDistricts.filter(function (d) {
+                    return d.ProvinceId == selectedProvince;
+                });
+                $('#district').empty().append('<option value="">Select District</option>');
+                filteredDistricts.forEach(function (d) {
+                    var selected = d.Id == selectedDistrict ? 'selected' : '';
+                    $('#district').append('<option value="' + d.Id + '" ' + selected + '>' + d.Name + '</option>');
+                });
+                $('#district').val(selectedDistrict).trigger('change');
+            }
+            if (selectedDistrict) {
+                var filteredWards = allWards.filter(function (w) {
+                    return w.DistrictId == selectedDistrict;
+                });
+                $('#ward').empty().append('<option value="">Select Ward</option>');
+                filteredWards.forEach(function (w) {
+                    var selected = w.Id == selectedWard ? 'selected' : '';
+                    $('#ward').append('<option value="' + w.Id + '" ' + selected + '>' + w.Name + '</option>');
+                });
+                $('#ward').val(selectedWard).trigger('change');
+            }
+        });
+    </script>
+    <script>
+               function showToast(message, isSuccess = true) {
+            // Ensure the toast container exists
+            let container = document.getElementById("toast-container");
+            if (!container) {
+                container = document.createElement("div");
+                container.id = "toast-container";
+                document.body.appendChild(container);
+            }
+
+            // Style the container for proper positioning
+            Object.assign(container.style, {
+                position: "fixed",
+                top: "20px",
+                right: "20px",
+                zIndex: "9999",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                pointerEvents: "none" // lets clicks pass through
+            });
+
+            // Create the toast element
+            const toast = document.createElement("div");
+            toast.textContent = message;
+            toast.className = "toast-message";
+            Object.assign(toast.style, {
+                backgroundColor: isSuccess ? "#28a745" : "#dc3545",
+                color: "#fff",
+                padding: "12px 20px",
+                borderRadius: "6px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                opacity: "1",
+                transition: "opacity 0.5s ease",
+                fontSize: "14px",
+                pointerEvents: "auto"
+            });
+
+            container.appendChild(toast);
+
+            // Fade out after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 3000);
+        }
+    </script>
+}

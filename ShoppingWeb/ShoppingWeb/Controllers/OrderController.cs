@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs;
+using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
 using ShoppingWeb.Services.ThirdParty;
+using System.Security.Claims;
 
 namespace ShoppingWeb.Controllers
 {
@@ -18,6 +20,12 @@ namespace ShoppingWeb.Controllers
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] ToOrderDTO toOrderDTO)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return Unauthorized("User not authenticated.");
+            }
+            toOrderDTO.UserId = userId;
             if (toOrderDTO == null || !ModelState.IsValid)
             {
                 return BadRequest("Invalid order data.");
@@ -143,6 +151,66 @@ namespace ShoppingWeb.Controllers
             {
                 var wards = await _cartService.GetWards(districtId);
                 return Ok(wards);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("all-addresses")]
+        public async Task<IActionResult> GetAllAddresses()
+        {
+            try
+            {
+                var provinces = await _cartService.GetProvinces();
+                var districts = new List<District>();
+                var wards = new List<Ward>();
+                foreach (var province in provinces)
+                {
+                    try
+                    {
+                        var districtList = await _cartService.GetDistricts(province.Id);
+                        districts.AddRange(districtList);
+                        foreach (var district in districtList)
+                        {
+
+                            try
+                            {
+                                var wardList = await _cartService.GetWards(district.Id);
+                                wards.AddRange(wardList);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error fetching wards for district {district.Id}: {ex.Message}");
+                                continue;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error fetching districts for province {province.Id}: {ex.Message}");
+                        continue;
+                    }
+                }
+                return Ok(new AllAddressesDTO { 
+                    Provinces = provinces.Select(p => new ProvinceDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name
+                    }).ToList(),
+                    Districts = districts.Select(d => new DistrictDTO
+                    {
+                        Id = d.Id,
+                        Name = d.Name,
+                        ProvinceId = d.ProvinceId
+                    }).ToList(),
+                    Wards = wards.Select(w => new WardDTO
+                    {
+                        Id = w.Id,
+                        Name = w.Name,
+                        DistrictId = w.DistrictId
+                    }).ToList()
+                });
             }
             catch (Exception ex)
             {

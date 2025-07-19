@@ -18,15 +18,15 @@ namespace ShoppingWeb.MvcClient.Controllers
 
             };
             var accessToken = Request.Cookies["AccessToken"];
-            //if (string.IsNullOrEmpty(accessToken))
-            //{
-            //    model.Success = false;
-            //    model.ErrorMessage = "Please log in to view your cart.";
-            //    return View("Index", model);
-            //}
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                model.Success = false;
+                model.ErrorMessage = "Please log in to view your cart.";
+                return View("Index", model);
+            }
 
-            var userId = 1; // This should be replaced with actual user ID retrieval logic
-            var url = $"Cart/items?userId={userId}";
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var url = $"Cart/items";
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
@@ -35,13 +35,22 @@ namespace ShoppingWeb.MvcClient.Controllers
                 model.ErrorCode = response.StatusCode.ToString();
                 return View("Index", model);
             }
-            var cartItems = await response.Content.ReadFromJsonAsync<List<CartItem>>();
+            var cart = await response.Content.ReadFromJsonAsync<CartDTO>();
+            var cartItems = cart.CartItems?.Select(item => new CartItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.ProductName,
+                ProductImage = item.ProductImage,
+                Price = item.Price,
+                Quantity = item.Quantity
+            }).ToList();
             if (cartItems == null || !cartItems.Any())
             {
                 model.Success = false;
                 model.ErrorMessage = "Your cart is empty.";
                 return View("Index", model);
             }
+            model.CartId = cart.CartId;
             model.CartItems = cartItems;
             model.TotalPrice = cartItems.Sum(item => item.Price * item.Quantity);
             return View("Index", model);
@@ -63,10 +72,9 @@ namespace ShoppingWeb.MvcClient.Controllers
             var request = new AddToCartRequest
             {
                 ProductId = productId,
-                Quantity = quantity,
-                UserId = 1
+                Quantity = quantity
             };
-
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             var response = await _httpClient.PostAsJsonAsync("Cart/add", request);
             if (!response.IsSuccessStatusCode)
             {
@@ -89,21 +97,21 @@ namespace ShoppingWeb.MvcClient.Controllers
         public async Task<IActionResult> UpdateCart(int productId, int quantity)
         {
             var accessToken = Request.Cookies["AccessToken"];
-            //if (string.IsNullOrEmpty(accessToken))
-            //{
-            //    return Json(new
-            //    {
-            //        Redirect = true,
-            //        Url = Url.Action("Login", "Auth"),
-            //        Message = "Please log in to update your cart."
-            //    });
-            //}
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Json(new
+                {
+                    Redirect = true,
+                    Url = Url.Action("Login", "Auth"),
+                    Message = "Please log in to update your cart."
+                });
+            }
             var request = new UpdateCartItemRequest
             {
                 ProductId = productId,
                 Quantity = quantity,
-                UserId = 1 // Replace with actual user ID retrieval logic
             };
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             var response = await _httpClient.PutAsJsonAsync("Cart/update", request);
             if (!response.IsSuccessStatusCode)
             {
@@ -120,6 +128,34 @@ namespace ShoppingWeb.MvcClient.Controllers
                 Message = "Cart updated successfully."
             });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromCart(int productId)
+        {
+            var accessToken = Request.Cookies["AccessToken"];
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Json(new
+                {
+                    Redirect = true,
+                    Url = Url.Action("Login", "Auth"),
+                    Message = "Please log in to remove items from your cart."
+                });
+            }
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var url = $"Cart/remove?productId={productId}";
+            var response = await _httpClient.DeleteAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = await response.Content.ReadAsStringAsync();
+                return Json(new
+                {
+                    Redirect = false,
+                    Message = $"Error removing item from cart: {errorResponse}"
+                });
+            }
+            return RedirectToAction("Index", "Cart");
+        }
     }
 
     public class CartItem
@@ -131,9 +167,11 @@ namespace ShoppingWeb.MvcClient.Controllers
         public int Quantity { get; set; }
     }
 
+
     public class ViewCartModel
     {
         public string UserId { get; set; }
+        public int CartId { get; set; }
         public List<CartItem> CartItems { get; set; } = new List<CartItem>();
         public decimal TotalPrice { get; set; }
         public bool Success { get; set; } = true;

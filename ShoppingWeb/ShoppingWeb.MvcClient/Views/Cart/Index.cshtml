@@ -75,8 +75,14 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="display: flex; gap:20px">
                                         <h5>@(item.Quantity * item.Price) đ</h5>
+                                        <div class="cart_item_delete">
+                                            <form method="post" asp-controller="Cart" asp-action="RemoveFromCart">
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <button type="submit" class="btn btn-danger">Remove</button>
+											</form>
+										</div>
                                     </td>
                                 </tr>
                             }
@@ -94,7 +100,7 @@
                     </table>
                     }
                     <div class="checkout_btn_inner float-right">
-                        <a class="btn_1 checkout_btn_1" href="#">Proceed to checkout</a>
+                        <a class="btn_1 checkout_btn_1" href="@Url.Action("Checkout", "Order", new { cartId = Model.CartId})">Proceed to checkout</a>
                     </div>
                 </div>
             </div>
@@ -187,6 +193,15 @@
         }, 3000);
     }
 </script>
+@if(TempData["Error"] != null)
+{
+    <script>
+        $(document).ready(function () {
+            showToast('@TempData["Error"]', false);
+        });
+    </script>
+}
+)
 <style>
     .quantity-wrapper {
         display: flex;

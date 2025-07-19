@@ -52,81 +52,81 @@ public class DbSeeder
             }
 
             // Provinces
-            if (!await _context.Provinces.AnyAsync())
-            {
-                var provinces = new List<Province>
-                {
-                    new Province { Id = 1, Name = "Hà Nội" },
-                    new Province { Id = 2, Name = "Hồ Chí Minh" }
-                };
-                try
-                {
-                    await _context.Provinces.AddRangeAsync(provinces);
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine("Provinces seeded:");
-                    foreach (var province in await _context.Provinces.ToListAsync())
-                    {
-                        Console.WriteLine($"ID: {province.Id}, Name: {province.Name}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error seeding Provinces: {ex.Message}");
-                    throw;
-                }
-            }
+            //if (!await _context.Provinces.AnyAsync())
+            //{
+            //    var provinces = new List<Province>
+            //    {
+            //        new Province { Id = 1, Name = "Hà Nội" },
+            //        new Province { Id = 2, Name = "Hồ Chí Minh" }
+            //    };
+            //    try
+            //    {
+            //        await _context.Provinces.AddRangeAsync(provinces);
+            //        await _context.SaveChangesAsync();
+            //        Console.WriteLine("Provinces seeded:");
+            //        foreach (var province in await _context.Provinces.ToListAsync())
+            //        {
+            //            Console.WriteLine($"ID: {province.Id}, Name: {province.Name}");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Error seeding Provinces: {ex.Message}");
+            //        throw;
+            //    }
+            //}
 
-            // Districts
-            if (!await _context.Districts.AnyAsync())
-            {
-                var districts = new List<District>
-                {
-                    new District { Id = 1, Name = "Cầu Giấy", ProvinceId = 1 },
-                    new District { Id = 2, Name = "Thanh Xuân", ProvinceId = 1 },
-                    new District { Id = 3, Name = "Quận 1", ProvinceId = 2 }
-                };
-                try
-                {
-                    await _context.Districts.AddRangeAsync(districts);
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine("Districts seeded:");
-                    foreach (var district in await _context.Districts.ToListAsync())
-                    {
-                        Console.WriteLine($"ID: {district.Id}, Name: {district.Name}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error seeding Districts: {ex.Message}");
-                    throw;
-                }
-            }
+            //// Districts
+            //if (!await _context.Districts.AnyAsync())
+            //{
+            //    var districts = new List<District>
+            //    {
+            //        new District { Id = 1, Name = "Cầu Giấy", ProvinceId = 1 },
+            //        new District { Id = 2, Name = "Thanh Xuân", ProvinceId = 1 },
+            //        new District { Id = 3, Name = "Quận 1", ProvinceId = 2 }
+            //    };
+            //    try
+            //    {
+            //        await _context.Districts.AddRangeAsync(districts);
+            //        await _context.SaveChangesAsync();
+            //        Console.WriteLine("Districts seeded:");
+            //        foreach (var district in await _context.Districts.ToListAsync())
+            //        {
+            //            Console.WriteLine($"ID: {district.Id}, Name: {district.Name}");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Error seeding Districts: {ex.Message}");
+            //        throw;
+            //    }
+            //}
 
-            // Wards
-            if (!await _context.Wards.AnyAsync())
-            {
-                var wards = new List<Ward>
-                {
-                    new Ward { Id = 1, Name = "Dịch Vọng", DistrictId = 1 },
-                    new Ward { Id = 2, Name = "Quan Hoa", DistrictId = 1 },
-                    new Ward { Id = 3, Name = "Bến Nghé", DistrictId = 3 }
-                };
-                try
-                {
-                    await _context.Wards.AddRangeAsync(wards);
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine("Wards seeded:");
-                    foreach (var ward in await _context.Wards.ToListAsync())
-                    {
-                        Console.WriteLine($"ID: {ward.Id}, Name: {ward.Name}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error seeding Wards: {ex.Message}");
-                    throw;
-                }
-            }
+            //// Wards
+            //if (!await _context.Wards.AnyAsync())
+            //{
+            //    var wards = new List<Ward>
+            //    {
+            //        new Ward { Id = 1, Name = "Dịch Vọng", DistrictId = 1 },
+            //        new Ward { Id = 2, Name = "Quan Hoa", DistrictId = 1 },
+            //        new Ward { Id = 3, Name = "Bến Nghé", DistrictId = 3 }
+            //    };
+            //    try
+            //    {
+            //        await _context.Wards.AddRangeAsync(wards);
+            //        await _context.SaveChangesAsync();
+            //        Console.WriteLine("Wards seeded:");
+            //        foreach (var ward in await _context.Wards.ToListAsync())
+            //        {
+            //            Console.WriteLine($"ID: {ward.Id}, Name: {ward.Name}");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Error seeding Wards: {ex.Message}");
+            //        throw;
+            //    }
+            //}
 
             // Users
             if (!await _context.Users.AnyAsync())
@@ -144,9 +144,6 @@ public class DbSeeder
                         Address = $"Số {i} - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     });
@@ -347,9 +344,6 @@ public class DbSeeder
                         TotalAmount = 149.98m,
                         IsCart = false,
                         ShippingAddress = "123 Main St, Cầu Giấy, Hà Nội",
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         PaymentCode = "PAY001",
                         OrderCode = "ORD001",
                         CreatedAt = DateTime.UtcNow.AddDays(-1),
@@ -362,9 +356,6 @@ public class DbSeeder
                         TotalAmount = 999.99m,
                         IsCart = false,
                         ShippingAddress = "456 Elm St, Thanh Xuân, Hà Nội",
-                        ProvinceId = 1,
-                        DistrictId = 2,
-                        WardId = 2,
                         PaymentCode = "PAY002",
                         OrderCode = "ORD002",
                         CreatedAt = DateTime.UtcNow.AddDays(-2),
@@ -377,9 +368,6 @@ public class DbSeeder
                         TotalAmount = 39.98m,
                         IsCart = true,
                         ShippingAddress = "789 Oak St, Cầu Giấy, Hà Nội",
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.UtcNow,
@@ -392,9 +380,6 @@ public class DbSeeder
                         TotalAmount = 179.99m,
                         IsCart = false,
                         ShippingAddress = "101 Pine St, Quận 1, Hồ Chí Minh",
-                        ProvinceId = 2,
-                        DistrictId = 3,
-                        WardId = 3,
                         PaymentCode = "PAY003",
                         OrderCode = "ORD003",
                         CreatedAt = DateTime.UtcNow.AddDays(-3),
@@ -407,9 +392,6 @@ public class DbSeeder
                         TotalAmount = 0m,
                         IsCart = true,
                         ShippingAddress = "202 Cedar St, Cầu Giấy, Hà Nội",
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.UtcNow,

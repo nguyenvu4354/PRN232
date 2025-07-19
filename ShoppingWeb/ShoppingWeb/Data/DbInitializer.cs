@@ -32,58 +32,58 @@ namespace ShoppingWeb.Data
                 }
             }
 
-            // Seed Provinces
-            if (!context.Provinces.Any())
-            {
-                var provinces = new List<Province>
-                {
-                    new Province { Id = 1, Name = "Hà Nội" },
-                    new Province { Id = 2, Name = "Hồ Chí Minh" }
-                };
-                context.Provinces.AddRange(provinces);
-                context.SaveChanges();
-                Console.WriteLine("Provinces seeded:");
-                foreach (var province in context.Provinces.ToList())
-                {
-                    Console.WriteLine($"ID: {province.Id}, Name: {province.Name}");
-                }
-            }
+            //// Seed Provinces
+            //if (!context.Provinces.Any())
+            //{
+            //    var provinces = new List<Province>
+            //    {
+            //        new Province { Id = 1, Name = "Hà Nội" },
+            //        new Province { Id = 2, Name = "Hồ Chí Minh" }
+            //    };
+            //    context.Provinces.AddRange(provinces);
+            //    context.SaveChanges();
+            //    Console.WriteLine("Provinces seeded:");
+            //    foreach (var province in context.Provinces.ToList())
+            //    {
+            //        Console.WriteLine($"ID: {province.Id}, Name: {province.Name}");
+            //    }
+            //}
 
-            // Seed Districts
-            if (!context.Districts.Any())
-            {
-                var districts = new List<District>
-                {
-                    new District { Id = 1, Name = "Cầu Giấy", ProvinceId = 1 },
-                    new District { Id = 2, Name = "Thanh Xuân", ProvinceId = 1 },
-                    new District { Id = 3, Name = "Quận 1", ProvinceId = 2 }
-                };
-                context.Districts.AddRange(districts);
-                context.SaveChanges();
-                Console.WriteLine("Districts seeded:");
-                foreach (var district in context.Districts.ToList())
-                {
-                    Console.WriteLine($"ID: {district.Id}, Name: {district.Name}");
-                }
-            }
+            //// Seed Districts
+            //if (!context.Districts.Any())
+            //{
+            //    var districts = new List<District>
+            //    {
+            //        new District { Id = 1, Name = "Cầu Giấy", ProvinceId = 1 },
+            //        new District { Id = 2, Name = "Thanh Xuân", ProvinceId = 1 },
+            //        new District { Id = 3, Name = "Quận 1", ProvinceId = 2 }
+            //    };
+            //    context.Districts.AddRange(districts);
+            //    context.SaveChanges();
+            //    Console.WriteLine("Districts seeded:");
+            //    foreach (var district in context.Districts.ToList())
+            //    {
+            //        Console.WriteLine($"ID: {district.Id}, Name: {district.Name}");
+            //    }
+            //}
 
-            // Seed Wards
-            if (!context.Wards.Any())
-            {
-                var wards = new List<Ward>
-                {
-                    new Ward { Id = 1, Name = "Dịch Vọng", DistrictId = 1 },
-                    new Ward { Id = 2, Name = "Quan Hoa", DistrictId = 1 },
-                    new Ward { Id = 3, Name = "Bến Nghé", DistrictId = 3 }
-                };
-                context.Wards.AddRange(wards);
-                context.SaveChanges();
-                Console.WriteLine("Wards seeded:");
-                foreach (var ward in context.Wards.ToList())
-                {
-                    Console.WriteLine($"ID: {ward.Id}, Name: {ward.Name}");
-                }
-            }
+            //// Seed Wards
+            //if (!context.Wards.Any())
+            //{
+            //    var wards = new List<Ward>
+            //    {
+            //        new Ward { Id = 1, Name = "Dịch Vọng", DistrictId = 1 },
+            //        new Ward { Id = 2, Name = "Quan Hoa", DistrictId = 1 },
+            //        new Ward { Id = 3, Name = "Bến Nghé", DistrictId = 3 }
+            //    };
+            //    context.Wards.AddRange(wards);
+            //    context.SaveChanges();
+            //    Console.WriteLine("Wards seeded:");
+            //    foreach (var ward in context.Wards.ToList())
+            //    {
+            //        Console.WriteLine($"ID: {ward.Id}, Name: {ward.Name}");
+            //    }
+            //}
 
             // Seed Users
             if (!context.Users.Any())
@@ -100,9 +100,6 @@ namespace ShoppingWeb.Data
                         Address = "Số 1 - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     },
@@ -115,9 +112,6 @@ namespace ShoppingWeb.Data
                         Address = "Số 2 - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     },
@@ -130,9 +124,6 @@ namespace ShoppingWeb.Data
                         Address = "Số 3 - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     },
@@ -145,9 +136,6 @@ namespace ShoppingWeb.Data
                         Address = "Số 4 - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     },
@@ -160,9 +148,6 @@ namespace ShoppingWeb.Data
                         Address = "Số 5 - Hà Nội",
                         PasswordHash = hashedPassword,
                         RoleId = 2,
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     }
@@ -316,9 +301,6 @@ namespace ShoppingWeb.Data
                         TotalAmount = 149.98m,
                         IsCart = false,
                         ShippingAddress = "123 Main St, District 1, Ho Chi Minh City",
-                        ProvinceId = 1,
-                        DistrictId = 1,
-                        WardId = 1,
                         PaymentCode = "PAY001",
                         OrderCode = "ORD001",
                         CreatedAt = DateTime.Now.AddDays(-1),
@@ -331,9 +313,6 @@ namespace ShoppingWeb.Data
                         TotalAmount = 999.99m,
                         IsCart = false,
                         ShippingAddress = "456 Elm St, District 3, Hanoi",
-                        ProvinceId = 2,
-                        DistrictId = 2,
-                        WardId = 2,
                         PaymentCode = "PAY002",
                         OrderCode = "ORD002",
                         CreatedAt = DateTime.Now.AddDays(-2),
@@ -346,9 +325,6 @@ namespace ShoppingWeb.Data
                         TotalAmount = 39.98m,
                         IsCart = true,
                         ShippingAddress = "789 Oak St, District 7, Da Nang",
-                        ProvinceId = 3,
-                        DistrictId = 3,
-                        WardId = 3,
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.Now,
@@ -361,9 +337,6 @@ namespace ShoppingWeb.Data
                         TotalAmount = 179.99m,
                         IsCart = false,
                         ShippingAddress = "101 Pine St, District 5, Can Tho",
-                        ProvinceId = 4,
-                        DistrictId = 4,
-                        WardId = 4,
                         PaymentCode = "PAY003",
                         OrderCode = "ORD003",
                         CreatedAt = DateTime.Now.AddDays(-3),
@@ -376,9 +349,6 @@ namespace ShoppingWeb.Data
                         TotalAmount = 0m,
                         IsCart = true,
                         ShippingAddress = "202 Cedar St, District 9, Hai Phong",
-                        ProvinceId = 5,
-                        DistrictId = 5,
-                        WardId = 5,
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.Now,

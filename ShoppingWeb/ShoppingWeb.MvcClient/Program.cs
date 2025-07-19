@@ -13,7 +13,6 @@ builder.Services.AddHttpClient("AuthApi", client =>
     client.BaseAddress = new Uri("https://localhost:7168/api/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
-
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHttpContextAccessor();
 

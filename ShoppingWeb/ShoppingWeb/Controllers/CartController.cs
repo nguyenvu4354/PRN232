@@ -1,6 +1,8 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.Services.Interface;
+using System.Security.Claims;
 
 namespace ShoppingWeb.Controllers
 {
@@ -18,16 +20,21 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
             if (request.Quantity <= 0)
             {
                 return BadRequest("Quantity must be greater than zero.");
             }
-
             try
             {
-                await cartService.AddToCartAsync(request.ProductId, request.Quantity, request.UserId);
+                await cartService.AddToCartAsync(request.ProductId, request.Quantity, userId);
                 return Ok("Item added to cart successfully.");
             }
             catch (Exception ex)
@@ -37,13 +44,18 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpDelete("remove")]
-        public async Task<IActionResult> RemoveFromCart([FromQuery] int productId, [FromQuery] int userId)
+        [Authorize]
+        public async Task<IActionResult> RemoveFromCart([FromQuery] int productId)
         {
-            if (productId <= 0 || userId <= 0)
+            if (productId <= 0)
             {
                 return BadRequest("Invalid product or user ID.");
             }
-
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
             try
             {
                 await cartService.RemoveFromCartAsync(productId, userId);
@@ -75,11 +87,13 @@ namespace ShoppingWeb.Controllers
         }
 
         [HttpGet("items")]
-        public async Task<IActionResult> GetCartItems([FromQuery] int userId)
+        [Authorize]
+        public async Task<IActionResult> GetCartItems()
         {
-            if (userId <= 0)
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out var userId))
             {
-                return BadRequest("Invalid user ID.");
+                return Unauthorized("User is not authenticated.");
             }
 
             try
@@ -128,9 +142,14 @@ namespace ShoppingWeb.Controllers
             {
                 return BadRequest("Insufficient stock for the requested quantity.");
             }
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
             try
             {
-                await cartService.UpdateCartItemAsync(request.ProductId, request.Quantity, request.UserId);
+                await cartService.UpdateCartItemAsync(request.ProductId, request.Quantity, userId);
                 return Ok();
             }
             catch (Exception ex)
@@ -144,13 +163,11 @@ namespace ShoppingWeb.Controllers
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public int UserId { get; set; }
     }
 
     public class UpdateCartItemRequest
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public int UserId { get; set; }
     }
 }

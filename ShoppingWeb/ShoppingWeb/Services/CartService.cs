@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Net.payOS.Types;
 using ShoppingWeb.Data;
 using ShoppingWeb.DTOs;
@@ -172,23 +173,29 @@ namespace ShoppingWeb.Services
             return cart.OrderDetails.Count;
         }
 
-        public async Task<IEnumerable<CartItemDTO>> GetCartItemsAsync(int userId)
+        public async Task<CartDTO> GetCartItemsAsync(int userId)
         {
             var cart = await _context.Carts.Include(c => c.OrderDetails).ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsCart);
             if (cart == null)
             {
-                return Enumerable.Empty<CartItemDTO>();
+                throw new ArgumentException("Cart not found.");
             }
 
-            return cart.OrderDetails.Select(od => new CartItemDTO
+            return new CartDTO
             {
-                ProductId = od.ProductId,
-                ProductName = od.Product.ProductName,
-                ProductImage = od.Product.ImageUrl,
-                Price = od.UnitPrice,
-                Quantity = od.Quantity
-            }).ToList();
+                CartId = cart.CartId,
+                UserId = cart.UserId.ToString(),
+                TotalPrice = cart.TotalAmount,
+                CartItems = cart.OrderDetails.Select(od => new CartItemDTO
+                {
+                    ProductId = od.ProductId,
+                    ProductName = od.Product.ProductName,
+                    Price = od.UnitPrice,
+                    Quantity = od.Quantity,
+                    ProductImage = od.Product.ImageUrl ?? string.Empty
+                }).ToList(),
+            };
         }
 
         public async Task<List<District>> GetDistricts(int provinceId)
