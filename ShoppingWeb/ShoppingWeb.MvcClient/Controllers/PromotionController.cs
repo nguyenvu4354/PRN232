@@ -97,15 +97,15 @@ namespace ShoppingWeb.MvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await _httpClient.DeleteAsync($"promotion/{id}");
+            var response = await _httpClient.DeleteAsync($"promotion/{id}/soft");
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Promotion deleted.";
+                TempData["Success"] = "Promotion soft deleted.";
             }
             else
             {
-                TempData["Error"] = "Failed to delete promotion.";
+                TempData["Error"] = "Failed to soft delete promotion.";
             }
 
             return RedirectToAction("Index");
