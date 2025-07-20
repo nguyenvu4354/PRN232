@@ -28,7 +28,7 @@ public partial class Product
     public virtual Brand? Brand { get; set; }
 
     public virtual Category? Category { get; set; }
-
+    public bool IsDisabled { get; set; } = false;
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
