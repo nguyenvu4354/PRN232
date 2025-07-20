@@ -89,29 +89,38 @@ namespace ShoppingWeb.MvcClient.Controllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            var response = await _httpClient.GetAsync($"Product/products/{id}");
             var viewModel = new ProductDetailViewModel();
+
+            // Lấy thông tin sản phẩm
+            var response = await _httpClient.GetAsync($"Product/products/{id}");
             if (!response.IsSuccessStatusCode)
             {
                 viewModel.Success = false;
-                var errorContent = await response.Content.ReadAsStringAsync();
-                viewModel.Message = $"Error fetching API {errorContent}";
+                viewModel.Message = await response.Content.ReadAsStringAsync();
                 viewModel.ErrorCode = response.StatusCode.ToString();
                 return View(viewModel);
             }
-            else
-            {
-                viewModel.Success = true;
-                viewModel.Message = "Fetched successfully";
-            }
+
             var json = await response.Content.ReadAsStringAsync();
-            var result = System.Text.Json.JsonSerializer.Deserialize<ProductDetailItemDto>(
-                json,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            );
-            viewModel.Product = result;
+            var product = System.Text.Json.JsonSerializer.Deserialize<ProductDetailItemDto>(
+                json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            viewModel.Product = product;
+            viewModel.Success = true;
+
+            // ✅ Gọi API lấy danh sách đánh giá
+            var reviewResponse = await _httpClient.GetAsync($"ProductReview/productreviews/{id}");
+            if (reviewResponse.IsSuccessStatusCode)
+            {
+                var reviewJson = await reviewResponse.Content.ReadAsStringAsync();
+                var reviews = System.Text.Json.JsonSerializer.Deserialize<List<ProductReviewDto>>(
+                    reviewJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                viewModel.ProductReviews = reviews ?? new List<ProductReviewDto>();
+            }
+
             return View(viewModel);
         }
+
     }
 
     public class ProductListViewModel
@@ -137,5 +146,8 @@ namespace ShoppingWeb.MvcClient.Controllers
         public string? Message { get; set; } = string.Empty;
         public string? ErrorCode { get; set; } = string.Empty;
         public bool Success { get; set; } = true;
+
+        public List<ProductReviewDto> ProductReviews { get; set; } = new List<ProductReviewDto>();
     }
+
 }

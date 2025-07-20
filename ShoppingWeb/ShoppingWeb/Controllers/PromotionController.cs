@@ -75,20 +75,27 @@ namespace ShoppingWeb.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id}/soft")]
+        public async Task<IActionResult> SoftDelete(int id)
         {
             try
             {
-                await _promotionService.DeleteAsync(id);
-                return Ok(ApiResponse<string>.SuccessResponse("Promotion deleted successfully"));
+                await _promotionService.SoftDeleteAsync(id);
+                return Ok(ApiResponse<string>.SuccessResponse("Promotion soft deleted successfully"));
             }
             catch (NotFoundException ex)
             {
                 _logger.LogWarning(ex.Message);
                 return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error soft deleting promotion");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred"));
+            }
         }
+
 
         [HttpGet("{id}/products")]
         public async Task<IActionResult> GetProductsInPromotion(int id)

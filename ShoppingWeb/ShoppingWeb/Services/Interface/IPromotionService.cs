@@ -10,7 +10,7 @@ namespace ShoppingWeb.Services.Interface
         Task<PromotionResponseDTO> GetByIdAsync(int id);
         Task CreateAsync(PromotionRequestDTO request);
         Task UpdateAsync(int id, PromotionRequestDTO request);
-        Task DeleteAsync(int id);
+        Task SoftDeleteAsync(int id);
         Task AddProductsToPromotionAsync(ProductPromotionRequestDTO request);
         Task<List<ProductResponseDTO>> GetProductsByPromotionIdAsync(int promotionId);
         

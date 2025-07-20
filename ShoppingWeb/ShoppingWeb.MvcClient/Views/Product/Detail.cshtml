@@ -91,7 +91,27 @@
                </div>  
            </div>  
        </div>  
-   </div>  
+   </div>
+<div class="review-section mt-5">
+    <h4>Customer Reviews</h4>
+    @if (Model.ProductReviews.Count == 0)
+    {
+        <p>No reviews yet.</p>
+    }
+    else
+    {
+        foreach (var review in Model.ProductReviews)
+        {
+            <div class="single-review p-3 mb-2 border rounded">
+                <p><strong>@review.FullName</strong> rated: <span>@review.Rating/5</span></p>
+                <p>@review.Comment</p>
+                <p class="text-muted" style="font-size: 0.85rem;">@review.CreatedAt?.ToLocalTime().ToString("dd MMM yyyy")</p>
+            </div>
+        }
+    }
+</div>
+
+
    <script>
            function showToast(message, isSuccess = true) {
         // Ensure the toast container exists

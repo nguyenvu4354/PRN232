@@ -23,6 +23,7 @@ namespace ShoppingWeb.Services
         public async Task<PagedResultDTO<PromotionResponseDTO>> GetPagedAsync(int page, int pageSize)
         {
             var query = _context.Promotions
+                .Where(p => !p.IsDisabled) 
                 .OrderByDescending(p => p.StartDate);
 
             var totalItems = await query.CountAsync();
@@ -51,6 +52,7 @@ namespace ShoppingWeb.Services
                 TotalItems = totalItems
             };
         }
+
 
         public async Task<PromotionResponseDTO> GetByIdAsync(int id)
         {
@@ -105,15 +107,18 @@ namespace ShoppingWeb.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task SoftDeleteAsync(int id)
         {
             var promotion = await _context.Promotions.FindAsync(id);
-            if (promotion == null)
+            if (promotion == null || promotion.IsDisabled)
                 throw new NotFoundException("Promotion not found");
 
-            _context.Promotions.Remove(promotion);
+            promotion.IsDisabled = true;
+            promotion.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
         }
+
         public async Task AddProductsToPromotionAsync(ProductPromotionRequestDTO request)
         {
             var promotion = await _context.Promotions
