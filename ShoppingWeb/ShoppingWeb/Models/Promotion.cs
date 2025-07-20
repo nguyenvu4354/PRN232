@@ -24,6 +24,6 @@ public partial class Promotion
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-
+    public bool IsDisabled { get; set; } = false;
     public virtual ICollection<ProductPromotion> ProductPromotions { get; set; } = new List<ProductPromotion>();
 }
