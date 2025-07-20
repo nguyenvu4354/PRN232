@@ -15,7 +15,6 @@ namespace ShoppingWeb.MvcClient.Controllers
         {
             var model = new ViewCartModel
             {
-
             };
             var accessToken = Request.Cookies["AccessToken"];
             if (string.IsNullOrEmpty(accessToken))

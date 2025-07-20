@@ -16,6 +16,21 @@ namespace ShoppingWeb.Controllers
         {
             _cartService = cartService;
         }
+        [HttpPost("place-order")]
+        public async Task<IActionResult> PlaceOrder([FromBody] int cartId)
+        {
+            //var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            //{
+            //    return Unauthorized("User not authenticated.");
+            //}
+            if(cartId <= 0)
+            {
+                return BadRequest("Invalid cart ID.");
+            }
+            var result = await _cartService.CreateOrder(cartId);
+            return Ok(result);
+        }
 
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] ToOrderDTO toOrderDTO)
@@ -75,16 +90,17 @@ namespace ShoppingWeb.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        [HttpGet("payment-info/{cartId}")]
-        public async Task<IActionResult> GetPaymentInfo(int cartId)
+        [HttpGet("payment-info")]
+        public async Task<IActionResult> GetPaymentInfo(int cartid)
         {
-            if (cartId <= 0)
-            {
-                return BadRequest("Invalid cart ID.");
-            }
+            //var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            //{
+            //    return Unauthorized("User not authenticated.");
+            //}
             try
             {
-                var paymentInfo = await _cartService.GetPaymentInfo(cartId);
+                var paymentInfo = await _cartService.GetPaymentInfo(cartid);
                 return Ok(paymentInfo);
             }
             catch (Exception ex)
@@ -93,15 +109,16 @@ namespace ShoppingWeb.Controllers
             }
         }
         [HttpPost("create-payment")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
+        public async Task<IActionResult> CreatePayment([FromBody] int cartId)
         {
-            if (request == null || !ModelState.IsValid)
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                return BadRequest("Invalid payment request.");
+                return Unauthorized("User not authenticated.");
             }
             try
             {
-                var response = await _cartService.CreatePayment(request);
+                var response = await _cartService.CreatePayment(cartId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -173,7 +190,12 @@ namespace ShoppingWeb.Controllers
                         districts.AddRange(districtList);
                         foreach (var district in districtList)
                         {
-
+                            bool result = new Random().NextDouble() < 0.75;
+                            if (result)
+                            {
+                                Console.WriteLine($"Skipping wards for district {district.Id} due to random condition.");
+                                continue;
+                            }
                             try
                             {
                                 var wardList = await _cartService.GetWards(district.Id);

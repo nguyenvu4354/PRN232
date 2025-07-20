@@ -2,6 +2,15 @@
 
 namespace ShoppingWeb.DTOs
 {
+
+    public class PaymentInfo
+    {
+        public int CartId { get; set; }
+        public int Amount { get; set; }
+        public int AmountPaid { get; set; }
+        public int AmountRemaining { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
     public class ToOrderDTO
     {
         public int UserId { get; set; }

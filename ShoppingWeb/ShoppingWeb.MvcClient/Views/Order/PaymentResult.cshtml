@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model ShoppingWeb.MvcClient.Controllers.PaymentResultViewModel
+<div style="width:100%; display:flex; justify-content:center">
+<div class="col-lg-4" style="border-radius:20px; padding:10px; margin-top:10%">
+    <div class="order_box">
+        <h2>@Model.Message</h2>
+        <ul class="list list_2">
+            <li>
+                <a href="#">
+                    Total
+                    <span>@Model.PaymentInfo.Amount đ</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    Expected delivery time
+                    <span id="shipping-fee">@Model.OrderResponse.ExpectedDeliveryTime</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+</div>

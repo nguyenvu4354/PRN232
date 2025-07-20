@@ -99,7 +99,7 @@ namespace ShoppingWeb.Services
         {
             var cart = await _context.Carts.Include(c => c.Ward).Include(c => c.District).Include(c => c.Province)
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.CartId == cartId && c.IsCart);
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
             if (cart == null)
             {
                 throw new ArgumentException("Cart not found.");
@@ -129,13 +129,18 @@ namespace ShoppingWeb.Services
             cart.IsCart = false;
             cart.UpdatedAt = DateTime.UtcNow;
             cart.OrderCode = response.OrderCode;
+            orderDetails.ForEach(od =>
+            {
+                od.Status = "Placed";
+            });
             await _context.SaveChangesAsync();
             return response;
         }
 
-        public async Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest request)
+        public async Task<CreatePaymentResponse> CreatePayment(int cartId)
         {
-            var cart = await _context.Carts.FirstOrDefaultAsync(c => c.CartId == request.Id && c.IsCart);
+            var cart = await _context.Carts.Include(c => c.OrderDetails).Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
             if (cart == null)
             {
                 throw new ArgumentException("Cart not found.");
@@ -150,12 +155,12 @@ namespace ShoppingWeb.Services
             CreatePaymentRequest paymentRequest = new()
             {
                 Amount = (int)cart.TotalAmount,
-                Description = $"Order from user {cart.UserId} on {cart.OrderDate}",
+                Description = $"User {cart.User.FullName}",
                 Id = cart.CartId,
-                Items = new List<ItemData>()
+                Items = cart.OrderDetails
+                .Select(od => new ItemData(od.Product.ProductName, od.Quantity, (int)od.UnitPrice)).ToList()
             };
-            CreatePaymentResponse response = await _payOS.CreatePayment(request);
-            cart.IsCart = false;
+            CreatePaymentResponse response = await _payOS.CreatePayment(paymentRequest);
             cart.UpdatedAt = DateTime.UtcNow;
             cart.PaymentCode = response.OrderCode.ToString();
             await _context.SaveChangesAsync();
@@ -179,7 +184,14 @@ namespace ShoppingWeb.Services
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsCart);
             if (cart == null)
             {
-                throw new ArgumentException("Cart not found.");
+                return new CartDTO();
+            }
+            foreach (var od in cart.OrderDetails)
+            {
+                if(od.Product.StockQuantity < od.Quantity)
+                {
+                    cart.OrderDetails.Remove(od);
+                }
             }
 
             return new CartDTO
@@ -221,7 +233,7 @@ namespace ShoppingWeb.Services
             return await _ghn.GetOrderStatus(orderCode);
         }
 
-        public async Task<PaymentLinkInformation> GetPaymentInfo(int cartid)
+        public async Task<PaymentInfo> GetPaymentInfo(int cartid)
         {
             var cart = await _context.Carts.FirstOrDefaultAsync(c => c.CartId == cartid && !c.IsCart);
             if (cart == null)
@@ -233,7 +245,18 @@ namespace ShoppingWeb.Services
             {
                 throw new ArgumentException("Invalid order code or no code.");
             }
-            return await _payOS.GetPayment(orderCodeLong);
+            var result = await _payOS.GetPayment(orderCodeLong);
+            if (result == null)
+            {
+                throw new ArgumentException("Payment information not found.");
+            }
+            return new PaymentInfo
+            {
+                CartId = cart.CartId,
+                Amount = result.amount,
+                AmountPaid = result.amountPaid,
+                Status = result.status
+            };
         }
 
         public async Task<List<Province>> GetProvinces()
@@ -298,12 +321,26 @@ namespace ShoppingWeb.Services
 
         public async Task ToOrderAsync(ToOrderDTO toOrderDTO)
         {
-            var cart = await _context.Carts.FirstOrDefaultAsync(c => c.UserId == toOrderDTO.UserId && c.IsCart);
+            var cart = await _context.Carts.Include(c => c.OrderDetails).FirstOrDefaultAsync(c => c.UserId == toOrderDTO.UserId && c.IsCart);
             if (cart == null)
             {
                 throw new ArgumentException("Cart not found.");
             }
+            int shippingFee = 0;
+            try
+            {
+                shippingFee = await _ghn.GetServiceFee(toOrderDTO.WardId.ToString(), toOrderDTO.DistrictId.Value, cart.OrderDetails.Sum(od => od.Quantity));
+            }
+            catch
+            {
+                throw new ArgumentException("Failed to calculate shipping fee. Please check the address details.");
+            }
 
+            foreach (var item in cart.OrderDetails)
+            {
+                item.CreatedAt = DateTime.UtcNow;
+                item.Status = "Pending";
+            }
             cart.IsCart = false;
             cart.OrderDate = DateTime.UtcNow;
             cart.UpdatedAt = DateTime.UtcNow;
@@ -311,6 +348,10 @@ namespace ShoppingWeb.Services
             cart.ProvinceId = toOrderDTO.ProvinceId;
             cart.DistrictId = toOrderDTO.DistrictId;
             cart.WardId = toOrderDTO.WardId;
+            cart.TotalAmount = await _context.OrderDetails
+                .Where(od => od.CartId == cart.CartId)
+                .SumAsync(od => od.Quantity * od.UnitPrice);
+            cart.TotalAmount += shippingFee;
 
             await _context.SaveChangesAsync();
         }

@@ -42,11 +42,18 @@ namespace ShoppingWeb.Services.ThirdParty
                 request.Amount,
                 request.Description,
                 request.Items,
-                cancelUrl: $@"https://localhost:7088/public/orders/checkoutresult?oid={request.Id}&orderCode={code}",
-                returnUrl: $@"https://localhost:7088/public/orders/checkoutresult?oid={request.Id}&orderCode={code}"
+                cancelUrl: $@"https://localhost:7026/order/paymentresult?cartid={request.Id}",
+                returnUrl: $@"https://localhost:7026/order/paymentresult?cartid={request.Id}"
             );
-
-            CreatePaymentResult createPayment = await _client.createPaymentLink(paymentData);
+            CreatePaymentResult createPayment;
+            try
+            {
+                createPayment = await _client.createPaymentLink(paymentData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to create payment link", ex);
+            }
             return new CreatePaymentResponse
             {
                 CheckoutUrl = createPayment.checkoutUrl,
@@ -56,7 +63,16 @@ namespace ShoppingWeb.Services.ThirdParty
 
         public async Task<PaymentLinkInformation> GetPayment(long orderCode)
         {
-            return await _client.getPaymentLinkInformation(orderId: orderCode);
+            PaymentLinkInformation paymentLinkInformation;
+            try
+            {
+                paymentLinkInformation = await _client.getPaymentLinkInformation(orderId: orderCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve payment link information", ex);
+            }
+            return paymentLinkInformation;
         }
     }
 }
