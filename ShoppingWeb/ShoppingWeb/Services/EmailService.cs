@@ -1,8 +1,8 @@
-﻿using ShoppingWeb.Services.Interface;
-using MailKit.Net.Smtp;
-using MimeKit;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+using MimeKit;
 using MimeKit.Text;
+using ShoppingWeb.Services.Interface;
 
 namespace ShoppingWeb.Services
 {
@@ -17,14 +17,14 @@ namespace ShoppingWeb.Services
             _logger = logger;
         }
 
-        public async Task SendWelcomeEmailAsync(string toEmail,string username, string? confirmationLink)
+        public async Task SendWelcomeEmailAsync(string toEmail, string username, string? confirmationLink)
         {
             string subject = "Welcome to website";
             string body = $@"
             <h2>Welcome!</h2>
             <p>Thanks for registering</p>";
             //<p><a href='{confirmationLink}'>Confirm Email</a></p>";
-            
+
             await SendEmailAsync(toEmail, subject, body);
         }
 
@@ -43,12 +43,13 @@ namespace ShoppingWeb.Services
             await smtp.DisconnectAsync(true);
         }
 
-        public async Task SendPasswordResetEmailAsync(string toEmail,string resetToken, string? userName)
+        public async Task SendPasswordResetEmailAsync(string toEmail, string resetToken, string? userName)
         {
             try
             {
-                var baseUrl = _configuration["App:BaseUrl"];
-                var resetUrl = $"{baseUrl}/reset-password?token={resetToken}";
+                var baseUrl = _configuration["App:FrontendBaseUrl"];
+                var resetUrl = $"{baseUrl}/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(toEmail)}";
+
 
                 var emailBody = $@"
                 <h2>Password Reset Request</h2>

@@ -14,6 +14,7 @@ public class AuthService : IAuthService
         _httpClientFactory = httpClientFactory;
     }
 
+
     public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginViewModel model)
     {
         try
@@ -84,8 +85,77 @@ public class AuthService : IAuthService
         var client = _httpClientFactory.CreateClient("AuthApi");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await client.PostAsync("Auth/logout", null); // hoặc thêm `new StringContent("")` nếu API yêu cầu body
+        var response =
+            await client.PostAsync("Auth/logout", null); // hoặc thêm `new StringContent("")` nếu API yêu cầu body
 
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ForgotPasswordAsync(string email)
+    {
+        var client = _httpClientFactory.CreateClient("AuthApi");
+
+        try
+        {
+
+            var request = new ForgotPasswordRequest { Email = email };
+            var response = await client.PostAsJsonAsync("Auth/forgot-password", request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($" ForgotPassword failed: {response.StatusCode} - {errorContent}");
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($" Exception in ForgotPasswordAsync: {ex.Message}");
+            return false;
+        }
+    }
+
+    public class ResetPasswordResult
+    {
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+    public async Task<ResetPasswordResult> ResetPasswordAsync(ResetPasswordViewModel requestResetPassword)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient("AuthApi");
+            var rq = new
+            {
+                TokenResetPassword = requestResetPassword.Token,
+                NewPassword = requestResetPassword.Password,
+                // Email = requestResetPassword.Email
+            };
+
+            var response = await client.PostAsJsonAsync("Auth/reset-password", rq);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return new ResetPasswordResult { Success = true };
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync();
+            return new ResetPasswordResult
+            {
+                Success = false,
+                // ErrorMessage = GetUserFriendlyError(response.StatusCode, errorContent)
+            };
+        }
+        catch (HttpRequestException ex)
+        {
+            return new ResetPasswordResult
+            {
+                Success = false,
+                ErrorMessage = "Unable to connect to authentication service."
+            };
+        }
     }
 }

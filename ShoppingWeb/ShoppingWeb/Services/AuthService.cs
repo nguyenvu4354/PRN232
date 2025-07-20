@@ -186,12 +186,7 @@ public class AuthService : IAuthService
 
     public async Task<bool> ForgotPasswordAsync(string email)
     {
-        // if (string.IsNullOrWhiteSpace(email))
-        // {
-        //     _logger.LogWarning("Invalid forgot password request: Email is null or empty.");
-        //     await Task.Delay(1000); // Consistent delay to prevent timing attacks
-        //     return true; // Return true to avoid enumeration
-        // }
+
 
         try
         {
@@ -376,12 +371,12 @@ public class AuthService : IAuthService
 
 
 
-    public async Task<bool> ResetPasswordAsync(string tokenResetPassword, string newPassword)
+    public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDTO request)
     {
         try
         {
             var tokenInDb = await _context.PasswordResetTokens.FirstOrDefaultAsync(t =>
-                t.Token == tokenResetPassword && t.Used == false && t.ExpiresAt > DateTime.UtcNow);
+                t.Token == request.TokenResetPassword && t.Used == false && t.ExpiresAt > DateTime.UtcNow);
 
 
             if (tokenInDb == null)
@@ -400,7 +395,7 @@ public class AuthService : IAuthService
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                user.PasswordHash = PasswordHelper.HashPassword(newPassword);
+                user.PasswordHash = PasswordHelper.HashPassword(request.NewPassword);
                 tokenInDb.Used = true;
                 _context.Users.Update(user);
                 _context.PasswordResetTokens.Update(tokenInDb);
@@ -418,7 +413,7 @@ public class AuthService : IAuthService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error resetting password for token: {Token}", tokenResetPassword);
+            _logger.LogError(e, "Error resetting password for token: {Token}", request.TokenResetPassword);
             throw;
         }
 

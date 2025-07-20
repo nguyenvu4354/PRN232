@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingWeb.MvcClient.DTOs.Auth;
 using ShoppingWeb.MvcClient.Models;
 using ShoppingWeb.MvcClient.Services;
 
@@ -73,4 +74,72 @@ public class AuthController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+
+    [HttpGet]
+    public IActionResult ForgotPassword() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Error = "Email is required.";
+            return View();
+        }
+
+        var success = await _authService.ForgotPasswordAsync(request.Email);
+        if (!success)
+        {
+            ViewBag.Error = "Failed to send password reset email. Please check the email address.";
+            return View();
+        }
+        ViewBag.Message = "Password reset email has been sent. Please check your inbox.";
+        return View();
+    }
+
+    [HttpGet("reset-password")]
+    public IActionResult ResetPassword(string token, string email)
+    {
+        if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
+        {
+            ViewBag.Error = "Invalid reset link.";
+            return View();
+        }
+
+        var model = new ResetPasswordViewModel
+        {
+            Token = token,
+            Email = email
+        };
+        return View(model);
+    }
+
+    [HttpPost("reset-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
+        {
+            var result = await _authService.ResetPasswordAsync(model);
+            if (!result.Success)
+            {
+                ViewBag.Error = "Failed to reset password. Please try again.";
+                return View(model);
+            }
+
+            ViewBag.Success = "Password reset successfully. You can now log in with your new password.";
+            return RedirectToAction("Login", "Auth");
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Error = "An unexpected error occurred. Please try again.";
+            return View(model);
+        }
+    }
 }
+
+
+

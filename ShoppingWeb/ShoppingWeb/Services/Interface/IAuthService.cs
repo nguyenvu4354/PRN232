@@ -7,7 +7,7 @@ public interface IAuthService
     Task<AuthResponseDTO> RegisterAsync(RegisterDTO registerRequest);
     Task<AuthResponseDTO> LoginAsync(LoginDTO loginRequest);
     Task<bool> ForgotPasswordAsync(string email);
-    Task<bool> ResetPasswordAsync(string tokenResetPassword, string newPassword);
+    Task<bool> ResetPasswordAsync(ResetPasswordRequestDTO request);
     Task<AuthResponseDTO> RefreshTokenAsync(string refreshToken);
     Task LogoutAsync(string token);
     Task<bool> RevokeTokenAsync(string refreshToken);

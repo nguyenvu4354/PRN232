@@ -91,19 +91,18 @@ namespace ShoppingWeb.Controllers
 
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            await _authService.ForgotPasswordAsync(email);
+            await _authService.ForgotPasswordAsync(request.Email);
             return Ok(ApiResponse<string>.SuccessResponse(null, "The request reset password have been sending to your email. Please check!"));
         }
 
-        [Authorize]
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(string tokenResetPassword, string newPassword)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO request)
         {
             try
             {
-                var stateResetPassword = await _authService.ResetPasswordAsync(tokenResetPassword, newPassword);
+                var stateResetPassword = await _authService.ResetPasswordAsync(request);
                 if (!stateResetPassword)
                 {
                     return BadRequest(ApiResponse<string>.ErrorResponse("Password reset faild", HttpStatusCode.BadRequest.ToString()));
