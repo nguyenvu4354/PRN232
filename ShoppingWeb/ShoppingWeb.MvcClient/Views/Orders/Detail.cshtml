@@ -2,15 +2,40 @@
 
 @{
     ViewBag.Title = "Order Detail";
+    var isFinalStatus = Model.Status == "Cancelled" || Model.Status == "Completed";
 }
 
 <h2>Order Detail</h2>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <table class="table table-striped">
     <tr><th>Order ID</th><td>@Model.OrderId</td></tr>
     <tr><th>User Name</th><td>@Model.UserName</td></tr>
-    <tr><th>Total Amount</th><td>@Model.TotalAmount.ToString("C")</td></tr>
-    <tr><th>Status</th><td>@Model.Status</td></tr>
+    <tr><th>Total Amount</th><td>@Model.TotalAmount.ToString("C", System.Globalization.CultureInfo.CurrentCulture)</td></tr>
+
+    <tr>
+        <th>Status</th>
+        <td>
+            <form id="statusForm" method="post" asp-action="Detail" asp-route-id="@Model.OrderId">
+                <select class="form-control" name="Status" onchange="document.getElementById('statusForm').submit();" @(isFinalStatus ? "disabled" : "")>
+                    <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+                    <option value="Processing" selected="@(Model.Status == "Processing")">Processing</option>
+                    <option value="Shipped" selected="@(Model.Status == "Shipped")">Shipped</option>
+                    <option value="Completed" selected="@(Model.Status == "Completed")">Completed</option>
+                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelled</option>
+                </select>
+            </form>
+        </td>
+    </tr>
+
     <tr><th>Order Date</th><td>@Model.OrderDate?.ToString("yyyy-MM-dd")</td></tr>
     <tr><th>Shipping Address</th><td>@Model.ShippingAddress</td></tr>
 </table>
@@ -31,13 +56,14 @@
             @foreach (var item in Model.Details)
             {
                 <tr>
-                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>Product #@item.ProductId</td>
+                    <td>@item.UnitPrice.ToString("C", System.Globalization.CultureInfo.CurrentCulture)</td>
                     <td>@item.Quantity</td>
-                    <td>@(item.UnitPrice * item.Quantity).ToString("C")</td>
+                    <td>@((item.UnitPrice * item.Quantity).ToString("C", new System.Globalization.CultureInfo("vi-VN")))</td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-<a class="btn btn-secondary" href="@Url.Action("Index")">Back to List</a>
+<a class="btn btn-secondary mt-2" href="@Url.Action("Index")">Back to List</a>

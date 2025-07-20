@@ -35,7 +35,6 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View(result?.Data);
         }
 
-        // ✅ GET: /Orders/Detail/5
         public async Task<IActionResult> Detail(int id)
         {
             var response = await _httpClient.GetAsync($"orders/{id}");
@@ -61,36 +60,8 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View(result.Data);
         }
 
-        // ✅ GET: /Orders/UpdateStatus/5
-        public async Task<IActionResult> UpdateStatus(int id)
-        {
-            var response = await _httpClient.GetAsync($"orders/{id}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                TempData["Error"] = "Failed to load order.";
-                return RedirectToAction("Index");
-            }
-
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<ApiResponseDTO<OrderResponseDTO>>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (result?.Data == null)
-            {
-                TempData["Error"] = "Order not found.";
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.OrderId = id;
-            return View(new UpdateOrderStatusDTO { Status = result.Data.Status });
-        }
-
-        // ✅ POST: /Orders/UpdateStatus/5
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDTO dto)
+        public async Task<IActionResult> Detail(int id, UpdateOrderStatusDTO dto)
         {
             var content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync($"orders/OrderDetail{id}/status", content);
@@ -98,12 +69,14 @@ namespace ShoppingWeb.MvcClient.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Order status updated successfully.";
-                return RedirectToAction("Detail", new { id });
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update status.";
             }
 
-            TempData["Error"] = "Failed to update status.";
-            ViewBag.OrderId = id;
-            return View(dto);
+            return RedirectToAction("Detail", new { id });
         }
+
     }
 }
