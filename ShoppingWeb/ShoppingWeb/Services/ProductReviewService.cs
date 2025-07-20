@@ -54,12 +54,24 @@ namespace ShoppingWeb.Services
             return await _context.ProductReviews.CountAsync(r => r.ProductId == productId);
         }
 
-        public async Task<IEnumerable<ProductReview>> GetProductReviewsAsync(int productId)
+        public async Task<IEnumerable<ProductReviewWithUserDTO>> GetProductReviewsAsync(int productId)
         {
             return await _context.ProductReviews
+                .Include(r => r.User)
                 .Where(r => r.ProductId == productId)
+                .Select(r => new ProductReviewWithUserDTO
+                {
+                    ReviewId = r.ReviewId,
+                    ProductId = r.ProductId,
+                    UserId = r.UserId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt,
+                    FullName = r.User.FullName
+                })
                 .ToListAsync();
         }
+
 
         public async Task<IEnumerable<ProductReview>> GetProductReviewsByUserAsync(int userId)
         {
