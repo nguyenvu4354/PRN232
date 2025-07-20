@@ -195,5 +195,33 @@ namespace ShoppingWeb.Controllers
             }
         }
 
+        [HttpPost("create-staff")]
+        public async Task<IActionResult> CreateStaffUser([FromBody] CreateUserRequestDTO requestDTO)
+        {
+            if (requestDTO == null)
+            {
+                _logger.LogWarning("CreateUser request DTO is null.");
+                return BadRequest(ApiResponse<string>.ErrorResponse("Request cannot be null", StatusCodes.Status400BadRequest.ToString()));
+            }
+
+            try
+            {
+                var user = await _userService.CreateStaffUserAsync(requestDTO);
+                return Ok(ApiResponse<UserListItemResponseDTO>.SuccessResponse(user, "Staff account created successfully."));
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning("Validation error: {Message}", ex.Message);
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message, StatusCodes.Status400BadRequest.ToString()));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating staff account.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+            }
+        }
+
+
     }
 }

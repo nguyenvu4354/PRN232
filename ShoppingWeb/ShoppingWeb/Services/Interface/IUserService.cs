@@ -6,6 +6,8 @@ namespace ShoppingWeb.Services.Interface
     public interface IUserService
     {
         Task<PagedResultDTO<UserListItemResponseDTO>> GetUsersPagedAsync(int page, int pageSize);
+        Task<UserListItemResponseDTO> CreateStaffUserAsync(CreateUserRequestDTO requestDTO);
+
         Task<IEnumerable<UserListItemResponseDTO>> GetAllUsersAsync();
         Task<IEnumerable<UserListItemResponseDTO>> SearchUsersByUsernameAsync(string username);
         Task<UserListItemResponseDTO> GetUserDetailByIdAsync(int userId);

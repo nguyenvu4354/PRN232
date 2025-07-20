@@ -8,6 +8,7 @@ using ShoppingWeb.Helpers;
 using ShoppingWeb.Mapping;
 using ShoppingWeb.Models;
 using ShoppingWeb.Services.Interface;
+using System.Security.Cryptography;
 
 namespace ShoppingWeb.Services
 {
@@ -15,6 +16,14 @@ namespace ShoppingWeb.Services
     {
         private ShoppingWebContext _context;
         private ILogger<UserService> _logger;
+        private readonly IEmailService _emailService;
+
+        public UserService(ShoppingWebContext context, ILogger<UserService> logger, IEmailService emailService)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        }
 
         public UserService(ShoppingWebContext context, ILogger<UserService> logger)
         {
@@ -198,6 +207,66 @@ namespace ShoppingWeb.Services
                 RoleName = user.Role.RoleName,
                 IsActive = user.IsActive
             };
+        }
+        public async Task<UserListItemResponseDTO> CreateStaffUserAsync(CreateUserRequestDTO requestDTO)
+        {
+            if (requestDTO == null)
+                throw new ArgumentNullException(nameof(requestDTO));
+
+            var randomSuffix = GenerateRandomSuffix(5);
+            var usernameWithSuffix = requestDTO.Username + randomSuffix;
+
+            if (await _context.Users.AnyAsync(u => u.Username == usernameWithSuffix))
+                throw new ArgumentException("Generated username already exists. Please try again.");
+
+            var user = new User
+            {
+                Username = usernameWithSuffix,
+                Email = requestDTO.Email,
+                FullName = requestDTO.FullName,
+                Phone = requestDTO.Phone,
+                Address = requestDTO.Address,
+                ProvinceId = requestDTO.ProvinceId,
+                DistrictId = requestDTO.DistrictId,
+                WardId = requestDTO.WardId,
+                RoleId = (int)UserRole.STAFF,
+                PasswordHash = PasswordHelper.HashPassword("123"),
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Created new staff user: {Username}", user.Username);
+
+            try
+            {
+                await _emailService.SendWelcomeEmailAsync(user.Email, user.Username, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send welcome email to {Email}", user.Email);
+            }
+
+            return new UserListItemResponseDTO
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                FullName = user.FullName,
+                Phone = user.Phone,
+                Address = user.Address,
+                RoleName = "Staff",
+                IsActive = user.IsActive
+            };
+        }
+
+        private string GenerateRandomSuffix(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[RandomNumberGenerator.GetInt32(s.Length)]).ToArray());
         }
     }
 }

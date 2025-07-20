@@ -19,14 +19,22 @@ namespace ShoppingWeb.Services
 
         public async Task SendWelcomeEmailAsync(string toEmail, string username, string? confirmationLink)
         {
-            string subject = "Welcome to website";
+            string defaultPassword = "123";
+            string subject = "Welcome to ShoppingWeb - Your Staff Account Details";
             string body = $@"
-            <h2>Welcome!</h2>
-            <p>Thanks for registering</p>";
-            //<p><a href='{confirmationLink}'>Confirm Email</a></p>";
+        <h2>Welcome to ShoppingWeb!</h2>
+        <p>Your staff account has been successfully created.</p>
+        <p><strong>Username:</strong> {username}</p>
+        <p><strong>Password:</strong> {defaultPassword}</p>
+        <p>Please log in and change your password after your first login.</p>
+        <br />
+        <p>Thank you,</p>
+        <p><strong>ShoppingWeb Team</strong></p>
+    ";
 
             await SendEmailAsync(toEmail, subject, body);
         }
+
 
         public async Task SendEmailAsync(string to, string subject, string html)
         {
