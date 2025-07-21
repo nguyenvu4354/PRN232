@@ -4,9 +4,11 @@ using ShoppingWeb.DTOs;
 using ShoppingWeb.Services.Interface;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingWeb.Controllers
 {
+    [Authorize(Roles = "STAFF")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesManagementController : ControllerBase
@@ -25,7 +27,7 @@ namespace ShoppingWeb.Controllers
             var result = new List<CategoryDto>();
             foreach (var c in categories)
             {
-                result.Add(new CategoryDto { Id = c.CategoryId, Name = c.CategoryName, Description = c.Description });
+                result.Add(new CategoryDto { Id = c.CategoryId, Name = c.CategoryName, Description = c.Description, IsDisabled = c.IsDisabled });
             }
             return result;
         }
@@ -35,7 +37,7 @@ namespace ShoppingWeb.Controllers
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category == null) return NotFound();
-            return new CategoryDto { Id = category.CategoryId, Name = category.CategoryName, Description = category.Description };
+            return new CategoryDto { Id = category.CategoryId, Name = category.CategoryName, Description = category.Description, IsDisabled = category.IsDisabled };
         }
 
         [HttpPost]
@@ -58,12 +60,16 @@ namespace ShoppingWeb.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        [HttpPut("disable/{id}")]
+        public async Task<IActionResult> DisableCategory(int id, [FromQuery] bool disable)
         {
-            var deleted = await _categoryService.DeleteCategoryAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var category = await _categoryService.GetCategoryByIdAsync(id);
+            if (category == null) return NotFound();
+            category.IsDisabled = disable;
+            var updated = await _categoryService.UpdateCategoryAsync(category);
+            if (updated == null) return NotFound();
+            var dto = new CategoryDto { Id = category.CategoryId, Name = category.CategoryName, Description = category.Description, IsDisabled = category.IsDisabled };
+            return Ok(dto);
         }
     }
 }
