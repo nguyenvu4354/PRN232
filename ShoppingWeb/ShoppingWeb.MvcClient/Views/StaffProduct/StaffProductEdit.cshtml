@@ -5,38 +5,50 @@
 }
 <h2>Sửa sản phẩm</h2>
 <form id="editForm" enctype="multipart/form-data">
-    <input type="hidden" name="productId" id="productId" value="@productId" />
+    <input type="hidden" name="Product.ProductId" id="productId" value="@productId" />
     <div class="mb-3">
         <label>Tên sản phẩm</label>
-        <input type="text" class="form-control" name="productName" id="productName" required />
+        <input type="text" class="form-control" name="Product.ProductName" id="productName" required value="@Model?.ProductName" />
     </div>
     <div class="mb-3">
         <label>Giá</label>
-        <input type="number" class="form-control" name="price" id="price" required />
+        <input type="number" class="form-control" name="Product.Price" id="price" required value="@Model?.Price" />
     </div>
     <div class="mb-3">
         <label>Brand</label>
-        <select class="form-control" name="brandId" id="brandSelect" required></select>
+        <select class="form-control" name="Product.BrandName" id="brandSelect" required></select>
     </div>
     <div class="mb-3">
         <label>Category</label>
-        <select class="form-control" name="categoryId" id="categorySelect" required></select>
+        <select class="form-control" name="Product.CategoryName" id="categorySelect" required></select>
     </div>
     <div class="mb-3">
         <label>Ảnh sản phẩm</label>
-        <input type="file" class="form-control" name="imageFile" accept="image/*" />
+        <input type="file" class="form-control" name="Product.ImageFile" accept="image/*" />
         <img id="previewImg" src="#" style="max-width:120px; margin-top:10px; display:none;" />
+    </div>
+    <div class="mb-3">
+        <label>Số lượng</label>
+        <input type="number" class="form-control" name="Product.StockQuantity" id="stockQuantity" required />
     </div>
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="@Url.Action("StaffProductList", "StaffProduct")" class="btn btn-secondary">Quay lại</a>
 </form>
 @section Scripts {
     <script>
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
         const productId = '@productId';
 
         // Hàm load dropdown Brand
         function loadBrands(selectedId) {
-            return fetch('http://localhost:5028/api/BrandManagement')
+            return fetch('https://localhost:7168/api/BrandManagement', {
+                headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
+                credentials: 'include'
+            })
                 .then(r => r.json())
                 .then(data => {
                     let html = '<option value="">Chọn Brand</option>'; // Option mặc định
@@ -56,7 +68,10 @@
 
         // Hàm load dropdown Category
         function loadCategories(selectedId) {
-            return fetch('http://localhost:5028/api/CategoriesManagement')
+            return fetch('https://localhost:7168/api/CategoriesManagement', {
+                headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
+                credentials: 'include'
+            })
                 .then(r => r.json())
                 .then(data => {
                     let html = '<option value="">Chọn Category</option>'; // Option mặc định
@@ -76,46 +91,42 @@
 
         // Load product info và đồng bộ set value cho select
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('http://localhost:5028/api/ProductsManagement/' + productId)
-                .then(r => r.json())
-                .then(prod => {
-                    document.getElementById('productName').value = prod.name || '';
-                    document.getElementById('price').value = prod.price || '';
-                    // Lấy brandId/categoryId đúng nhất
-                    let brandId = prod.brandId;
-                    let categoryId = prod.categoryId;
-                    // Nếu không có, thử lấy từ prod.brand?.id hoặc prod.brand hoặc prod.brandID
-                    if (!brandId && prod.brand) brandId = prod.brand.id || prod.brand.brandId || prod.brandID;
-                    if (!categoryId && prod.category) categoryId = prod.category.id || prod.category.categoryId || prod.categoryID;
-                    // Nếu vẫn không có, thử lấy từ prod.brandID/prod.categoryID
-                    if (!brandId && prod.brandID) brandId = prod.brandID;
-                    if (!categoryId && prod.categoryID) categoryId = prod.categoryID;
-                    // Chờ dropdowns được tải xong rồi gán giá trị
-                    Promise.all([
-                        loadBrands(brandId),
-                        loadCategories(categoryId)
-                    ]).then(() => {
-                        const brandSelect = document.getElementById('brandSelect');
-                        const categorySelect = document.getElementById('categorySelect');
-                        brandSelect.value = brandId || '';
-                        categorySelect.value = categoryId || '';
-                    });
+            const token = getCookie('AccessToken');
+            const productId = '@productId'; // Lấy productId từ ViewBag hoặc URL
+            Promise.all([
+                fetch(`https://localhost:7168/api/ProductsManagement/${productId}`, {
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    credentials: 'include'
+                }).then(r => r.json()),
+                loadBrands(),
+                loadCategories()
+            ]).then(([prod]) => {
+                document.getElementById('productName').value = prod.name;
+                document.getElementById('price').value = prod.price;
+                document.getElementById('stockQuantity').value = prod.stockQuantity;
+                document.getElementById('brandSelect').value = prod.brandId;
+                document.getElementById('categorySelect').value = prod.categoryId;
+                // ... set các trường khác nếu cần
+            });
 
-                    if (prod.imageUrl) {
-                        document.getElementById('previewImg').src = prod.imageUrl;
-                        document.getElementById('previewImg').style.display = 'block';
-                    }
-                })
-                .catch(error => console.error('Error fetching product:', error));
+            if (prod.imageUrl) {
+                document.getElementById('previewImg').src = prod.imageUrl;
+                document.getElementById('previewImg').style.display = 'block';
+            }
         });
 
         // Submit form
         document.getElementById('editForm').onsubmit = function(e) {
             e.preventDefault();
             var formData = new FormData(this);
-            fetch('http://localhost:5028/api/ProductsManagement/' + productId, {
+            // Gán lại BrandId/CategoryId từ dropdown (value là id)
+            formData.set('Product.BrandId', document.getElementById('brandSelect').value);
+            formData.set('Product.CategoryId', document.getElementById('categorySelect').value);
+            fetch(`https://localhost:7168/api/ProductsManagement/${productId}`, {
                 method: 'PUT',
-                body: formData
+                body: formData,
+                headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
+                credentials: 'include'
             })
             .then(res => {
                 if(res.ok) window.location.href = '/StaffProduct/StaffProductList';

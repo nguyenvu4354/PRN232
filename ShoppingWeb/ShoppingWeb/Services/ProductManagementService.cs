@@ -19,11 +19,11 @@ namespace ShoppingWeb.Services
             await _context.SaveChangesAsync();
             return product;
         }
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> SetProductDisableAsync(int id, bool disable)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return false;
-            _context.Products.Remove(product);
+            product.IsDisabled = disable;
             await _context.SaveChangesAsync();
             return true;
         }

@@ -48,7 +48,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://localhost:7026")
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://localhost:5001")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -68,7 +68,7 @@ builder.Services.AddAuthentication(options =>
         {
             OnMessageReceived = context =>
             {
-                var token = context.Request.Cookies["token"];
+                var token = context.Request.Cookies["AccessToken"];
                 if (!string.IsNullOrEmpty(token))
                 {
                     context.Token = token;

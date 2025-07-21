@@ -13,6 +13,7 @@
 
         public int? BrandId { get; set; } // Thêm trường BrandId
         public int? CategoryId { get; set; } // Thêm trường CategoryId
+        public bool IsDisabled { get; set; } // Thêm trường IsDisabled
     }
 
     public class ProductListItemResponseDto
