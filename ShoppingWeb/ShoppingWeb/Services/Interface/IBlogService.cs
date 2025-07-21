@@ -5,6 +5,7 @@ namespace ShoppingWeb.Services.Interface
 {
     public interface IBlogService
     {
+        public Task<IEnumerable<BlogPostDTO>> GetNewestBlog();
         public Task<IEnumerable<BlogPostDTO>> GetBlogsAsync();
         public Task<BlogDetailDTO> GetBlogByIdAsync(int id);
         public Task<IEnumerable<BlogPostDTO>> GetBlogsByAuthorAsync(int authorId);

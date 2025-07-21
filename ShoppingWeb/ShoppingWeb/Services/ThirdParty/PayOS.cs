@@ -42,8 +42,8 @@ namespace ShoppingWeb.Services.ThirdParty
                 request.Amount,
                 request.Description,
                 request.Items,
-                cancelUrl: $@"https://localhost:7026/order/paymentresult?cartid={request.Id}",
-                returnUrl: $@"https://localhost:7026/order/paymentresult?cartid={request.Id}"
+                cancelUrl: $@"https://localhost:5001/order/paymentresult?cartid={request.Id}",
+                returnUrl: $@"https://localhost:5001/order/paymentresult?cartid={request.Id}"
             );
             CreatePaymentResult createPayment;
             try

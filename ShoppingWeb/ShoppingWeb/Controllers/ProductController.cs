@@ -12,6 +12,27 @@ namespace ShoppingWeb.Controllers
         {
             _productService = productService;
         }
+        [HttpGet("related/{productId}")]
+        public async Task<IActionResult> GetRelatedProducts(int productId)
+        {
+            try
+            {
+                var relatedProducts = await _productService.GetRelatedProduct(productId);
+                return Ok(relatedProducts);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         [HttpGet("products")]
         public async Task<IActionResult> GetProducts()

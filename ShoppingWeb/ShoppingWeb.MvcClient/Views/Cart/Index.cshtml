@@ -25,13 +25,13 @@
             <div class="cart_inner">
                 <div class="table-responsive">
                     @if(!Model.Success){
-                        <distributed-cache-alert class="alert alert-danger">
-							<strong>Error!</strong> @Model.ErrorMessage
-                            </distributed-cache-alert>
+                        <h2>
+                            @Model.ErrorMessage
+                        </h2>
                     } else if(Model.CartItems.Count == 0) {
-                        <div class="alert alert-info">
-                            <strong>Info!</strong> Your cart is empty.
-						</div>
+                        <h2>
+                            @Model.ErrorMessage
+                        </h2>
                     }
                     else
                     {
@@ -99,9 +99,13 @@
                         </tbody>
                     </table>
                     }
+                    @if (Model.Success)
+                    {
+                        
                     <div class="checkout_btn_inner float-right">
                         <a class="btn_1 checkout_btn_1" href="@Url.Action("Checkout", "Order", new { cartId = Model.CartId})">Proceed to checkout</a>
                     </div>
+                    }
                 </div>
             </div>
     </section>

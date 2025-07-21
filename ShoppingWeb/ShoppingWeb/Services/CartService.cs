@@ -352,7 +352,6 @@ namespace ShoppingWeb.Services
                 .Where(od => od.CartId == cart.CartId)
                 .SumAsync(od => od.Quantity * od.UnitPrice);
             cart.TotalAmount += shippingFee;
-
             await _context.SaveChangesAsync();
         }
 

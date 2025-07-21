@@ -13,6 +13,56 @@ namespace ShoppingWeb.Services
         {
             _context = context;
         }
+        public async Task<IEnumerable<ProductListItemResponseDto>> GetNewestProduct()
+        {
+            return await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Include(p => p.ProductPromotions)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(5)
+                .Select(p => new ProductListItemResponseDto
+                {
+                    Id = p.ProductId,
+                    Name = p.ProductName,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ImageUrl = p.ImageUrl,
+                    Brand = p.Brand != null ? p.Brand.Description : string.Empty,
+                    Category = p.Category != null ? p.Category.Description : string.Empty
+                })
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<ProductListItemResponseDto>> GetRelatedProduct(int productId)
+        {
+            if (productId <= 0)
+            {
+                throw new ArgumentException("Invalid product ID");
+            }
+            var product = await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Include(p => p.ProductPromotions)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+            if (product == null)
+            {
+                throw new KeyNotFoundException($"Product with ID {productId} not found.");
+            }
+            return await _context.Products
+                .Where(p => (p.CategoryId == product.CategoryId || p.BrandId == product.BrandId) && p.ProductId != productId)
+                .Take(5)
+                .Select(p => new ProductListItemResponseDto
+                {
+                    Id = p.ProductId,
+                    Name = p.ProductName,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ImageUrl = p.ImageUrl,
+                    Brand = p.Brand != null ? p.Brand.Description : string.Empty,
+                    Category = p.Category != null ? p.Category.Description : string.Empty
+                })
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<ProductListItemResponseDto>> GetProductAdvancedAsync(string? search, int? brand, int? category, string? sortBy, int pageIndex, int pageSize)
         {
@@ -141,12 +191,13 @@ namespace ShoppingWeb.Services
         public async Task<IEnumerable<ProductListItemResponseDto>> GetProductsByCategoryAsync(int categoryId)
         {
             return await _context.Products.Where(p => p.CategoryId == categoryId)
-                .Select(p => new ProductListItemResponseDto
+                .Select(async p => new ProductListItemResponseDto
                 {
                     Id = p.ProductId,
                     Name = p.ProductName,
                     Description = p.Description,
                     Price = p.Price,
+                    Promotion = p.ProductPromotions.FirstOrDefault(pro => pro.)
                     ImageUrl = p.ImageUrl,
                     Brand = p.Brand != null ? p.Brand.Description : string.Empty,
                     Category = p.Category != null ? p.Category.Description : string.Empty

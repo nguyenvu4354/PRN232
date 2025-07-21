@@ -82,10 +82,10 @@
                                     });
                                 </script>
                             }
-                            
+                            @* 
                             <div class="add_to_cart">
                                 <a href="#" class="btn_3">add to Wishlist</a>
-                            </div>
+                            </div> *@
                        </div>
                    </div>  
                </div>  
@@ -110,6 +110,49 @@
         }
     }
 </div>
+<div class="related-products-section mt-5">
+    <h4 class="mb-4">Related Products</h4>
+    <div class="row">
+        @for (int i = 0; i < Model.RelatedProducts.Count; i++)
+        {
+            var item = Model.RelatedProducts[i];
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0 related-product-card">
+                    <a href="@Url.Action("Detail", "Product", new { id = item.Id })">
+                        <img src="@item.ImageUrl" alt="@item.Name" class="card-img-top img-fluid" style="height: 180px; object-fit: cover; border-radius: 8px 8px 0 0;">
+                    </a>
+                    <div class="card-body text-center p-3">
+                        <h6 class="card-title mb-2" style="font-weight:600;">
+                            <a href="@Url.Action("Detail", "Product", new { id = item.Id })" class="text-dark" style="text-decoration:none;">
+                                @item.Name
+                            </a>
+                        </h6>
+                        <p class="mb-1" style="color:#888; font-size:0.95rem;">@item.Brand</p>
+                        <p class="mb-2" style="color:#aaa; font-size:0.9rem;">@item.Category</p>
+                        <div class="d-flex justify-content-center align-items-center mb-2">
+                            <span class="fw-bold" style="font-size:1.1rem; color:#28a745;">$@item.Price</span>
+                        </div>
+                        <a href="@Url.Action("Detail", "Product", new { id = item.Id })" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<style>
+    .related-products-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 32px 24px;
+    }
+    .related-product-card {
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .related-product-card:hover {
+        box-shadow: 0 8px 24px rgba(40,167,69,0.10), 0 1.5px 6px rgba(0,0,0,0.08);
+        transform: translateY(-4px) scale(1.03);
+    }
+</style>
 
 
    <script>

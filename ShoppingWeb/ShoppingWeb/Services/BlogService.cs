@@ -13,6 +13,23 @@ namespace ShoppingWeb.Services
         {
             _context = context;
         }
+        public async Task<IEnumerable<BlogPostDTO>> GetNewestBlog()
+        {
+            return await _context.Blogs
+                .Include(b => b.Author)
+                .OrderByDescending(b => b.CreatedAt)
+                .Take(5)
+                .Select(b => new BlogPostDTO
+                {
+                    Id = b.BlogId,
+                    Title = b.Title,
+                    ContentSummary = b.Content.Length > 100 ? b.Content.Substring(0, 100) + "..." : b.Content,
+                    Author = b.Author.Username,
+                    CreatedAt = b.CreatedAt.Value,
+                    ImageUrl = b.Thumbnail
+                })
+                .ToListAsync();
+        }
         public Task<Blog> CreateBlogAsync(CreateBlogDTO blog)
         {
             var newBlog = new Blog

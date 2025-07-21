@@ -1,29 +1,52 @@
 using Microsoft.AspNetCore.Mvc;
+using ShoppingWeb.MvcClient.DTOs.Blog;
+using ShoppingWeb.MvcClient.DTOs.Product;
+using System.Threading.Tasks;
 
-namespace ShoppingWeb.MvcClient.Controllers;
-
-public class HomeController : Controller
+namespace ShoppingWeb.MvcClient.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    public class HomeController : Controller
     {
-        _logger = logger;
+        private readonly ILogger<HomeController> _logger;
+        private readonly HttpClient _httpClient;
+        public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory)
+        {
+            _logger = logger;
+            _httpClient = httpClientFactory.CreateClient("ShoppingWebApi");
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var model = new HomeResponseDto();
+            var response = await _httpClient.GetAsync("api/home/home");
+            if(response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                model = System.Text.Json.JsonSerializer.Deserialize<HomeResponseDto>(
+                    json, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+            else
+            {
+                _logger.LogError($"Failed to fetch home data: {response.ReasonPhrase}");
+                ViewBag.ErrorMessage = "Failed to load home data.";
+            }
+
+            return View(model);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
     }
 
-    public IActionResult Index()
+    public class HomeResponseDto
     {
-        return View();
+        public IEnumerable<ProductListItemResponseDTO> NewestProducts { get; set; }
+        public IEnumerable<BlogPostDTO> LatestBlogs { get; set; }
     }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    // [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    // public IActionResult Error()
-    // {
-    //     return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    // }
 }
+
+

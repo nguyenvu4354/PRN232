@@ -100,7 +100,8 @@ namespace ShoppingWeb.MvcClient.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> CreateOrder(int cartId, int provinceId, int districtId, int wardId, string detailAddress)
+        public async Task<IActionResult> CreateOrder(int cartId,
+            int provinceId, int districtId, int wardId, string detailAddress)
         {
             var accessToken = AuthHelper.GetAccessToken(HttpContext);
             if (string.IsNullOrEmpty(accessToken))

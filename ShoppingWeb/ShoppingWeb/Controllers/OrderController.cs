@@ -184,18 +184,18 @@ namespace ShoppingWeb.Controllers
                 var wards = new List<Ward>();
                 foreach (var province in provinces)
                 {
+                    bool result = new Random().NextDouble() < 0.5;
+                    if (result) 
+                    {
+                        Console.WriteLine($"Skipping districts for province {province.Id} due to random condition.");
+                        continue;
+                    }
                     try
                     {
                         var districtList = await _cartService.GetDistricts(province.Id);
                         districts.AddRange(districtList);
                         foreach (var district in districtList)
                         {
-                            bool result = new Random().NextDouble() < 0.75;
-                            if (result)
-                            {
-                                Console.WriteLine($"Skipping wards for district {district.Id} due to random condition.");
-                                continue;
-                            }
                             try
                             {
                                 var wardList = await _cartService.GetWards(district.Id);

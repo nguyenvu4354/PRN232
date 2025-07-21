@@ -5,6 +5,8 @@ namespace ShoppingWeb.Services.Interface
 {
     public interface IProductService
     {
+        public Task<IEnumerable<ProductListItemResponseDto>> GetNewestProduct();
+        public Task<IEnumerable<ProductListItemResponseDto>> GetRelatedProduct(int productId);
         public Task<IEnumerable<Product>> GetProductsAsync();
         public Task<ProductDetailItemDto> GetProductByIdAsync(int id);
         public Task<IEnumerable<ProductListItemResponseDto>> GetProductAdvancedAsync(string? search, int? brand, int? category, string? sortBy, int pageIndex, int pageSize);

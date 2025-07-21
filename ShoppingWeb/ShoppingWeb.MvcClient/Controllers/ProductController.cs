@@ -118,6 +118,20 @@ namespace ShoppingWeb.MvcClient.Controllers
                 viewModel.ProductReviews = reviews ?? new List<ProductReviewDto>();
             }
 
+            var relatedProductsResponse = await _httpClient.GetAsync($"Product/related/{id}");
+            if (!relatedProductsResponse.IsSuccessStatusCode)
+            {
+                viewModel.ErrorCode = relatedProductsResponse.StatusCode.ToString();
+                viewModel.Message = await relatedProductsResponse.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                var relatedProductsJson = await relatedProductsResponse.Content.ReadAsStringAsync();
+                var relatedProducts = System.Text.Json.JsonSerializer.Deserialize<List<ProductListItemResponseDTO>>(
+                    relatedProductsJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                viewModel.RelatedProducts = relatedProducts ?? new List<ProductListItemResponseDTO>();
+            }
+
             return View(viewModel);
         }
 
@@ -146,7 +160,7 @@ namespace ShoppingWeb.MvcClient.Controllers
         public string? Message { get; set; } = string.Empty;
         public string? ErrorCode { get; set; } = string.Empty;
         public bool Success { get; set; } = true;
-
+        public List<ProductListItemResponseDTO> RelatedProducts { get; set; } = new List<ProductListItemResponseDTO>();
         public List<ProductReviewDto> ProductReviews { get; set; } = new List<ProductReviewDto>();
     }
 
