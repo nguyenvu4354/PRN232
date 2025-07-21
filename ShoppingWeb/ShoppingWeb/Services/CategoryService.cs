@@ -37,11 +37,11 @@ namespace ShoppingWeb.Services
             await _context.SaveChangesAsync();
             return existing;
         }
-        public async Task<bool> SetCategoryDisableAsync(int id, bool disable)
+        public async Task<bool> DeleteCategoryAsync(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return false;
-            category.IsDisabled = disable;
+            _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return true;
         }

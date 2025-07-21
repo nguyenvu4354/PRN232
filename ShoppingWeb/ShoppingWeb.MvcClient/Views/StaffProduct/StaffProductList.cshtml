@@ -16,8 +16,6 @@
             <th>Brand</th>
             <th>Category</th>
             <th>Ảnh</th>
-            <th>Số lượng</th>
-            <th>Trạng thái</th>
             <th>Hành động</th>
         </tr>
     </thead>
@@ -28,26 +26,11 @@
 
 @section Scripts {
 <script>
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
     let brands = [];
     let categories = [];
             document.addEventListener('DOMContentLoaded', function () {
-                            const token = getCookie('AccessToken');
-                    fetch('https://localhost:7168/api/ProductsManagement', {
-                        headers: {
-                            'Authorization': 'Bearer ' + token
-                        },
-                                credentials: 'include'
-
-                    })
-                .then(res => {
-                    if (!res.ok) throw new Error('HTTP status ' + res.status);
-                    return res.json();
-                })
+            fetch('http://localhost:5028/api/ProductsManagement')
+                .then(r => r.json())
                 .then(productData => {
                     renderProducts(productData);
                 })
@@ -64,26 +47,13 @@
                     <td>${prod.brandName || 'Unknown Brand'}</td> <!-- Sử dụng brandName trực tiếp -->
                     <td>${prod.categoryName || 'Unknown Category'}</td> <!-- Sử dụng categoryName trực tiếp -->
                     <td><img src="${prod.imageUrl || '/img/product/default.png'}" width="60"/></td>
-                    <td>${prod.stockQuantity}</td>
-                        <td>${prod.isDisabled ? 'Ẩn' : 'Hiện'}</td>
                     <td>
                         <a class='btn btn-primary btn-sm' href='/StaffProduct/StaffProductEdit/${prod.id}'>Sửa</a>
-                        <button class='btn btn-${prod.isDisabled ? 'success' : 'danger'} btn-sm' onclick='toggleDisable(${prod.id}, ${!prod.isDisabled})'>${prod.isDisabled ? 'Hiện' : 'Ẩn'}</button>
-                    </td>
-                </tr>`;
+                        <a class='btn btn-danger btn-sm' href='/StaffProduct/StaffProductDelete/${prod.id}'>Xóa</a>
+                        </td>
+                    </tr>`;
             });
             document.querySelector('#productTable tbody').innerHTML = html;
-        }
-        function toggleDisable(id, disable) {
-            fetch(`https://localhost:7168/api/ProductsManagement/disable/${id}?disable=${disable}`, {
-                method: 'PUT',
-                headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
-                credentials: 'include'
-            })
-            .then(res => {
-                if(res.ok) location.reload();
-                else alert('Thao tác thất bại!');
-            });
         }
 </script>
 } 

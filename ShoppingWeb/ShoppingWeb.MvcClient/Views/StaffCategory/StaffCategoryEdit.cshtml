@@ -4,56 +4,46 @@
     var categoryId = ViewBag.CategoryId;
 }
 <h2>Sửa danh mục</h2>
-<form id="editCategoryForm" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="Id" id="categoryId" value="@categoryId" />
+<form id="editCategoryForm">
+    <input type="hidden" name="id" id="categoryId" value="@categoryId" />
     <div class="mb-3">
         <label>Tên danh mục</label>
-        <input type="text" class="form-control" name="Name" id="categoryName" required />
+        <input type="text" class="form-control" name="name" id="categoryName" required />
     </div>
     <div class="mb-3">
         <label>Mô tả</label>
-        <textarea class="form-control" name="Description" id="categoryDescription"></textarea>
+        <textarea class="form-control" name="description" id="categoryDescription"></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="@Url.Action("StaffCategoryList", "StaffCategory")" class="btn btn-secondary">Quay lại</a>
 </form>
 @section Scripts {
 <script>
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
     const categoryId = '@categoryId';
     document.addEventListener('DOMContentLoaded', function () {
-        fetch('https://localhost:7168/api/CategoriesManagement/' + categoryId, {
-            headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
-            credentials: 'include'
-        })
-        .then(r => r.json())
-        .then(category => {
-            document.getElementById('categoryName').value = category.name || '';
-            document.getElementById('categoryDescription').value = category.description || '';
-        });
-
-        document.getElementById('editCategoryForm').onsubmit = function(e) {
-            e.preventDefault();
-            const data = {
-                id: categoryId,
-                name: document.getElementById('categoryName').value,
-                description: document.getElementById('categoryDescription').value
-            };
-            fetch('https://localhost:7168/api/CategoriesManagement/' + categoryId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-                credentials: 'include'
-            })
-            .then(res => {
-                if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';
-                else alert('Cập nhật danh mục thất bại!');
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId)
+            .then(r => r.json())
+            .then(category => {
+                document.getElementById('categoryName').value = category.name || '';
+                document.getElementById('categoryDescription').value = category.description || '';
             });
-        };
     });
+    document.getElementById('editCategoryForm').onsubmit = function(e) {
+        e.preventDefault();
+        const data = {
+            id: categoryId,
+            name: this.name.value,
+            description: this.description.value
+        };
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';
+            else alert('Cập nhật danh mục thất bại!');
+        });
+    }
 </script>
 } 

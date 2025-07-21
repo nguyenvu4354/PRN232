@@ -23,11 +23,10 @@
             name: this.name.value,
             description: this.description.value
         };
-                fetch('https://localhost:7168/api/CategoriesManagement', {
+        fetch('http://localhost:5028/api/CategoriesManagement', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-            credentials: 'include'
+            body: JSON.stringify(data)
         })
         .then(res => {
             if(res.ok) window.location.href = '/StaffCategory/StaffCategoryList';

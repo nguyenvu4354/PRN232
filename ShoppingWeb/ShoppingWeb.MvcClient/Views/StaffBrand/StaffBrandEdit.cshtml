@@ -4,56 +4,46 @@
     var brandId = ViewBag.BrandId;
 }
 <h2>Sửa thương hiệu</h2>
-<form id="editBrandForm" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="Id" id="brandId" value="@brandId" />
+<form id="editBrandForm">
+    <input type="hidden" name="id" id="brandId" value="@brandId" />
     <div class="mb-3">
         <label>Tên thương hiệu</label>
-        <input type="text" class="form-control" name="Name" id="brandName" required />
+        <input type="text" class="form-control" name="name" id="brandName" required />
     </div>
     <div class="mb-3">
         <label>Mô tả</label>
-        <textarea class="form-control" name="Description" id="brandDescription"></textarea>
+        <textarea class="form-control" name="description" id="brandDescription"></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="@Url.Action("StaffBrandList", "StaffBrand")" class="btn btn-secondary">Quay lại</a>
 </form>
 @section Scripts {
 <script>
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
     const brandId = '@brandId';
     document.addEventListener('DOMContentLoaded', function () {
-        fetch('https://localhost:7168/api/BrandManagement/' + brandId, {
-            headers: { 'Authorization': 'Bearer ' + getCookie('AccessToken') },
-            credentials: 'include'
-        })
-        .then(r => r.json())
-        .then(brand => {
-            document.getElementById('brandName').value = brand.name || '';
-            document.getElementById('brandDescription').value = brand.description || '';
-        });
-
-        document.getElementById('editBrandForm').onsubmit = function(e) {
-            e.preventDefault();
-            const data = {
-                id: brandId,
-                name: document.getElementById('brandName').value,
-                description: document.getElementById('brandDescription').value
-            };
-            fetch('https://localhost:7168/api/BrandManagement/' + brandId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-                credentials: 'include'
-            })
-            .then(res => {
-                if(res.ok) window.location.href = '/StaffBrand/StaffBrandList';
-                else alert('Cập nhật thương hiệu thất bại!');
+        fetch('http://localhost:5028/api/BrandManagement/' + brandId)
+            .then(r => r.json())
+            .then(brand => {
+                document.getElementById('brandName').value = brand.name || '';
+                document.getElementById('brandDescription').value = brand.description || '';
             });
-        };
     });
+    document.getElementById('editBrandForm').onsubmit = function(e) {
+        e.preventDefault();
+        const data = {
+            id: brandId,
+            name: this.name.value,
+            description: this.description.value
+        };
+        fetch('http://localhost:5028/api/BrandManagement/' + brandId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) window.location.href = '/StaffBrand/StaffBrandList';
+            else alert('Cập nhật thương hiệu thất bại!');
+        });
+    }
 </script>
 } 

@@ -3,27 +3,23 @@
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
     var productId = ViewBag.ProductId;
 }
-<h2>Xác nhận thay đổi trạng thái sản phẩm</h2>
-<p>Bạn có chắc chắn muốn <span id="actionText">ẩn</span> sản phẩm này không?</p>
-<form id="disableForm">
+<h2>Xác nhận xóa sản phẩm</h2>
+<p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+<form id="deleteForm">
     <input type="hidden" name="productId" value="@productId" />
-    <button type="submit" class="btn btn-danger" id="actionBtn">Ẩn</button>
+    <button type="submit" class="btn btn-danger">Xóa</button>
     <a href="@Url.Action("StaffProductList", "StaffProduct")" class="btn btn-secondary">Hủy</a>
 </form>
 @section Scripts {
 <script>
-    // Giả sử truyền trạng thái hiện tại qua query hoặc ViewBag nếu cần
-    let isDisabled = false; // Cập nhật giá trị này nếu có truyền từ backend
-    document.getElementById('actionText').innerText = isDisabled ? 'hiện' : 'ẩn';
-    document.getElementById('actionBtn').innerText = isDisabled ? 'Hiện' : 'Ẩn';
-    document.getElementById('disableForm').onsubmit = function(e) {
+    document.getElementById('deleteForm').onsubmit = function(e) {
         e.preventDefault();
-        fetch('https://localhost:7168/api/ProductsManagement/disable/' + '@productId' + '?disable=' + !isDisabled, {
-            method: 'PUT'
+        fetch('http://localhost:5028/api/ProductsManagement/' + '@productId', {
+            method: 'DELETE'
         })
         .then(res => {
             if(res.ok) window.location.href = '/StaffProduct/StaffProductList';
-            else alert('Thao tác thất bại!');
+            else alert('Xóa sản phẩm thất bại!');
         });
     }
 </script>

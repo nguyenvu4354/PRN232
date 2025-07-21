@@ -34,13 +34,6 @@ public class AuthController : Controller
             Expires = new DateTimeOffset(result.Data.Expires)
         });
 
-        // Kiểm tra role, nếu là STAFF thì redirect về StaffProductList
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        var jwtToken = handler.ReadJwtToken(result.Data.Token);
-        var role = jwtToken.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
-        if (role == "STAFF")
-            return RedirectToAction("StaffProductList", "StaffProduct");
-
         return RedirectToAction("Index", "Home");
     }
 

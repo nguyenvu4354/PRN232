@@ -15,7 +15,7 @@
     const brandId = '@brandId';
     document.getElementById('deleteBrandForm').onsubmit = function(e) {
         e.preventDefault();
-                fetch('https://localhost:7168/api/BrandManagement/' + brandId, {
+        fetch('http://localhost:5028/api/BrandManagement/' + brandId, {
             method: 'DELETE'
         })
         .then(res => {

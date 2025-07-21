@@ -1,4 +1,4 @@
-﻿ using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.Models;
 using ShoppingWeb.DTOs;
 using ShoppingWeb.Services.Interface;
@@ -9,13 +9,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System;
-using System.Linq; // Added for FirstOrDefault
-using ShoppingWeb.Data; // Added for Data.ShoppingWebContext
-using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingWeb.Controllers
 {
-    [Authorize(Roles = "STAFF")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsManagementController : ControllerBase
@@ -36,11 +32,6 @@ namespace ShoppingWeb.Controllers
             var result = new List<ProductDto>();
             foreach (var p in products)
             {
-                // Nếu product, brand hoặc category bị ẩn thì trạng thái là ẩn (IsDisabled = true)
-                bool isProductDisabled = p.IsDisabled;
-                bool isBrandDisabled = p.Brand != null && p.Brand.IsDisabled;
-                bool isCategoryDisabled = p.Category != null && p.Category.IsDisabled;
-                bool isDisabled = isProductDisabled || isBrandDisabled || isCategoryDisabled;
                 result.Add(new ProductDto
                 {
                     Id = p.ProductId,
@@ -49,11 +40,10 @@ namespace ShoppingWeb.Controllers
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     ImageUrl = p.ImageUrl,
-                    BrandName = isBrandDisabled ? null : p.Brand?.BrandName,
-                    CategoryName = isCategoryDisabled ? null : p.Category?.CategoryName,
-                    BrandId = p.BrandId,
-                    CategoryId = p.CategoryId,
-                    IsDisabled = isDisabled
+                    BrandName = p.Brand?.BrandName, // Lấy tên Brand từ quan hệ
+                    CategoryName = p.Category?.CategoryName, // Lấy tên Category từ quan hệ
+                    BrandId = p.BrandId, // Thêm BrandId
+                    CategoryId = p.CategoryId // Thêm CategoryId
                 });
             }
             return result;
@@ -74,7 +64,7 @@ namespace ShoppingWeb.Controllers
                 BrandName = product.Brand?.BrandName,
                 CategoryName = product.Category?.CategoryName,
                 BrandId = product.BrandId, // Thêm BrandId
-                CategoryId = product.CategoryId
+                CategoryId = product.CategoryId // Thêm CategoryId
             };
         }
 
@@ -82,22 +72,15 @@ namespace ShoppingWeb.Controllers
         public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] ProductRequest request)
         {
             if (string.IsNullOrEmpty(request.Product.ProductName)) return BadRequest("ProductName is required.");
-
-            // Trong các action Create/Update, chỉ lấy BrandId/CategoryId từ request.Product
-            // Xóa mọi truy cập đến BrandName/CategoryName
-            var brandId = request.Product.BrandId;
-            var categoryId = request.Product.CategoryId;
-
             var product = new Product
             {
                 ProductName = request.Product.ProductName,
                 Description = request.Product.Description,
                 Price = request.Product.Price,
                 StockQuantity = request.Product.StockQuantity,
-                BrandId = brandId,
-                CategoryId = categoryId,
-                CreatedAt = DateTime.Now,
-                IsDisabled = false // Đảm bảo luôn là hiện khi tạo mới
+                BrandId = request.Product.BrandId,
+                CategoryId = request.Product.CategoryId,
+                CreatedAt = DateTime.Now
             };
             // Xử lý ảnh nếu có
             if (request.Product.ImageFile != null)
@@ -115,18 +98,12 @@ namespace ShoppingWeb.Controllers
         {
             var product = await _productService.GetProductByIdAsync(id);
             if (product == null) return NotFound();
-
-            // Trong các action Create/Update, chỉ lấy BrandId/CategoryId từ request.Product
-            // Xóa mọi truy cập đến BrandName/CategoryName
-            var brandId = request.Product.BrandId;
-            var categoryId = request.Product.CategoryId;
-
             product.ProductName = request.Product.ProductName;
             product.Description = request.Product.Description;
             product.Price = request.Product.Price;
             product.StockQuantity = request.Product.StockQuantity;
-            product.BrandId = brandId;
-            product.CategoryId = categoryId;
+            product.BrandId = request.Product.BrandId;
+            product.CategoryId = request.Product.CategoryId;
             if (request.Product.ImageFile != null)
             {
                 var imageUrl = await _cloudinaryService.UploadImageAsync(request.Product.ImageFile);
@@ -136,28 +113,12 @@ namespace ShoppingWeb.Controllers
             return NoContent();
         }
 
-        [HttpPut("disable/{id}")]
-        public async Task<IActionResult> DisableProduct(int id, [FromQuery] bool disable)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product == null) return NotFound();
-            product.IsDisabled = disable;
-            await _productService.UpdateProductAsync(product);
-            // Trả về ProductDto đã cập nhật
-            var dto = new ProductDto {
-                Id = product.ProductId,
-                Name = product.ProductName,
-                Description = product.Description,
-                Price = product.Price,
-                StockQuantity = product.StockQuantity,
-                ImageUrl = product.ImageUrl,
-                BrandName = product.Brand?.BrandName,
-                CategoryName = product.Category?.CategoryName,
-                BrandId = product.BrandId,
-                CategoryId = product.CategoryId,
-                IsDisabled = product.IsDisabled
-            };
-            return Ok(dto);
+            var deleted = await _productService.DeleteProductAsync(id);
+            if (!deleted) return NotFound();
+            return NoContent();
         }
 
         public class ProductRequest

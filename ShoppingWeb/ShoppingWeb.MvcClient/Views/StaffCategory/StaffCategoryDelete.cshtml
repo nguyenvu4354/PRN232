@@ -15,7 +15,7 @@
     const categoryId = '@categoryId';
     document.getElementById('deleteCategoryForm').onsubmit = function(e) {
         e.preventDefault();
-                fetch('https://localhost:7168/api/CategoriesManagement/' + categoryId, {
+        fetch('http://localhost:5028/api/CategoriesManagement/' + categoryId, {
             method: 'DELETE'
         })
         .then(res => {

@@ -10,6 +10,6 @@ namespace ShoppingWeb.Services.Interface
         Task<Product> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
-        Task<bool> SetProductDisableAsync(int id, bool disable);
+        Task<bool> DeleteProductAsync(int id);
     }
 } 

@@ -11,6 +11,6 @@ namespace ShoppingWeb.Services.Interface
         Task<Brand> GetBrandByIdAsync(int id);
         Task<Brand> CreateBrandAsync(Brand brand);
         Task<Brand> UpdateBrandAsync(Brand brand);
-        Task<bool> SetBrandDisableAsync(int id, bool disable);
+        Task<bool> DeleteBrandAsync(int id);
     }
 } 
