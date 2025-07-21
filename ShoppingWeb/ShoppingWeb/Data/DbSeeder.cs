@@ -151,7 +151,7 @@ public class DbSeeder
                 }
             }
 
-            // Users (Updated to include ProvinceId, DistrictId, WardId)
+            // Users (Updated to include 10 additional users with role distribution)
             if (!await _context.Users.AnyAsync())
             {
                 var provinces = await _context.Provinces.ToListAsync();
@@ -166,6 +166,7 @@ public class DbSeeder
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword("1234567");
                 var users = new List<User>
                 {
+                    // Original 5 users
                     new User
                     {
                         Username = "user1",
@@ -180,7 +181,7 @@ public class DbSeeder
                         WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
                             ?? throw new Exception("Ward 'Dịch Vọng' not found."),
                         PasswordHash = hashedPassword,
-                        RoleId = 2,
+                        RoleId = 2, // CUSTOMER
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -199,7 +200,7 @@ public class DbSeeder
                         WardId = wards.FirstOrDefault(w => w.Name == "Khương Trung")?.Id
                             ?? throw new Exception("Ward 'Khương Trung' not found."),
                         PasswordHash = hashedPassword,
-                        RoleId = 2,
+                        RoleId = 2, // CUSTOMER
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -218,7 +219,7 @@ public class DbSeeder
                         WardId = wards.FirstOrDefault(w => w.Name == "Bến Nghé")?.Id
                             ?? throw new Exception("Ward 'Bến Nghé' not found."),
                         PasswordHash = hashedPassword,
-                        RoleId = 2,
+                        RoleId = 2, // CUSTOMER
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -237,7 +238,7 @@ public class DbSeeder
                         WardId = wards.FirstOrDefault(w => w.Name == "Mỹ An")?.Id
                             ?? throw new Exception("Ward 'Mỹ An' not found."),
                         PasswordHash = hashedPassword,
-                        RoleId = 2,
+                        RoleId = 2, // CUSTOMER
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -256,7 +257,198 @@ public class DbSeeder
                         WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
                             ?? throw new Exception("Ward 'Dịch Vọng' not found."),
                         PasswordHash = hashedPassword,
-                        RoleId = 2,
+                        RoleId = 2, // CUSTOMER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    // Additional 10 users
+                    new User
+                    {
+                        Username = "admin1",
+                        Email = "admin1@example.com",
+                        FullName = "Admin User",
+                        Phone = "012345676",
+                        Address = "303 Dịch Vọng",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                            ?? throw new Exception("District 'Cầu Giấy' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
+                            ?? throw new Exception("Ward 'Dịch Vọng' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 1, // ADMIN (only one)
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "customer6",
+                        Email = "customer6@example.com",
+                        FullName = "Customer 6",
+                        Phone = "012345677",
+                        Address = "404 Khương Trung",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Thanh Xuân")?.Id
+                            ?? throw new Exception("District 'Thanh Xuân' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Khương Trung")?.Id
+                            ?? throw new Exception("Ward 'Khương Trung' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2, // CUSTOMER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "customer7",
+                        Email = "customer7@example.com",
+                        FullName = "Customer 7",
+                        Phone = "012345678",
+                        Address = "505 Bến Nghé",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hồ Chí Minh")?.Id
+                            ?? throw new Exception("Province 'Hồ Chí Minh' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Quận 1")?.Id
+                            ?? throw new Exception("District 'Quận 1' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Bến Nghé")?.Id
+                            ?? throw new Exception("Ward 'Bến Nghé' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2, // CUSTOMER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "customer8",
+                        Email = "customer8@example.com",
+                        FullName = "Customer 8",
+                        Phone = "012345679",
+                        Address = "606 Mỹ An",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Đà Nẵng")?.Id
+                            ?? throw new Exception("Province 'Đà Nẵng' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Ngũ Hành Sơn")?.Id
+                            ?? throw new Exception("District 'Ngũ Hành Sơn' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Mỹ An")?.Id
+                            ?? throw new Exception("Ward 'Mỹ An' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2, // CUSTOMER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "staff1",
+                        Email = "staff1@example.com",
+                        FullName = "Staff 1",
+                        Phone = "012345680",
+                        Address = "707 Dịch Vọng",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                            ?? throw new Exception("District 'Cầu Giấy' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
+                            ?? throw new Exception("Ward 'Dịch Vọng' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 3, // STAFF
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "staff2",
+                        Email = "staff2@example.com",
+                        FullName = "Staff 2",
+                        Phone = "012345681",
+                        Address = "808 Khương Trung",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Thanh Xuân")?.Id
+                            ?? throw new Exception("District 'Thanh Xuân' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Khương Trung")?.Id
+                            ?? throw new Exception("Ward 'Khương Trung' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 3, // STAFF
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "staff3",
+                        Email = "staff3@example.com",
+                        FullName = "Staff 3",
+                        Phone = "012345682",
+                        Address = "909 Bến Nghé",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hồ Chí Minh")?.Id
+                            ?? throw new Exception("Province 'Hồ Chí Minh' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Quận 1")?.Id
+                            ?? throw new Exception("District 'Quận 1' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Bến Nghé")?.Id
+                            ?? throw new Exception("Ward 'Bến Nghé' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 3, // STAFF
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "owner1",
+                        Email = "owner1@example.com",
+                        FullName = "Owner 1",
+                        Phone = "012345683",
+                        Address = "1010 Mỹ An",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Đà Nẵng")?.Id
+                            ?? throw new Exception("Province 'Đà Nẵng' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Ngũ Hành Sơn")?.Id
+                            ?? throw new Exception("District 'Ngũ Hành Sơn' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Mỹ An")?.Id
+                            ?? throw new Exception("Ward 'Mỹ An' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 4, // OWNER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "owner2",
+                        Email = "owner2@example.com",
+                        FullName = "Owner 2",
+                        Phone = "012345684",
+                        Address = "1111 Dịch Vọng",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                            ?? throw new Exception("District 'Cầu Giấy' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
+                            ?? throw new Exception("Ward 'Dịch Vọng' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 4, // OWNER
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "customer9",
+                        Email = "customer9@example.com",
+                        FullName = "Customer 9",
+                        Phone = "012345685",
+                        Address = "1212 Khương Trung",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Thanh Xuân")?.Id
+                            ?? throw new Exception("District 'Thanh Xuân' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Khương Trung")?.Id
+                            ?? throw new Exception("Ward 'Khương Trung' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2, // CUSTOMER
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -269,7 +461,7 @@ public class DbSeeder
                     Console.WriteLine("Users seeded:");
                     foreach (var user in await _context.Users.ToListAsync())
                     {
-                        Console.WriteLine($"ID: {user.UserId}, Username: {user.Username}, ProvinceId: {user.ProvinceId}, DistrictId: {user.DistrictId}, WardId: {user.WardId}");
+                        Console.WriteLine($"ID: {user.UserId}, Username: {user.Username}, ProvinceId: {user.ProvinceId}, DistrictId: {user.DistrictId}, WardId: {user.WardId}, RoleId: {user.RoleId}");
                     }
                 }
                 catch (Exception ex)
