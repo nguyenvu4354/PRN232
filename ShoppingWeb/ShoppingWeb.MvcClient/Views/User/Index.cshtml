@@ -27,6 +27,7 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+<a href="@Url.Action("CreateStaff", "User")" class="btn btn-success mb-3">+ Create Staff</a>
 
 <!-- User Table -->
 @if (Model.Items.Count == 0)

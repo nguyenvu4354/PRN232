@@ -24,6 +24,106 @@ public class DbSeeder
             await _context.Database.EnsureCreatedAsync();
             Console.WriteLine("Database created successfully.");
 
+            // Provinces
+            if (!await _context.Provinces.AnyAsync())
+            {
+                var provinces = new List<Province>
+                {
+                    new Province { Id = 1, Name = "Hà Nội" },
+                    new Province { Id = 2, Name = "Hồ Chí Minh" },
+                    new Province { Id = 3, Name = "Đà Nẵng" }
+                };
+                try
+                {
+                    await _context.Provinces.AddRangeAsync(provinces);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("Provinces seeded:");
+                    foreach (var province in await _context.Provinces.ToListAsync())
+                    {
+                        Console.WriteLine($"ID: {province.Id}, Name: {province.Name}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error seeding Provinces: {ex.Message}");
+                    throw;
+                }
+            }
+
+            // Districts
+            if (!await _context.Districts.AnyAsync())
+            {
+                var provinces = await _context.Provinces.ToListAsync();
+                if (!provinces.Any())
+                {
+                    throw new Exception("Cannot seed Districts: Provinces table is empty.");
+                }
+
+                var districts = new List<District>
+                {
+                    new District { Id = 1, Name = "Cầu Giấy", ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                        ?? throw new Exception("Province 'Hà Nội' not found.") },
+                    new District { Id = 2, Name = "Thanh Xuân", ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                        ?? throw new Exception("Province 'Hà Nội' not found.") },
+                    new District { Id = 3, Name = "Quận 1", ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hồ Chí Minh")?.Id
+                        ?? throw new Exception("Province 'Hồ Chí Minh' not found.") },
+                    new District { Id = 4, Name = "Ngũ Hành Sơn", ProvinceId = provinces.FirstOrDefault(p => p.Name == "Đà Nẵng")?.Id
+                        ?? throw new Exception("Province 'Đà Nẵng' not found.") }
+                };
+                try
+                {
+                    await _context.Districts.AddRangeAsync(districts);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("Districts seeded:");
+                    foreach (var district in await _context.Districts.ToListAsync())
+                    {
+                        Console.WriteLine($"ID: {district.Id}, Name: {district.Name}, ProvinceId: {district.ProvinceId}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error seeding Districts: {ex.Message}");
+                    throw;
+                }
+            }
+
+            // Wards
+            if (!await _context.Wards.AnyAsync())
+            {
+                var districts = await _context.Districts.ToListAsync();
+                if (!districts.Any())
+                {
+                    throw new Exception("Cannot seed Wards: Districts table is empty.");
+                }
+
+                var wards = new List<Ward>
+                {
+                    new Ward { Id = 1, Name = "Dịch Vọng", DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                        ?? throw new Exception("District 'Cầu Giấy' not found.") },
+                    new Ward { Id = 2, Name = "Khương Trung", DistrictId = districts.FirstOrDefault(d => d.Name == "Thanh Xuân")?.Id
+                        ?? throw new Exception("District 'Thanh Xuân' not found.") },
+                    new Ward { Id = 3, Name = "Bến Nghé", DistrictId = districts.FirstOrDefault(d => d.Name == "Quận 1")?.Id
+                        ?? throw new Exception("District 'Quận 1' not found.") },
+                    new Ward { Id = 4, Name = "Mỹ An", DistrictId = districts.FirstOrDefault(d => d.Name == "Ngũ Hành Sơn")?.Id
+                        ?? throw new Exception("District 'Ngũ Hành Sơn' not found.") }
+                };
+                try
+                {
+                    await _context.Wards.AddRangeAsync(wards);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("Wards seeded:");
+                    foreach (var ward in await _context.Wards.ToListAsync())
+                    {
+                        Console.WriteLine($"ID: {ward.Id}, Name: {ward.Name}, DistrictId: {ward.DistrictId}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error seeding Wards: {ex.Message}");
+                    throw;
+                }
+            }
+
             // Roles
             if (!await _context.Roles.AnyAsync())
             {
@@ -51,27 +151,117 @@ public class DbSeeder
                 }
             }
 
-
-            // Users
+            // Users (Updated to include ProvinceId, DistrictId, WardId)
             if (!await _context.Users.AnyAsync())
             {
-                var hashedPassword = BCrypt.Net.BCrypt.HashPassword("1234567");
-                var users = new List<User>();
-                for (int i = 1; i <= 5; i++)
+                var provinces = await _context.Provinces.ToListAsync();
+                var districts = await _context.Districts.ToListAsync();
+                var wards = await _context.Wards.ToListAsync();
+
+                if (!provinces.Any() || !districts.Any() || !wards.Any())
                 {
-                    users.Add(new User
+                    throw new Exception("Cannot seed Users: Provinces, Districts, or Wards table is empty.");
+                }
+
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword("1234567");
+                var users = new List<User>
+                {
+                    new User
                     {
-                        Username = $"user{i}",
-                        Email = $"user{i}@example.com",
-                        FullName = $"User {i}",
-                        Phone = $"01234567{i}",
-                        Address = $"Số {i} - Hà Nội",
+                        Username = "user1",
+                        Email = "user1@example.com",
+                        FullName = "User 1",
+                        Phone = "012345671",
+                        Address = "123 Dịch Vọng",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                            ?? throw new Exception("District 'Cầu Giấy' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
+                            ?? throw new Exception("Ward 'Dịch Vọng' not found."),
                         PasswordHash = hashedPassword,
                         RoleId = 2,
+                        IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
-                    });
-                }
+                    },
+                    new User
+                    {
+                        Username = "user2",
+                        Email = "user2@example.com",
+                        FullName = "User 2",
+                        Phone = "012345672",
+                        Address = "456 Khương Trung",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Thanh Xuân")?.Id
+                            ?? throw new Exception("District 'Thanh Xuân' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Khương Trung")?.Id
+                            ?? throw new Exception("Ward 'Khương Trung' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "user3",
+                        Email = "user3@example.com",
+                        FullName = "User 3",
+                        Phone = "012345673",
+                        Address = "789 Bến Nghé",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hồ Chí Minh")?.Id
+                            ?? throw new Exception("Province 'Hồ Chí Minh' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Quận 1")?.Id
+                            ?? throw new Exception("District 'Quận 1' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Bến Nghé")?.Id
+                            ?? throw new Exception("Ward 'Bến Nghé' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "user4",
+                        Email = "user4@example.com",
+                        FullName = "User 4",
+                        Phone = "012345674",
+                        Address = "101 Mỹ An",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Đà Nẵng")?.Id
+                            ?? throw new Exception("Province 'Đà Nẵng' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Ngũ Hành Sơn")?.Id
+                            ?? throw new Exception("District 'Ngũ Hành Sơn' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Mỹ An")?.Id
+                            ?? throw new Exception("Ward 'Mỹ An' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new User
+                    {
+                        Username = "user5",
+                        Email = "user5@example.com",
+                        FullName = "User 5",
+                        Phone = "012345675",
+                        Address = "202 Dịch Vọng",
+                        ProvinceId = provinces.FirstOrDefault(p => p.Name == "Hà Nội")?.Id
+                            ?? throw new Exception("Province 'Hà Nội' not found."),
+                        DistrictId = districts.FirstOrDefault(d => d.Name == "Cầu Giấy")?.Id
+                            ?? throw new Exception("District 'Cầu Giấy' not found."),
+                        WardId = wards.FirstOrDefault(w => w.Name == "Dịch Vọng")?.Id
+                            ?? throw new Exception("Ward 'Dịch Vọng' not found."),
+                        PasswordHash = hashedPassword,
+                        RoleId = 2,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }
+                };
                 try
                 {
                     await _context.Users.AddRangeAsync(users);
@@ -79,7 +269,7 @@ public class DbSeeder
                     Console.WriteLine("Users seeded:");
                     foreach (var user in await _context.Users.ToListAsync())
                     {
-                        Console.WriteLine($"ID: {user.UserId}, Username: {user.Username}");
+                        Console.WriteLine($"ID: {user.UserId}, Username: {user.Username}, ProvinceId: {user.ProvinceId}, DistrictId: {user.DistrictId}, WardId: {user.WardId}");
                     }
                 }
                 catch (Exception ex)
@@ -267,7 +457,7 @@ public class DbSeeder
                         OrderDate = DateTime.UtcNow.AddDays(-1),
                         TotalAmount = 149.98m,
                         IsCart = false,
-                        ShippingAddress = "123 Main St, Cầu Giấy, Hà Nội",
+                        ShippingAddress = "123 Dịch Vọng, Cầu Giấy, Hà Nội",
                         PaymentCode = "PAY001",
                         OrderCode = "ORD001",
                         CreatedAt = DateTime.UtcNow.AddDays(-1),
@@ -279,7 +469,7 @@ public class DbSeeder
                         OrderDate = DateTime.UtcNow.AddDays(-2),
                         TotalAmount = 999.99m,
                         IsCart = false,
-                        ShippingAddress = "456 Elm St, Thanh Xuân, Hà Nội",
+                        ShippingAddress = "456 Khương Trung, Thanh Xuân, Hà Nội",
                         PaymentCode = "PAY002",
                         OrderCode = "ORD002",
                         CreatedAt = DateTime.UtcNow.AddDays(-2),
@@ -291,7 +481,7 @@ public class DbSeeder
                         OrderDate = null,
                         TotalAmount = 39.98m,
                         IsCart = true,
-                        ShippingAddress = "789 Oak St, Cầu Giấy, Hà Nội",
+                        ShippingAddress = "789 Bến Nghé, Quận 1, Hồ Chí Minh",
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.UtcNow,
@@ -303,7 +493,7 @@ public class DbSeeder
                         OrderDate = DateTime.UtcNow.AddDays(-3),
                         TotalAmount = 179.99m,
                         IsCart = false,
-                        ShippingAddress = "101 Pine St, Quận 1, Hồ Chí Minh",
+                        ShippingAddress = "101 Mỹ An, Ngũ Hành Sơn, Đà Nẵng",
                         PaymentCode = "PAY003",
                         OrderCode = "ORD003",
                         CreatedAt = DateTime.UtcNow.AddDays(-3),
@@ -315,7 +505,7 @@ public class DbSeeder
                         OrderDate = null,
                         TotalAmount = 0m,
                         IsCart = true,
-                        ShippingAddress = "202 Cedar St, Cầu Giấy, Hà Nội",
+                        ShippingAddress = "202 Dịch Vọng, Cầu Giấy, Hà Nội",
                         PaymentCode = null,
                         OrderCode = null,
                         CreatedAt = DateTime.UtcNow,

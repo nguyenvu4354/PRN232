@@ -221,7 +221,5 @@ namespace ShoppingWeb.Controllers
                     ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
             }
         }
-
-
     }
 }
