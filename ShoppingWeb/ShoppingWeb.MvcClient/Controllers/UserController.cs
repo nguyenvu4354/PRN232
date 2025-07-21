@@ -221,6 +221,37 @@ namespace ShoppingWeb.MvcClient.Controllers
             TempData["Success"] = "Password changed successfully.";
             return RedirectToAction("ChangePassword");
         }
+
+        [HttpGet]
+        public IActionResult CreateStaff()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateStaff(CreateUserRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var response = await _httpClient.PostAsJsonAsync("user/create-staff", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Staff account created successfully.";
+                return RedirectToAction("Index");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var error = JsonSerializer.Deserialize<ApiResponseDTO<string>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            TempData["Error"] = error?.Message ?? "Failed to create staff account.";
+            return RedirectToAction("Index"); 
+        }
+
+
     }
 
 }
