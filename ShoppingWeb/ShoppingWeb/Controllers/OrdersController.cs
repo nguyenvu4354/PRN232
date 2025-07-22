@@ -1,5 +1,4 @@
-﻿using MailKit;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingWeb.DTOs.Common;
 using ShoppingWeb.DTOs.Order;
@@ -25,7 +24,7 @@ namespace ShoppingWeb.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected int GetUserIdOrThrow()
+        private int GetUserIdOrThrow()
         {
             var userIdStr = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdStr, out var userId))
@@ -47,7 +46,7 @@ namespace ShoppingWeb.Controllers
             {
                 _logger.LogError(ex, "Error fetching paged orders.");
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+                    ApiResponse<string>.ErrorResponse("An unexpected error occurred."));
             }
         }
 
@@ -62,40 +61,40 @@ namespace ShoppingWeb.Controllers
             catch (OrderNotFoundException ex)
             {
                 _logger.LogWarning("Order with ID {OrderId} not found: {Message}", id, ex.Message);
-                return NotFound(ApiResponse<string>.ErrorResponse("Order not found", StatusCodes.Status404NotFound.ToString()));
+                return NotFound(ApiResponse<string>.ErrorResponse("Order not found."));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching order by ID.");
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+                    ApiResponse<string>.ErrorResponse("An unexpected error occurred."));
             }
         }
-        [HttpPut("OrderDetail{id}/status")]
+
+        [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Status))
             {
-                return BadRequest(ApiResponse<string>.ErrorResponse("Status is required", StatusCodes.Status400BadRequest.ToString()));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Status is required."));
             }
 
             try
             {
                 await _orderService.UpdateOrderStatusAsync(id, dto.Status);
-                return Ok(ApiResponse<string>.SuccessResponse("Order status updated successfully"));
+                return Ok(ApiResponse<string>.SuccessResponse("Order status updated successfully."));
             }
             catch (OrderNotFoundException ex)
             {
                 _logger.LogWarning("Order not found when updating status: {Message}", ex.Message);
-                return NotFound(ApiResponse<string>.ErrorResponse("Order not found", StatusCodes.Status404NotFound.ToString()));
+                return NotFound(ApiResponse<string>.ErrorResponse("Order not found."));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating order status.");
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ApiResponse<string>.ErrorResponse("An error occurred", StatusCodes.Status500InternalServerError.ToString()));
+                    ApiResponse<string>.ErrorResponse("An unexpected error occurred."));
             }
         }
-
     }
 }
