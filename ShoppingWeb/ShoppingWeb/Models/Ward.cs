@@ -12,6 +12,5 @@ public partial class Ward
     public string Name { get; set; } = null!;
     [JsonProperty("DistrictID")]
     public int DistrictId { get; set; }
-
     public virtual District District { get; set; } = null!;
 }
