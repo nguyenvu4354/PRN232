@@ -13,7 +13,6 @@ namespace ShoppingWeb.Services.Interface
         Task SoftDeleteAsync(int id);
         Task AddProductsToPromotionAsync(ProductPromotionRequestDTO request);
         Task<List<ProductResponseDTO>> GetProductsByPromotionIdAsync(int promotionId);
-        
         Task<PromotionStatusDTO> UpdateStatusAsync(int promotionId, bool isActive);
 
 
